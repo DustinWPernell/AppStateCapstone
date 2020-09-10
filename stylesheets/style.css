@@ -1,0 +1,76 @@
+.body
+{
+	background-color: rgb(60, 60, 60);
+	margin-left: 15%;
+	margin-right: 15%;
+	margin-top: 75px;
+	margin-bottom: 75px;
+}
+
+.text{
+	color: white;
+}
+
+.plainText{
+	color: white;
+	font-size: medium;
+	margin-left: 15px;
+	
+}
+
+.altText{
+	color: darkgrey;
+}
+
+.header{
+	font-size: x-large;
+	font-weight: bold;
+}
+
+.subHeader{
+	font-size: large;
+	font-weight: bold;
+	text-align: left;
+}
+
+.divider{
+	font-size: small;
+	color: grey;
+}
+
+.license{
+	font-size: small;
+	margin-left: 15px;
+}
+
+.image150{
+	width: 150px;
+}
+
+.image300{
+	width: 300px;
+}
+
+.stepCell{
+	width: 150px;
+	vertical-align: top;
+}
+
+.leftCell{
+	width: 550px;
+	padding-right: 20px;
+	vertical-align: top;
+}
+
+.tableDiv{
+	height: 20px;
+}
+
+.topBtn{
+	position: fixed;
+    bottom: 10px;
+    float: right;
+    right: 10%;
+    font-size: small;
+    background-color: rgb(100,100,100);
+}
