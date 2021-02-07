@@ -1,5 +1,5 @@
 INSERT INTO `Keywords`(`Word`,`Description`) VALUES ("Deathtouch", "A keyword ability that causes damage dealt by an object to a creature to be enough to destroy it.");
-INSERT INTO `Keywords`(`Word`,`Description`) VALUES ("Defender","","A keyword ability that prohibits a creature from attacking.");
+INSERT INTO `Keywords`(`Word`,`Description`) VALUES ("Defender","A keyword ability that prohibits a creature from attacking.");
 INSERT INTO `Keywords`(`Word`,`Description`) VALUES ("Double Strike","A keyword ability that lets a creature deal both first-strike and regular combat damage.");
 INSERT INTO `Keywords`(`Word`,`Description`) VALUES ("Enchant","A keyword ability that defines what an Aura spell can target and what an Aura permanent can be attached to.");
 INSERT INTO `Keywords`(`Word`,`Description`) VALUES ("Equip","A keyword ability that lets a player attach an Equipment to a creature they control.");
