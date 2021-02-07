@@ -1,0 +1,39 @@
+html{
+    background-image: URL("../Images/background.png");
+    background-color: black;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: 100% 100%;
+}
+
+.innerBody{
+    background: rgba(0, 0, 0, .5);
+}
+
+.colorText{
+    color: white;
+}
+
+.colorAltText{
+    color: black;
+}
+
+.colorNavBackground{
+    background: rgba(0, 0, 0, .9);
+}
+
+.colorBackground{
+    background: black;
+}
+
+.colorAltBackground{
+    background: white;
+}
+
+.topNavItem:hover, .navDropBtn:hover, .navDropBtn:focus {
+    color: lightblue;
+}
+
+.TNactive {
+    background-color: #84bd97;
+}
