@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
 
-class LifecounterConfig(AppConfig):
+class LifeCounterConfig(AppConfig):
     name = 'LifeCounter'

@@ -31,6 +31,10 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'Collection.apps.CollectionConfig',
+    'LifeCounter.apps.LifeCounterConfig',
+    'Management.apps.ManagementConfig',
+    'Users.apps.UsersConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -75,8 +79,12 @@ WSGI_APPLICATION = 'Nenniltoz.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'main',
+        'USER': "admin",
+        'PASSWORD': 'N3v3rGu355M3',
+        'HOST': 'nenniltoz.cwdicbgtr7o5.us-east-2.rds.amazonaws.com',
+        'PORT': '',
     }
 }
 

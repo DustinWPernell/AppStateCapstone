@@ -37,7 +37,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="D:\OneDrive\School\Appstate\2021Spring\Capstone\AppStateCapstone\content\NenniltozEnv"
+VIRTUAL_ENV="D:\Capstone\AppStateCapstone\content\NenniltozEnv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
