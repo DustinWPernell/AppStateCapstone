@@ -1,6 +1,4 @@
-from django.shortcuts import render
-from django.http import HttpResponse
-from django.template import loader
+from django.shortcuts import get_object_or_404, render
 
 from .models import News
 
@@ -8,8 +6,10 @@ from .models import News
 # Create your views here.
 def index(request):
     latest_news_list = News.objects.order_by('-headline')[:5]
-    template = loader.get_template('Users/index.html')
-    context = {
-        'latest_news_list': latest_news_list,
-    }
-    return HttpResponse(template.render(context, request))
+    context = { 'latest_news_list': latest_news_list, }
+    return render(request, 'Users/index.html', context)
+
+
+def detail(request, news_id):
+    news = get_object_or_404(News, pk=news_id)
+    return render(request, 'Users/detail.html', {'news': news})

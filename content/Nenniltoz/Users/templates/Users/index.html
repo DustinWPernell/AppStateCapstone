@@ -1,7 +1,13 @@
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'Users/color.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'Users/general.css' %}">
+
 {% if latest_news_list %}
     <ul>
     {% for news in latest_news_list %}
         <li><a href="/Users/{{ news.id }}/">{{ news.headline }}</a></li>
+        <li><img src={{ news.imageURL }} width="200px"></li>
     {% endfor %}
     </ul>
 {% else %}

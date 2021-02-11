@@ -19,7 +19,7 @@ class Card(models.Model):
         return self.name
 
 
-class Lagality(models.Model):
+class Legality(models.Model):
     cardID = models.ForeignKey(Card, on_delete=models.CASCADE)
     standard = models.BooleanField()
     future = models.BooleanField()
