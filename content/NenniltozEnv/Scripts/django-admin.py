@@ -1,4 +1,4 @@
-#!D:\OneDrive\School\Appstate\2021Spring\Capstone\AppStateCapstone\content\NenniltozEnv\Scripts\python.exe
+#!D:\Capstone\AppStateCapstone\content\NenniltozEnv\Scripts\python.exe
 # When the django-admin.py deprecation ends, remove this script.
 import warnings
 

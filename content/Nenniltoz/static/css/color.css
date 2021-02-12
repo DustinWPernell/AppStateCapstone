@@ -1,0 +1,37 @@
+html{
+    background-image: URL("../images/background.png");
+    background-color: black;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size:     cover;
+    background-repeat:   no-repeat;
+    background-position: center center;
+}
+
+.innerBody{
+    background: rgba(0, 0, 0, .5);
+}
+
+.colorText{
+    color: white;
+}
+
+.colorAltText{
+    color: black;
+}
+
+.colorNavBackground{
+    background: rgba(0, 0, 0, .9);
+}
+
+.colorBackground{
+    background: black;
+}
+
+.colorAltBackground{
+    background: white;
+}
+
+.clickable:hover, .navDropBtn:focus {
+    color: lightblue;
+}

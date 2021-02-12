@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block title %}<title>Nenniltoz</title>{% endblock %}
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css\color.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css\general.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css\nav.css' %}">
+
+    <script>
+        window.onclick = function(event) {
+            if (!event.target.matches('.navDropBtn')) {
+                var dropdowns = document.getElementsByClassName("navDropDownContent");
+                var i;
+                for (i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('navDropShow')) {
+                        openDropdown.classList.remove('navDropShow');
+                    }
+                }
+            }
+        }
+
+        function navDropFunc() {
+            document.getElementById("userNavDrop").classList.toggle("navDropShow");
+        }
+    </script>
+
+</head>
+<body class="font">
+    <div class="bodyContainer">
+        <div class="topNav colorNavBackground">
+            <a id="tnHome" class="topNavItem colorText tNactive clickable" href="/index.php">Home</a>
+            <div class="navDropdown colorNavBackground colorText">
+                <button onclick="navDropFunc()" class="navDropBtn colorNavBackground clickable colorText">=</button>
+                <div id="userNavDrop" class="navDropDownContent colorNavBackground colorText">
+                    <ul class="navDropDownUL">
+                         {% if user.is_authenticated %}
+                            <li class="navDropDownLI"><p class="topDropNavHeadItem colorText">Welcome {{ user.username }}</p></li>
+                        {% endif %}
+                        {% block navbar %}
+                        {% endblock %}
+                        {% if user.is_authenticated %}
+                            <li class="navDropDownLI"><a class="topDropNavItem colorText clickable" href="{% url 'logout'%}?next={{request.path}}">Logout</a></li>
+                        {% else %}
+                            <li class="navDropDownLI"><a class="topDropNavItem colorText clickable" href="{% url 'login'%}?next={{request.path}}">Login</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="innerBody colorText">
+            {% block content %}
+                <!-- default content text (typically empty) -->
+            {% endblock %}
+        </div>
+    </div>
+</body>
+</html>

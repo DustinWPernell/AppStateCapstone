@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set VIRTUAL_ENV=D:\OneDrive\School\Appstate\2021Spring\Capstone\AppStateCapstone\content\NenniltozEnv
+set VIRTUAL_ENV=D:\Capstone\AppStateCapstone\content\NenniltozEnv
 
 if not defined PROMPT set PROMPT=$P$G
 
