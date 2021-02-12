@@ -1,0 +1,73 @@
+/*Top Nav-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    .topNav {
+        height: 50px;
+    }
+
+    .topNavItem {
+        float: left;
+        text-decoration: none;
+        font-size: 25px;
+        padding: 5px 25px 0px 25px;
+        cursor: pointer;
+    }
+
+    @media screen and (max-width: 500px) {
+        .topNavItem {
+            float: none;
+            display: block;
+        }
+    }
+
+    .navDropdown {
+        position: relative;
+        float: right;
+    }
+        .navDropBtn {
+            padding: 15px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .navDropDownContent {
+            display: none;
+            position: absolute;
+            min-width: 200px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 0;
+            right: 0;
+            float: right;
+        }
+
+            .navDropDownUL{
+                list-style-type: none;
+                padding: 15px;
+                margin: 0px;
+                display: block;
+            }
+
+            .navDropDownLI{
+                display: block;
+                margin: 5px 0 0 0;
+            }
+
+
+            .topDropNavHeadItem {
+                font-size: 20px;
+                text-decoration: none;
+                margin: 10px;
+            }
+
+            .clickable{
+                cursor: pointer;
+            }
+
+            .topDropNavItem {
+                font-size: 15px;
+                text-decoration: none;
+                padding: 10px 0 0 20px;
+            }
+
+        .navDropShow {
+            display:block;
+        }

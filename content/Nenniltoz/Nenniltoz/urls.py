@@ -21,5 +21,6 @@ urlpatterns = [
     path('LifeCounter/', include('LifeCounter.urls')),
     path('Management/', include('Management.urls')),
     path('Users/', include('Users.urls')),
+    path('accounts/', include('django.contrib.auth.urls')),
     path('admin/', admin.site.urls),
 ]

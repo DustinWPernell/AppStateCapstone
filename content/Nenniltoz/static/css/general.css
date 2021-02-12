@@ -1,10 +1,11 @@
 html{
     height: 100%;
-    width: 100%;}
+    width: 100%;
+    margin: 0;
+}
 
-body{
-    height: 90%;
-    padding: 50px 50px 50px 50px;
+.bodyContainer{
+    margin: 50px 50px 50px 50px;
     overflow: hidden;
 }
 
@@ -13,14 +14,9 @@ body{
 }
 
 .innerBody{
-    height: 100%;
-    margin: auto;
-    overflow: scroll;
-    overflow-x: hidden;
-}
-
-.index{
-    padding: 50px;
+    width: 100%;
+    overflow: hidden;
+    padding: 30px;
 }
 
 ::-webkit-scrollbar {
