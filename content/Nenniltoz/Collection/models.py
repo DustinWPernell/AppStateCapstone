@@ -3,9 +3,11 @@ from django.db import models
 
 # Create your models here.
 class Card(models.Model):
-    cardID = models.CharField(max_length=200)
+    cardID = models.CharField(max_length=200, primary_key=True)
     oracleID = models.CharField(max_length=200)
     keywords = models.CharField(max_length=500)
+    rarity = models.CharField(max_length=20)
+    setName = models.CharField(max_length=100)
 
     def __str__(self):
         return self.cardID
@@ -22,7 +24,7 @@ class CardFace(models.Model):
     colorId = models.CharField(max_length=200)
     text = models.CharField(max_length=500)
     flavorText = models.CharField(max_length=500)
-    cardID = models.CharField(max_length=200)
+    cardID = models.ForeignKey(Card, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.cardID
@@ -43,7 +45,7 @@ class Legality(models.Model):
     duel = models.CharField(max_length=15)
     oldSchool = models.CharField(max_length=15)
     premodern = models.CharField(max_length=15)
-    cardID = models.CharField(max_length=200)
+    cardID = models.ForeignKey(Card, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.cardID

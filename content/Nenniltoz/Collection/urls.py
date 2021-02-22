@@ -8,4 +8,5 @@ urlpatterns = [
     path('cardUpdate', views.card_update, name='cardUpdate'),
     path('ruleUpdate', views.rule_update, name='ruleUpdate'),
     path('symbolUpdate', views.symbol_update, name='symbolUpdate'),
+    path('collectionAll', views.collection_display, name='collectionAll'),
 ]

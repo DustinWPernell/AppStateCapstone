@@ -8,6 +8,8 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css\general.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'css\nav.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'css\loader.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css\cards.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css\pagination.css' %}">
 
     <script src="{% static 'js\general.js' %}"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
@@ -17,7 +19,7 @@
 <body class="font">
     <div class="bodyContainer">
         <div class="topNav colorNavBackground">
-            <a id="tnHome" class="topNavItem colorText tNactive clickable" href="/index.php">Home</a>
+            <a id="tnHome" class="topNavItem colorText tNactive clickable" href="/Users/">Home</a>
             <div class="navDropdown colorNavBackground colorText">
                 <button onclick="navDropFunc()" class="navDropBtn colorNavBackground clickable colorText">=</button>
                 <div id="userNavDrop" class="navDropDownContent colorNavBackground colorText">
@@ -25,17 +27,14 @@
                          {% if user.is_authenticated %}
                             <li class="navDropDownLI"><p class="topDropNavHeadItem colorText">Welcome {{ user.username }}</p></li>
                             <li class="navDropDownLI"><a class="topDropNavItem colorText clickable" href="{% url 'login'%}?next={{request.path}}">Profile</a></li>
-                            <li class="navDropDownLI"><a class="topDropNavItem colorText clickable" href="{% url 'login'%}?next={{request.path}}">Collection</a></li>
+                            <li class="navDropDownLI"><a class="topDropNavHeadItem colorText clickable" href="{% url 'logout'%}?next={{request.path}}">Logout</a></li>
+                        {% else %}
+                            <li class="navDropDownLI"><a class="topDropNavHeadItem colorText clickable" href="{% url 'login'%}?next={{request.path}}">Login</a></li>
                         {% endif %}
-                            <li class="navDropDownLI"><a class="topDropNavItem colorText clickable" href="{% url 'login'%}?next={{request.path}}">Collection</a></li>
+                            <li class="navDropDownLI"><a class="topDropNavItem colorText clickable" href="{% url 'collectionAll'%}">Collection</a></li>
                         {% if user.is_staff %}
                             <li class="navDropDownLI"><p class="topDropNavHeadItem colorText">Admin</p></li>
                             <li class="navDropDownLI"><a class="topDropNavItem colorText clickable" href="{% url 'APIimport'%}">Update Cards</a></li>
-                        {% endif %}
-                        {% if user.is_authenticated %}
-                            <li class="navDropDownLI"><a class="topDropNavItem colorText clickable" href="{% url 'logout'%}?next={{request.path}}">Logout</a></li>
-                        {% else %}
-                            <li class="navDropDownLI"><a class="topDropNavItem colorText clickable" href="{% url 'login'%}?next={{request.path}}">Login</a></li>
                         {% endif %}
                     </ul>
                 </div>

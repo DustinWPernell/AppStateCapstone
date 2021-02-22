@@ -1,0 +1,19 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+{% include "./pager.html" %}
+  <div id="cardGrid" class="cardGrid">
+    {% for card in pages %}
+      {% if "World Championships Ad" not in card.name %}
+        <div class="cardObj">
+          <img class="cardImg" src="{{ card.imageURL }}" alt="Avatar">
+          <div class="cardObjText">
+            {{ card.name }}
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+{% include "./pager.html" %}
+{% endblock %}

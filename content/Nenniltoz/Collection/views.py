@@ -5,7 +5,9 @@ from urllib.request import urlopen
 
 import ijson
 from django.contrib.admin.views.decorators import staff_member_required
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import HttpResponse
+from django.shortcuts import render
 
 from Collection.models import Card, CardFace, Legality, Symbol, Rule
 from Management.models import Settings
@@ -23,18 +25,33 @@ def collection_index(request):
     return HttpResponse("Hello World From Collections")
 
 
+def collection_display(request):
+    logger.debug("Run: collection_display; Params: " + json.dumps(request.GET.dict()))
+    card_list = CardFace.objects.all().order_by('name')
+    page = request.GET.get('page', 1)
+
+    paginator = Paginator(card_list, 50)
+    try:
+        cards = paginator.page(page)
+    except PageNotAnInteger:
+        cards = paginator.page(1)
+    except EmptyPage:
+        cards = paginator.page(paginator.num_pages)
+
+    context = {'pages': cards, }
+    return render(request, 'Collection/CollectionDisplay.html', context)
+
+
 @staff_member_required
 def card_update(request):
     logger.debug("Run: card_update; Params: " + json.dumps(request.GET.dict()))
-    Settings.objects.get_or_create(
+    settings_obj = Settings.objects.update_or_create(
         id=1,
-        lastCardImport=datetime.now().date(),
-        defaults={'lastSymbolImport': datetime.now().date(), 'lastRuleImport': datetime.now().date()},
+        defaults={'lastCardImport': datetime.now().date()}
     )
 
     Card.objects.all().delete()
-    CardFace.objects.all().delete()
-    Legality.objects.all().delete()
+
     global APIcard
 
     f = urlopen(APIcard)
@@ -42,6 +59,8 @@ def card_update(request):
     for obj in objects:
         card_id = obj['id']
         ori_id = obj['oracle_id']
+        set_name=obj['set_name']
+        rarity=obj['rarity']
         key_words = ""
         keyword_array = obj['keywords']
         for new_keyword in keyword_array:
@@ -50,11 +69,15 @@ def card_update(request):
         key_words = key_words.strip()
         key_words = key_words.strip(",")
 
-        Card.objects.create(
+        newCard = Card.objects.create(
             cardID=card_id,
             oracleID=ori_id,
             keywords=key_words,
+            setName=set_name,
+            rarity=rarity,
         )
+
+        newCard.save()
 
         if 'card_faces' not in obj:
             if 'name' in obj:
@@ -115,7 +138,7 @@ def card_update(request):
                 colorId=color_id,
                 text=text,
                 flavorText=flavor_text,
-                cardID=card_id,
+                cardID=newCard,
             )
         else:
             for face in obj['card_faces']:
@@ -177,11 +200,11 @@ def card_update(request):
                     colorId=color_id,
                     text=text,
                     flavorText=flavor_text,
-                    cardID=card_id,
+                    cardID=newCard,
                 )
 
         Legality.objects.create(
-            cardID=card_id,
+            cardID=newCard,
             standard=obj['legalities']['standard'],
             future=obj['legalities']['future'],
             historic=obj['legalities']['historic'],
@@ -203,10 +226,9 @@ def card_update(request):
 @staff_member_required
 def symbol_update(request):
     logger.debug("Run: symbol_update; Params: " + json.dumps(request.GET.dict()))
-    Settings.objects.get_or_create(
+    settings_obj = Settings.objects.update_or_create(
         id=1,
-        lastSymbolImport=datetime.now().date(),
-        defaults={'lastCardImport': datetime.now().date(), 'lastRuleImport': datetime.now().date()},
+        defaults={'lastSymbolImport': datetime.now().date()},
     )
 
     Symbol.objects.all().delete()
@@ -258,10 +280,9 @@ def symbol_update(request):
 @staff_member_required
 def rule_update(request):
     logger.debug("Run: rule_update; Params: " + json.dumps(request.GET.dict()))
-    Settings.objects.get_or_create(
+    settings_obj = Settings.objects.update_or_create(
         id=1,
-        lastRuleImport=datetime.now().date(),
-        defaults={'lastCardImport': datetime.now().date(), 'lastSymbolImport': datetime.now().date()},
+        defaults={'lastRuleImport': datetime.now().date()},
     )
 
     Rule.objects.all().delete()
@@ -302,7 +323,7 @@ def retrieve_api(request):
     f = urlopen(APIapi)
     objects = list(ijson.items(f, 'data'))[0]
     for obj in objects:
-        if obj['type'] == "default_cards":
+        if obj['type'] == "oracle_cards":
             APIcard = obj['download_uri']
         elif obj['type'] == "rulings":
             APIrule = obj['download_uri']
