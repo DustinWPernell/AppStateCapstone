@@ -6,10 +6,12 @@
     {% for card in pages %}
       {% if "World Championships Ad" not in card.name %}
         <div class="cardObj">
-          <img class="cardImg" src="{{ card.imageURL }}" alt="Avatar">
-          <div class="cardObjText">
-            {{ card.name }}
-          </div>
+          <a class="cardDirection" href="./Card?cardID={{ card.cardID }}">
+            <img class="cardImg" src="{{ card.imageURL }}" alt="Avatar">
+            <div class="cardObjText">
+              {{ card.name }}
+            </div>
+          </a>
         </div>
       {% endif %}
     {% endfor %}

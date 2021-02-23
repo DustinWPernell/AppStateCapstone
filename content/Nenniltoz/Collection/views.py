@@ -30,7 +30,7 @@ def collection_display(request):
     card_list = CardFace.objects.all().order_by('name')
     page = request.GET.get('page', 1)
 
-    paginator = Paginator(card_list, 50)
+    paginator = Paginator(card_list, 20)
     try:
         cards = paginator.page(page)
     except PageNotAnInteger:
@@ -40,6 +40,15 @@ def collection_display(request):
 
     context = {'pages': cards, }
     return render(request, 'Collection/CollectionDisplay.html', context)
+
+
+def card_display(request):
+    logger.debug("Run: card_display; Params: " + json.dumps(request.GET.dict()))
+    card = request.GET.get('cardID')
+    card_obj = CardFace.objects.filter(cardID=card)
+
+    context = {'card': card_obj, }
+    return render(request, 'Collection/CardDisplay.html', context)
 
 
 @staff_member_required
@@ -141,6 +150,7 @@ def card_update(request):
                 cardID=newCard,
             )
         else:
+            duelFace = True
             for face in obj['card_faces']:
                 if 'name' in face:
                     name = face['name']
@@ -149,7 +159,10 @@ def card_update(request):
                 if 'image_uris' in face:
                     image_url = face['image_uris']['png']
                 else:
-                    image_url = ""
+                    if 'image_uris' in obj:
+                        image_url = obj['image_uris']['png']
+                    else:
+                        image_url = ""
                 if 'mana_cost' in face:
                     mana_cost = face['mana_cost']
                 else:
@@ -201,6 +214,7 @@ def card_update(request):
                     text=text,
                     flavorText=flavor_text,
                     cardID=newCard,
+                    duelFace=duelFace,
                 )
 
         Legality.objects.create(

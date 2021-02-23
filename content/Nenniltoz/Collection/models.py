@@ -25,6 +25,7 @@ class CardFace(models.Model):
     text = models.CharField(max_length=500)
     flavorText = models.CharField(max_length=500)
     cardID = models.ForeignKey(Card, on_delete=models.CASCADE)
+    duelFace = models.BooleanField()
 
     def __str__(self):
         return self.cardID
