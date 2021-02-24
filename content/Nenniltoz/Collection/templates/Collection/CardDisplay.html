@@ -6,116 +6,134 @@
     {% for card_obj in card %}
         <div id="card" class="singCardBody">
             <div class="singCardHead">
-                <span class="singCardAttLbl">
-                    Name:
-                </span>
-                <div class="singCardValue">
+                <span class="singCardAttLbl">Name:</span>
+                {% if card_obj.layout|cardMultiFace %}
+                    <div class="singCardValueMulti">
+                {% else %}
+                    <div class="singCardValue">
+                {% endif %}
                     {% for face in faces %}
                         <div class="singCardInValue">
                             {{ face.name }}
                         </div>
                     {% endfor %}
                 </div>
-                <span class="singCardAttLbl">
-                    Mana Cost:
-                </span>
-                <div class="singCardValue">
+
+                <span class="singCardAttLbl">Mana Cost:</span>
+                {% if card_obj.layout|cardMultiFace %}
+                    <div class="singCardValueMulti">
+                {% else %}
+                    <div class="singCardValue">
+                {% endif %}
                     {% for face in faces %}
                         <div class="singCardInValue">
                             {{ face.manaCost|replaceMana|safe }}
                         </div>
                     {% endfor %}
                 </div>
-                <span class="singCardAttLbl">
-                    Type:
-                </span>
-                <div class="singCardValue">
+
+                <span class="singCardAttLbl">Type:</span>
+                {% if card_obj.layout|cardMultiFace %}
+                    <div class="singCardValueMulti">
+                {% else %}
+                    <div class="singCardValue">
+                {% endif %}
                     {% for face in faces %}
                         <div class="singCardInValue">
                             {{ face.typeLine }}
                         </div>
                     {% endfor %}
                 </div>
-                <span class="singCardAttLbl">
-                    Loyalty:
-                </span>
-                <div class="singCardValue">
+
+                <span class="singCardAttLbl">Loyalty:</span>
+                {% if card_obj.layout|cardMultiFace %}
+                    <div class="singCardValueMulti">
+                {% else %}
+                    <div class="singCardValue">
+                {% endif %}
                     {% for face in faces %}
                         <div class="singCardInValue">
                             {{ face.loyalty }}
                         </div>
                     {% endfor %}
                 </div>
-                <span class="singCardAttLbl">
-                    Power:
-                </span>
-                <div class="singCardValue">
+
+                <span class="singCardAttLbl">Power:</span>
+                {% if card_obj.layout|cardMultiFace %}
+                    <div class="singCardValueMulti">
+                {% else %}
+                    <div class="singCardValue">
+                {% endif %}
                     {% for face in faces %}
                         <div class="singCardInValue">
                             {{ face.power }}
                         </div>
                     {% endfor %}
                 </div>
-                <span class="singCardAttLbl">
-                    Toughness:
-                </span>
-                <div class="singCardValue">
+
+                <span class="singCardAttLbl">Toughness:</span>
+                {% if card_obj.layout|cardMultiFace %}
+                    <div class="singCardValueMulti">
+                {% else %}
+                    <div class="singCardValue">
+                {% endif %}
                     {% for face in faces %}
                         <div class="singCardInValue">
                             {{ face.toughness }}
                         </div>
                     {% endfor %}
                 </div>
-                <span class="singCardAttLbl">
-                    Text:
-                </span>
-                <div class="singCardValue">
+
+                <span class="singCardAttLbl">Text:</span>
+                {% if card_obj.layout|cardMultiFace %}
+                    <div class="singCardValueMulti">
+                {% else %}
+                    <div class="singCardValue">
+                {% endif %}
                     {% for face in faces %}
                         <div class="singCardInValue">
                             {{ face.text|replaceMana|safe }}
                         </div>
                     {% endfor %}
                 </div>
-                <span class="singCardAttLbl">
-                    Flavor Text:
-                </span>
-                <div class="singCardValue">
+
+                <span class="singCardAttLbl">Flavor Text:</span>
+                {% if card_obj.layout|cardMultiFace %}
+                    <div class="singCardValueMulti">
+                {% else %}
+                    <div class="singCardValue">
+                {% endif %}
                     {% for face in faces %}
                         <div class="singCardInValue">
                             {{ face.flavorText }}
                         </div>
                     {% endfor %}
                 </div>
-                <span class="singCardAttLbl">
-                </span>
-                <div class="singCardRare">
-                    {{ cardObj.rarity }}
-                </div>
-                <span class="singCardAttLbl">
-                    Most recent set:
-                </span>
-                <div class="singCardSet">
-                    {{ cardObj.setName }}
-                </div>
-                <span class="singCardAttLbl">
-                    Keywords:
-                </span>
-                <div class="singCardKeywords">
-                    {{ cardObj.keywords }}
-                </div>
+
+
+
+                <span class="singCardAttLbl">Most recent set:</span>
+                <div class="singCardSet">{{ card_obj.setName }}</div>
+
+                <span class="singCardAttLbl">Keywords:</span>
+                <div class="singCardKeywords">{{ card_obj.keywords }}</div>
             </div>
-            <div class="singCardImages">
-                    {% for face in faces %}
-                        {% if face.firstFace %}
-                            <div class="singCardObj">
-                                <img class="singCardImg" src="{{ face.imageURL }}" alt="{{ face.name }}">
-                            </div>
-                        {% elif card_obj.layout|cardLayout %}
-                            <div class="singCardObj">
-                                <img class="singCardImg" src="{{ face.imageURL }}" alt="{{ face.name }}">
-                            </div>
-                        {% endif %}
-                    {% endfor %}
+            {% if card_obj.layout|cardDuelSide %}
+                <div class="singCardImagesMulti">
+            {% else %}
+                <div class="singCardImages">
+            {% endif %}
+                {% for face in faces %}
+                    {% if face.firstFace %}
+                        <div class="singCardObj">
+                            <img class="singCardImg" src="{{ face.imageURL }}" alt="{{ face.name }}">
+                        </div>
+                    {% elif card_obj.layout|cardDuelSide %}
+                        <div class="singCardObj">
+                            <img class="singCardImg" src="{{ face.imageURL }}" alt="{{ face.name }}">
+                        </div>
+                    {% endif %}
+                {% endfor %}
             </div>
         </div>
     {% endfor %}

@@ -4,8 +4,8 @@ from django.db import models
 # Create your models here.
 class CardLayout(models.Model):
     layout = models.CharField(max_length=30)
-    sides = models.IntegerField(1)
-    multiFace = models.IntegerField(1)
+    sides = models.IntegerField()
+    multiFace = models.IntegerField()
 
 
     def __int__(self):

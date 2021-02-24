@@ -18,9 +18,15 @@ def cardDuelSide(val):
 @register.filter
 def cardMultiFace(val):
     layout = CardLayout.objects.all().filter(
-        Q(sides=2)
+        Q(multiFace=1)
     )
     for lay in layout:
         if lay.layout == val:
             return True
+    return False
+
+@register.filter
+def cardLandscapeFace(val):
+    if "split" == val:
+        return True
     return False

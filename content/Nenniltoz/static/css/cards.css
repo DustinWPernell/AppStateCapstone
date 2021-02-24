@@ -45,16 +45,20 @@
     row-gap: 20px;
 }
 .singCardImages{
-    justify-items: end;
 }
 
-.singCardObj{
-    width: 41%;
+.singCardImages div{
+    width: 60%;
     margin-top: 8px;
-    vertical-align: middle;
-    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-    border-radius: 23px;
-    transition: 0.3s;
+    float: right;
+}
+
+.singCardImagesMulti{
+}
+
+.singCardImagesMulti div{
+    width: 50%;
+    margin-top: 8px;
     float: right;
 }
 
@@ -63,7 +67,8 @@
     border-color: white;
     border-style: solid;
     width: 90%;
-    height: auto;
+    max-width: 350px;
+    min-width: 200px;
 }
 
 .singCardHead{
@@ -79,10 +84,15 @@
     width: 20px;
 }
 
-.singCardValue{
+.singCardValueMulti{
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 2fr));
-    grid-gap:2%;
+    grid-template-columns: 49% 49%;
+    column-gap:2%;
+    border-color: white;
+}
+
+.singCardValue{
+
 }
 
 .singCardInValue{
