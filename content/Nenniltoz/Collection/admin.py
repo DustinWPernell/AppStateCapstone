@@ -1,11 +1,10 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Card
-from .models import Rule
-from .models import Legality
-from .models import Symbol
+from .models import IgnoreCards, CardLayout, Card, Rule, Legality, Symbol
 
+admin.site.register(CardLayout)
+admin.site.register(IgnoreCards)
 admin.site.register(Card)
 admin.site.register(Rule)
 admin.site.register(Legality)
