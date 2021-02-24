@@ -39,10 +39,7 @@
         }
 
 .singCardBody{
-    display: grid;
-    grid-template-columns: 50% 50%;
-    column-gap: 20px;
-    row-gap: 20px;
+
 }
 .singCardImages{
     margin: 2%;
@@ -65,11 +62,12 @@
 .singCardImagesLandscape{
     margin: 2%;
     margin-right: 9%;
+    margin-left: 9%;
 }
 
 .singCardImagesLandscape div{
-    width: 300px;
-    height: 300px;
+    min-width: 200px;
+    min-height: 200px;
     margin-top: 8px;
     transform: rotate(90deg);
     float: right;
@@ -124,5 +122,11 @@
 
     .singCardImagesLandscape div{
         float: right;
+    }
+    .singCardBody{
+        display: grid;
+        grid-template-columns: 50% 50%;
+        column-gap: 20px;
+        row-gap: 20px;
     }
 }
