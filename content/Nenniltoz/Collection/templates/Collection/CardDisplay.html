@@ -121,7 +121,11 @@
             {% if card_obj.layout|cardDuelSide %}
                 <div class="singCardImagesMulti">
             {% else %}
-                <div class="singCardImages">
+                {% if card_obj.layout|cardLandscapeFace %}
+                    <div class="singCardImagesLandscape">
+                {% else %}
+                    <div class="singCardImages">
+                {% endif %}
             {% endif %}
                 {% for face in faces %}
                     {% if face.firstFace %}

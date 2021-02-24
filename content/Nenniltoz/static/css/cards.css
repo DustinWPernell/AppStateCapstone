@@ -45,20 +45,33 @@
     row-gap: 20px;
 }
 .singCardImages{
+    margin: 2%;
 }
 
 .singCardImages div{
     width: 60%;
     margin-top: 8px;
-    float: right;
 }
 
 .singCardImagesMulti{
+    margin: 2%;
 }
 
 .singCardImagesMulti div{
     width: 50%;
     margin-top: 8px;
+}
+
+.singCardImagesLandscape{
+    margin: 2%;
+    margin-right: 9%;
+}
+
+.singCardImagesLandscape div{
+    width: 300px;
+    height: 300px;
+    margin-top: 8px;
+    transform: rotate(90deg);
     float: right;
 }
 
@@ -97,10 +110,19 @@
 
 .singCardInValue{
     min-width: 100px;
-    font-size: 1vw;
+    font-size: 16px;
 }
 
 @media screen and (min-width: 1000px) {
-  .singCardInValue {
-    font-size: 16px;
-  }
+    .singCardImagesMulti div {
+        float: right;
+    }
+
+    .singCardImages div{
+        float: right;
+    }
+
+    .singCardImagesLandscape div{
+        float: right;
+    }
+}
