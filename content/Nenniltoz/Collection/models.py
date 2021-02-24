@@ -2,12 +2,31 @@ from django.db import models
 
 
 # Create your models here.
+class CardLayout(models.Model):
+    layout = models.CharField(max_length=30)
+    sides = models.IntegerField(1)
+    multiFace = models.IntegerField(1)
+
+
+    def __int__(self):
+        return self.id
+
+
+class IgnoreCards(models.Model):
+    type = models.CharField(max_length=20)
+    value = models.CharField(max_length=200)
+
+    def __int__(self):
+        return self.id
+
+
 class Card(models.Model):
     cardID = models.CharField(max_length=200, primary_key=True)
     oracleID = models.CharField(max_length=200)
     keywords = models.CharField(max_length=500)
     rarity = models.CharField(max_length=20)
     setName = models.CharField(max_length=100)
+    layout = models.CharField(max_length=30)
 
     def __str__(self):
         return self.cardID
@@ -25,7 +44,7 @@ class CardFace(models.Model):
     text = models.CharField(max_length=500)
     flavorText = models.CharField(max_length=500)
     cardID = models.ForeignKey(Card, on_delete=models.CASCADE)
-    duelFace = models.BooleanField()
+    firstFace = models.BooleanField()
 
     def __str__(self):
         return self.cardID

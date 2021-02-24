@@ -4,16 +4,14 @@
 {% include "./pager.html" %}
   <div id="cardGrid" class="cardGrid">
     {% for card in pages %}
-      {% if "World Championships Ad" not in card.name %}
-        <div class="cardObj">
-          <a class="cardDirection" href="./Card?cardID={{ card.cardID }}">
-            <img class="cardImg" src="{{ card.imageURL }}" alt="Avatar">
-            <div class="cardObjText">
-              {{ card.name }}
-            </div>
-          </a>
-        </div>
-      {% endif %}
+      <div class="cardObj">
+        <a class="cardDirection" href="./Card?cardID={{ card.cardID }}">
+          <img class="cardImg" src="{{ card.imageURL }}" alt="Avatar">
+          <div class="cardObjText">
+            {{ card.name }}
+          </div>
+        </a>
+      </div>
     {% endfor %}
   </div>
 

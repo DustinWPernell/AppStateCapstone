@@ -3,7 +3,7 @@
 }
 .cardGrid{
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     column-gap: 20px;
     row-gap: 20px;
 }
@@ -14,6 +14,7 @@
 }
 
     .cardObj{
+        width: 200px;
         margin-top: 8px;
         vertical-align: middle;
         box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
@@ -37,5 +38,59 @@
             height: auto;
         }
 
-   .cardImages{
-   }
+.singCardBody{
+    display: grid;
+    grid-template-columns: 50% 50%;
+    column-gap: 20px;
+    row-gap: 20px;
+}
+.singCardImages{
+    justify-items: end;
+}
+
+.singCardObj{
+    width: 41%;
+    margin-top: 8px;
+    vertical-align: middle;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    border-radius: 23px;
+    transition: 0.3s;
+    float: right;
+}
+
+.singCardImg{
+    border-radius: 23px;
+    border-color: white;
+    border-style: solid;
+    width: 90%;
+    height: auto;
+}
+
+.singCardHead{
+    display: grid;
+    grid-template-columns: 100px auto;
+    column-gap: 2%;
+    row-gap: 20px;
+    grid-auto-rows: minmax(min-content, max-content);
+    text-transform: capitalize;
+}
+
+.singCardSymbol{
+    width: 20px;
+}
+
+.singCardValue{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 2fr));
+    grid-gap:2%;
+}
+
+.singCardInValue{
+    min-width: 100px;
+    font-size: 1vw;
+}
+
+@media screen and (min-width: 1000px) {
+  .singCardInValue {
+    font-size: 16px;
+  }

@@ -6,10 +6,11 @@ from urllib.request import urlopen
 import ijson
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render
 
-from Collection.models import Card, CardFace, Legality, Symbol, Rule
+from Collection.models import Card, CardFace, Legality, Symbol, Rule, IgnoreCards
 from Management.models import Settings
 
 logger = logging.getLogger(__name__)
@@ -27,10 +28,10 @@ def collection_index(request):
 
 def collection_display(request):
     logger.debug("Run: collection_display; Params: " + json.dumps(request.GET.dict()))
-    card_list = CardFace.objects.all().order_by('name')
+    card_list = CardFace.objects.filter(firstFace=1).order_by('name')
     page = request.GET.get('page', 1)
 
-    paginator = Paginator(card_list, 20)
+    paginator = Paginator(card_list, 50)
     try:
         cards = paginator.page(page)
     except PageNotAnInteger:
@@ -45,9 +46,10 @@ def collection_display(request):
 def card_display(request):
     logger.debug("Run: card_display; Params: " + json.dumps(request.GET.dict()))
     card = request.GET.get('cardID')
-    card_obj = CardFace.objects.filter(cardID=card)
+    card_obj = Card.objects.filter(cardID=card)
+    face_obj = CardFace.objects.filter(cardID=card)
 
-    context = {'card': card_obj, }
+    context = {'card': card_obj, 'faces': face_obj}
     return render(request, 'Collection/CardDisplay.html', context)
 
 
@@ -66,133 +68,70 @@ def card_update(request):
     f = urlopen(APIcard)
     objects = list(ijson.items(f, 'item'))
     for obj in objects:
-        card_id = obj['id']
-        ori_id = obj['oracle_id']
-        set_name=obj['set_name']
-        rarity=obj['rarity']
-        key_words = ""
-        keyword_array = obj['keywords']
-        for new_keyword in keyword_array:
-            key_words = key_words + ", " + new_keyword
+        if check_card_obj(obj):
+            card_id = obj['id']
+            ori_id = obj['oracle_id']
+            set_name=obj['set_name']
+            rarity=obj['rarity']
+            layout=obj['layout']
+            key_words = ""
+            keyword_array = obj['keywords']
+            for new_keyword in keyword_array:
+                key_words = key_words + ", " + new_keyword
 
-        key_words = key_words.strip()
-        key_words = key_words.strip(",")
+            key_words = key_words.strip()
+            key_words = key_words.strip(",")
 
-        newCard = Card.objects.create(
-            cardID=card_id,
-            oracleID=ori_id,
-            keywords=key_words,
-            setName=set_name,
-            rarity=rarity,
-        )
-
-        newCard.save()
-
-        if 'card_faces' not in obj:
-            if 'name' in obj:
-                name = obj['name']
-            else:
-                name = ""
-            if 'image_uris' in obj:
-                image_url = obj['image_uris']['png']
-            else:
-                image_url = ""
-            if 'mana_cost' in obj:
-                mana_cost = obj['mana_cost']
-            else:
-                mana_cost = ""
-            if 'loyalty' in obj:
-                loyalty = obj['loyalty']
-            else:
-                loyalty = ""
-            if 'power' in obj:
-                power = obj['power']
-            else:
-                power = ""
-            if 'toughness' in obj:
-                toughness = obj['toughness']
-            else:
-                toughness = ""
-            if 'oracle_text' in obj:
-                text = obj['oracle_text']
-            else:
-                text = ""
-            if 'type_line' in obj:
-                type_line = obj['type_line']
-            else:
-                type_line = ""
-            if 'color_identity' in obj:
-                colors_array = obj['color_identity']
-            else:
-                colors_array = ""
-            if 'oracle_text' in obj:
-                flavor_text = obj['oracle_text']
-            else:
-                flavor_text = ""
-            color_id = ""
-            for newColor in colors_array:
-                color_id = color_id + ", " + newColor
-
-            color_id = color_id.strip()
-            color_id = color_id.strip(",")
-
-            CardFace.objects.create(
-                name=name,
-                imageURL=image_url,
-                manaCost=mana_cost,
-                loyalty=loyalty,
-                power=power,
-                toughness=toughness,
-                typeLine=type_line,
-                colorId=color_id,
-                text=text,
-                flavorText=flavor_text,
-                cardID=newCard,
+            newCard = Card.objects.create(
+                cardID=card_id,
+                oracleID=ori_id,
+                keywords=key_words,
+                setName=set_name,
+                rarity=rarity,
+                layout=layout,
             )
-        else:
-            duelFace = True
-            for face in obj['card_faces']:
-                if 'name' in face:
-                    name = face['name']
+
+            newCard.save()
+
+            if 'card_faces' not in obj:
+                if 'name' in obj:
+                    name = obj['name']
                 else:
                     name = ""
-                if 'image_uris' in face:
-                    image_url = face['image_uris']['png']
+                if 'image_uris' in obj:
+                    image_url = obj['image_uris']['png']
                 else:
-                    if 'image_uris' in obj:
-                        image_url = obj['image_uris']['png']
-                    else:
-                        image_url = ""
-                if 'mana_cost' in face:
-                    mana_cost = face['mana_cost']
+                    image_url = ""
+                if 'mana_cost' in obj:
+                    mana_cost = obj['mana_cost']
                 else:
                     mana_cost = ""
-                if 'loyalty' in face:
-                    loyalty = face['loyalty']
+                if 'loyalty' in obj:
+                    loyalty = obj['loyalty']
                 else:
                     loyalty = ""
-                if 'power' in face:
-                    power = face['power']
+                if 'power' in obj:
+                    power = obj['power']
                 else:
                     power = ""
-                if 'toughness' in face:
-                    toughness = face['toughness']
+                if 'toughness' in obj:
+                    toughness = obj['toughness']
                 else:
                     toughness = ""
-                if 'oracle_text' in face:
-                    text = face['oracle_text']
+                if 'oracle_text' in obj:
+                    text = obj['oracle_text']
                 else:
                     text = ""
-                if 'type_line' in face:
-                    type_line = face['type_line']
+                if 'type_line' in obj:
+                    type_line = obj['type_line']
                 else:
                     type_line = ""
-                if 'color_identity' in face:
-                    colors_array = face['color_identity']
+                if 'color_identity' in obj:
+                    colors_array = obj['color_identity']
                 else:
                     colors_array = ""
-                if 'oracle_text' in face:
-                    flavor_text = face['oracle_text']
+                if 'flavor_text' in obj:
+                    flavor_text = obj['flavor_text']
                 else:
                     flavor_text = ""
                 color_id = ""
@@ -214,27 +153,113 @@ def card_update(request):
                     text=text,
                     flavorText=flavor_text,
                     cardID=newCard,
-                    duelFace=duelFace,
+                    firstFace=True,
                 )
+            else:
+                firstFace = True
+                for face in obj['card_faces']:
+                    if 'name' in face:
+                        name = face['name']
+                    else:
+                        name = ""
+                    if 'image_uris' in face:
+                        image_url = face['image_uris']['png']
+                    else:
+                        if 'image_uris' in obj:
+                            image_url = obj['image_uris']['png']
+                        else:
+                            image_url = ""
+                    if 'mana_cost' in face:
+                        mana_cost = face['mana_cost']
+                    else:
+                        mana_cost = ""
+                    if 'loyalty' in face:
+                        loyalty = face['loyalty']
+                    else:
+                        loyalty = ""
+                    if 'power' in face:
+                        power = face['power']
+                    else:
+                        power = ""
+                    if 'toughness' in face:
+                        toughness = face['toughness']
+                    else:
+                        toughness = ""
+                    if 'oracle_text' in face:
+                        text = face['oracle_text']
+                    else:
+                        text = ""
+                    if 'type_line' in face:
+                        type_line = face['type_line']
+                    else:
+                        type_line = ""
+                    if 'color_identity' in face:
+                        colors_array = face['color_identity']
+                    else:
+                        colors_array = ""
+                    if 'flavor_text' in face:
+                        flavor_text = face['flavor_text']
+                    else:
+                        flavor_text = ""
+                    color_id = ""
+                    for newColor in colors_array:
+                        color_id = color_id + ", " + newColor
 
-        Legality.objects.create(
-            cardID=newCard,
-            standard=obj['legalities']['standard'],
-            future=obj['legalities']['future'],
-            historic=obj['legalities']['historic'],
-            gladiator=obj['legalities']['gladiator'],
-            modern=obj['legalities']['modern'],
-            legacy=obj['legalities']['legacy'],
-            pauper=obj['legalities']['pauper'],
-            vintage=obj['legalities']['vintage'],
-            penny=obj['legalities']['penny'],
-            commander=obj['legalities']['commander'],
-            brawl=obj['legalities']['brawl'],
-            duel=obj['legalities']['duel'],
-            oldSchool=obj['legalities']['oldschool'],
-            premodern=obj['legalities']['premodern'],
-        )
+                    color_id = color_id.strip()
+                    color_id = color_id.strip(",")
+
+                    CardFace.objects.create(
+                        name=name,
+                        imageURL=image_url,
+                        manaCost=mana_cost,
+                        loyalty=loyalty,
+                        power=power,
+                        toughness=toughness,
+                        typeLine=type_line,
+                        colorId=color_id,
+                        text=text,
+                        flavorText=flavor_text,
+                        cardID=newCard,
+                        firstFace=firstFace,
+                    )
+                    firstFace = False
+
+            Legality.objects.create(
+                cardID=newCard,
+                standard=obj['legalities']['standard'],
+                future=obj['legalities']['future'],
+                historic=obj['legalities']['historic'],
+                gladiator=obj['legalities']['gladiator'],
+                modern=obj['legalities']['modern'],
+                legacy=obj['legalities']['legacy'],
+                pauper=obj['legalities']['pauper'],
+                vintage=obj['legalities']['vintage'],
+                penny=obj['legalities']['penny'],
+                commander=obj['legalities']['commander'],
+                brawl=obj['legalities']['brawl'],
+                duel=obj['legalities']['duel'],
+                oldSchool=obj['legalities']['oldschool'],
+                premodern=obj['legalities']['premodern'],
+            )
     return HttpResponse("Finished")
+
+
+def check_card_obj(obj):
+    setIgnore = IgnoreCards.objects.filter(type="set")
+    for set in setIgnore:
+        if obj['set_name'] == set.value:
+            return False
+
+    nameIgnore = IgnoreCards.objects.filter(type="name")
+    if 'card_faces' not in obj:
+        nameVal = obj['name']
+    else:
+        nameVal = ""
+
+    for name in nameIgnore:
+        if name.value in nameVal:
+            return False
+    return True
 
 
 @staff_member_required
