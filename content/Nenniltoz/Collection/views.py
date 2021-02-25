@@ -42,6 +42,31 @@ def collection_display(request):
     context = {'pages': cards, }
     return render(request, 'Collection/CollectionDisplay.html', context)
 
+def deck_list(request):
+    logger.debug("Run: collection_display; Params: " + json.dumps(request.GET.dict()))
+    deck_list_obj = Deck.objects.filter(isPrivate=False).order_by('name')
+    page = request.GET.get('page', 1)
+
+    paginator = Paginator(deck_list_obj, 50)
+    try:
+        decks = paginator.page(page)
+    except PageNotAnInteger:
+        decks = paginator.page(1)
+    except EmptyPage:
+        decks = paginator.page(paginator.num_pages)
+
+    context = {'pages': decks, }
+    return render(request, 'Collection/DeckList.html', context)
+
+
+def deck_display(request):
+    logger.debug("Run: card_display; Params: " + json.dumps(request.GET.dict()))
+    deck = request.GET.get('deckID')
+    deck_obj = Deck.objects.filter(id=deck)
+
+    context = {'deck': deck_obj}
+    return render(request, 'Collection/DeckDisplay.html', context)
+
 
 def card_display(request):
     logger.debug("Run: card_display; Params: " + json.dumps(request.GET.dict()))

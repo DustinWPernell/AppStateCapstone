@@ -1,12 +1,46 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 # Create your models here.
+
+class GameTypes:
+    Standard = 'standard'
+    Future = 'future'
+    Historic = 'historic'
+    Gladiator = 'gladiator'
+    Modern = 'modern'
+    Legacy = 'legacy'
+    Pauper = 'pauper'
+    Vintage = 'vintage'
+    Penny = 'penny'
+    Commander = 'commander'
+    Brawl = 'brawl'
+    Duel = 'duel'
+    OldSchool = 'oldschool'
+    Premodern = 'premodern'
+
+    gameType_Choices = (
+        (Standard, 'standard'),
+        (Future, 'future'),
+        (Historic, 'historic'),
+        (Gladiator, 'gladiator'),
+        (Modern, 'modern'),
+        (Legacy, 'legacy'),
+        (Pauper, 'pauper'),
+        (Vintage, 'vintage'),
+        (Penny, 'penny'),
+        (Commander, 'commander'),
+        (Brawl, 'brawl'),
+        (Duel, 'duel'),
+        (OldSchool, 'oldschool'),
+        (Premodern, 'premodern'),
+    )
+
 class CardLayout(models.Model):
     layout = models.CharField(max_length=30)
     sides = models.IntegerField()
     multiFace = models.IntegerField()
-
 
     def __int__(self):
         return self.id
@@ -30,6 +64,20 @@ class Card(models.Model):
 
     def __str__(self):
         return self.cardID
+
+
+class Deck(models.Model):
+    name = models.CharField(max_length=200)
+    colorId = models.CharField(max_length=20)
+    createdBy = models.ForeignKey(User, related_name='user_deck', on_delete=models.SET_NULL)
+    createdBy.null = True
+    isPreCon = models.BooleanField()
+    isPrivate = models.BooleanField()
+    imageURL = models.CharField(max_length=200)
+    deckType = models.CharField(max_length=10, choices=GameTypes.gameType_Choices, default='historic')
+    commander = models.ForeignKey(Card, related_name='commander_deck', on_delete=models.CASCADE)
+    commander.null = True
+    cards = models.ForeignKey(Card, related_name='card_deck', on_delete=models.CASCADE)
 
 
 class CardFace(models.Model):

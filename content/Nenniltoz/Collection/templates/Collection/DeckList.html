@@ -1,0 +1,20 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+{% include "./pager.html" %}
+  <div id="deckGrid" class="deckGrid">
+    {% for deck in pages %}
+      <div class="deckObj">
+        <a class="deckDirection" href="./deck?deckID={{ deck.deckID }}">
+          <img class="deckImg" src="{{ deck.imageURL }}" alt="Avatar">
+          <div class="deckObjText">
+            {{ deck.name }}
+            {{ deck.type }}
+          </div>
+        </a>
+      </div>
+    {% endfor %}
+  </div>
+
+{% include "./pager.html" %}
+{% endblock %}
