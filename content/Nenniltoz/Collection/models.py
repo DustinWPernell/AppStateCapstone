@@ -7,17 +7,17 @@ class CardLayout(models.Model):
     sides = models.IntegerField()
     multiFace = models.IntegerField()
 
-
     def __int__(self):
         return self.id
 
 
 class IgnoreCards(models.Model):
+    objects = None
     type = models.CharField(max_length=20)
     value = models.CharField(max_length=200)
 
-    def __int__(self):
-        return self.id
+    def __str__(self):
+        return self.value
 
 
 class Card(models.Model):

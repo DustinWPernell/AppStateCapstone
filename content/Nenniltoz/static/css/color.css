@@ -32,6 +32,6 @@ html{
     background: white;
 }
 
-.clickable:hover, .navDropBtn:focus {
+.clickableCol:hover, .navDropBtn:focus {
     color: lightblue;
 }

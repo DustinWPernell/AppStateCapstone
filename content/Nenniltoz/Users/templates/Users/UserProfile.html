@@ -1,0 +1,34 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+                <p class="successAlert alert">{{ message }}</p>
+            {% else %}
+                <p class="errorAlert alert">{{ message }}</p>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    <div class="ProfileGrid">
+        <div id="leftGrid">
+            <div class="AccountDetails">
+                {% include "./AccountDetails.html" %}
+            </div>
+            <hr>
+            <div class="ChAccountPref">
+                {% include "./ChAccountPref.html" %}
+            </div>
+        </div>
+        <div id="rightGrid">
+            <hr class="rightGridHR">
+            <div class="FriendDetails">
+                {% include "./FriendDetails.html" %}
+            </div>
+            <hr>
+            <div class="FollowerDetails">
+                {% include "./FollowerDetails.html" %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
