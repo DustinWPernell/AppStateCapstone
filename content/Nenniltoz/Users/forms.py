@@ -1,13 +1,33 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
 
+from Users.models import UserProfile
 
-class SignUpForm(UserCreationForm):
-    first_name = forms.CharField(max_length=30, required=False, help_text='Optional.')
-    last_name = forms.CharField(max_length=30, required=False, help_text='Optional.')
-    email = forms.EmailField(max_length=254, help_text='Required. Inform a valid email address.')
+class SettingForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ( 'default_exposure',)
+        widgets = {
+            'default_exposure': forms.Select(attrs={'class': 'selectPicker form-control'})
 
+        }
+
+class CreateUserForm(UserCreationForm):
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2', )
+        fields = ('username', 'password1', 'password2')
+
+
+    def save(self, request):
+
+        user = super(CreateUserForm, self).save(commit=False)
+        user.is_active = True
+        user.save()
+
+        new_prof = UserProfile.objects.create(
+            user=user,
+        )
+        new_prof.save()
+
+        return user

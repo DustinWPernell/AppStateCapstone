@@ -1,0 +1,55 @@
+.alert{
+    text-align: center;
+    opacity: 70%
+}
+
+.successAlert{
+    background: green;
+}
+
+.errorAlert{
+    background: darkred;
+}
+
+.newFriendButton{
+    color: black;
+}
+
+.friendGrid{
+    display: grid;
+    row-gap: 10px;
+}
+
+.pendUserLbl{
+    font-size: 20px;
+}
+
+.friendBtn{
+    width: 15px;
+    height: 15px;
+    background-color: rgba(0, 0, 0, 0.0);
+    background-repeat: no-repeat;
+    background-size: 15px 15px;
+    padding: 0;
+    border: none;
+}
+
+.friendAcceptBtn{
+    background-image: URL("../images/accept-icon.png");
+}
+
+.friendRejectBtn{
+    background-image: URL("../images/erase-icon.png");
+}
+
+@media screen and (min-width: 700px) {
+    .ProfileGrid{
+        display: grid;
+        grid-template-columns: minmax(300px, auto) 300px;
+        grid-gap: 20px;
+    }
+
+    .rightGridHR{
+        display: none;
+    }
+}

@@ -1,0 +1,9 @@
+***
+CSS
+***
+..  toctree::
+    :maxdepth: 3
+    :caption: CSS:
+
+    css/admin
+
