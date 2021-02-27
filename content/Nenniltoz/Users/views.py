@@ -16,6 +16,14 @@ logger = logging.getLogger(__name__)
 
 # Create your views here.
 def index(request):
+    """Display the home page.
+
+    Retrieves the most recent news articles from the database and displays them on the page
+
+    :param request: Does not utilize any portions of this param.
+
+    :todo: Set up expiration dates for news items
+    """
     logger.debug("Run: index; Params: " + json.dumps(request.GET.dict()))
 
     latest_news_list = News.objects.order_by('-headline')[:5]
@@ -24,6 +32,15 @@ def index(request):
 
 
 def login_page(request):
+    """Login page.
+
+    Shows a login form. On POST, redirects to the user profile if credentials are good.
+
+    :param request: POST data: * username
+        * password
+
+    :todo: Update display/layout
+    """
     logger.debug("Run: login_page; Params: " + json.dumps(request.GET.dict()))
 
     if request.method == 'POST':
@@ -41,8 +58,17 @@ def login_page(request):
 
     return render(request, 'Users/login.html')
 
+
 @login_required
 def logout_page(request):
+    """Logout page.
+
+    Logs the user out.
+
+    :param request: Does not utilize any portions of this param.
+    
+    :todo: Update display/layout
+    """
     logger.debug("Run: logout_page; Params: " + json.dumps(request.GET.dict()))
 
     auth.logout(request)
@@ -50,6 +76,14 @@ def logout_page(request):
 
 
 def register(request):
+    """Registration Page.
+
+    Displays registration form. On POST creates User and UserProfile object with data provided by POST.
+
+    :param request: POST data: On form submit POST contains information for creating a user
+    
+    :todo: Update display/layout
+    """
     logger.debug("Run: register; Params: " + json.dumps(request.GET.dict()))
 
     if request.user.is_authenticated:
@@ -70,6 +104,16 @@ def register(request):
 
 
 def build_pending_list(user):
+    """Build pending friends list.
+
+    Builds a list of pending friend requests pulled from the database. Uses user param to filter for specific user.
+
+    :param user: User who is receiving the friend requests
+
+    :return: Returns list of users that have sent request to current user and that have not been rejected.
+
+    :todo: None
+    """
     pending_list = PendingFriends.objects.filter(user_two=user, rejected=False)
     pending_user_list = []
     for pending in pending_list:
@@ -79,6 +123,16 @@ def build_pending_list(user):
 
 
 def build_friend_list(user):
+    """Build friends list.
+
+    Builds a list of friend requests pulled from the database. Uses user param to filter for specific user.
+
+    :param user: User that is requesting the list
+
+    :return: Returns list of users that are friends with the current user.
+
+    :todo: None
+    """
     friend_list = Friends.objects.filter(user_one=user)
     friend_user_list = []
     for friend in friend_list:
@@ -87,6 +141,16 @@ def build_friend_list(user):
     return friend_user_list
 
 def build_follower_list(user):
+    """Build followers list.
+
+    Builds a list of followers pulled from the database. Uses user param to filter for specific user.
+
+    :param user: User that is doing the following
+
+    :return: Returns list of users that are being followed by the current user.
+
+    :todo: None
+    """
     follower_list = Followers.objects.filter(user_one=user)
     follower_user_list = []
     for follower in follower_list:
@@ -96,6 +160,14 @@ def build_follower_list(user):
 
 
 def player_profile(request):
+    """Display the profile of a user that is not logged in.
+
+    Uses the GET data from request to display user data. Displayed user data is not the current user.
+
+    :param request: GET data: User id/username which is being displayed
+    
+    :todo: Alter to work with non current user
+    """
     logger.debug("Run: player_profile; Params: " + json.dumps(request.GET.dict()))
     user = get_object_or_404(User, id=request.user.id)
     user_profile_obj = UserProfile.objects.get(user=user)
@@ -109,6 +181,14 @@ def player_profile(request):
 
 @login_required
 def user_profile(request):
+    """Display the profile of a user that is logged in.
+
+    Uses the GET data from request to display user data. Displayed user data is the current user.
+
+    :param request: GET data: User id which is being displayed
+
+    :todo: Alter to work with non current user
+    """
     logger.debug("Run: user_profile; Params: " + json.dumps(request.GET.dict()))
     user = get_object_or_404(User, id=request.user.id)
     user_profile_obj = UserProfile.objects.get(user=user)
@@ -122,6 +202,18 @@ def user_profile(request):
 
 @login_required
 def send_friend_request(request):
+    """Sends friend request
+
+    Uses POST data to send friend request to user. Error checks for
+        * Already sent request
+        * Already friends
+        * If friend request was to to the current user and accepts it
+        * If the user being sent the request exist
+
+    :param request: POST data: curUser and newFriend
+
+    :todo: None
+    """
     user = request.POST['curUser']
     friend=request.POST['newFriend']
     user_obj = User.objects.get(username=user)
@@ -153,6 +245,14 @@ def send_friend_request(request):
 
 @login_required
 def add_friend(request):
+    """Creates freind relationship.
+
+    Creates the 2 way friend relationship in the database. Removes the pending friend request from the database
+
+    :param request: POST data: curUser and newFriend
+
+    :todo: None
+    """
     user = request.POST['curUser']
     friend=request.POST['newFriend']
     user_obj = User.objects.get(username=user)
@@ -176,6 +276,14 @@ def add_friend(request):
 
 @login_required
 def process_friend(request):
+    """Processes button click for friend request on receivers profile.
+
+    Determines if the user selected to accept or reject the friend request.
+
+    :param request: POST data: curUser and newFriend
+
+    :todo: None
+    """
     user = request.POST['curUser']
     friend=request.POST['newFriend']
     user_obj = User.objects.get(username=user)
@@ -192,6 +300,14 @@ def process_friend(request):
 
 @login_required
 def remove_friend(request):
+    """Removes a friend
+
+    Removes the 2 way relationship for friends.
+
+    :param request: POST data: curUser and newFriend
+
+    :todo: None
+    """
     user = request.POST['curUser']
     friend=request.POST['newFriend']
     user_obj = User.objects.get(username=user).id
@@ -206,6 +322,16 @@ def remove_friend(request):
 
 @login_required
 def add_follower(request):
+    """Adds a followed user to the user.
+
+    Add the followed user to the database.  Error checks for
+        * Already following
+        * If the user being followed exist
+
+    :param request: POST data: curUser and newFriend
+
+    :todo: None
+    """
     user = request.POST['curUser']
     follower=request.POST['newFollower']
     user_obj = User.objects.get(username=user)
@@ -231,6 +357,14 @@ def add_follower(request):
 
 @login_required
 def remove_follower(request):
+    """Removes a followed user
+
+    Removes the followed user from the relationship with the current user.
+
+    :param request: POST data: curUser and newFriend
+
+    :todo: None
+    """
     user = request.POST['curUser']
     follower = request.POST['newFollower']
     user_obj = User.objects.get(username=user).id

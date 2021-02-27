@@ -1,0 +1,5 @@
+*****
+Admin
+*****
+.. automodule:: static.css.admin
+    :members:

@@ -21,12 +21,29 @@ APIsymbol = "https://api.scryfall.com/symbology"
 
 @staff_member_required
 def admin_index(request):
+    """Display landing page for management.
+
+    This page is not currently used by the application.
+
+    :param request: Does not utilize any portions of this param.
+
+    :todo: None
+    """
     logger.debug("Run: admin_index; Params: " + json.dumps(request.GET.dict()))
     return render(request, 'Management/adminLand.html')
 
 
 @staff_member_required
 def api_import(request):
+    """Displays API import options.
+
+    Shows the Scryfall import option implemented. As import processes data, updates display progress.
+    Warning: Processing takes a long time when importing cards an rules.
+
+    :param request: Does not utilize any portions of this param.
+
+    :todo: None
+    """
     logger.debug("Run: api_import; Params: " + json.dumps(request.GET.dict()))
     settings_list = Settings.objects
     context = {'settings_list': settings_list, }
@@ -35,6 +52,14 @@ def api_import(request):
 
 @staff_member_required
 def card_update(request):
+    """Performs API call for cards.
+
+    Calls Scryfall API for retrieval of bulk cards. Parses bulk card Json file. Creates Card, Card faces, and legalities objects for each card.
+
+    :param request: Does not utilize any portions of this param.
+
+    :todo: Set to process in background
+    """
     logger.debug("Run: card_update; Params: " + json.dumps(request.GET.dict()))
     Settings.objects.update_or_create(
         id=1,
@@ -225,6 +250,18 @@ def card_update(request):
 
 
 def check_card_obj(obj):
+    """Checks for certain issues with cards.
+
+    Loops through values in the database to determine if passed card data should be ignored.
+
+    :param obj: Unprocessed card object in Json format
+
+    :returns:
+    :returns: * True: Card is good
+        * False: Card is bad
+
+    :todo: None
+    """
     set_ignore = IgnoreCards.objects.filter(type="set")
     for set_obj in set_ignore:
         if obj['set_name'] == set_obj.value:
@@ -244,6 +281,14 @@ def check_card_obj(obj):
 
 @staff_member_required
 def symbol_update(request):
+    """Performs API call for symbols.
+
+    Calls Scryfall API for retrieval of symbols. Parses symbols Json file. Creates symbols objects for each symbol.
+
+    :param request: Does not utilize any portions of this param.
+
+    :todo: Set to process in background
+    """
     logger.debug("Run: symbol_update; Params: " + json.dumps(request.GET.dict()))
     Settings.objects.update_or_create(
         id=1,
@@ -298,6 +343,14 @@ def symbol_update(request):
 
 @staff_member_required
 def rule_update(request):
+    """Performs API call for rules.
+
+    Calls Scryfall API for retrieval of bulk rules. Parses bulk rule Json file. Creates a Rule object for each rule.
+
+    :param request: Does not utilize any portions of this param.
+
+    :todo: Set to process in background
+    """
     logger.debug("Run: rule_update; Params: " + json.dumps(request.GET.dict()))
     Settings.objects.update_or_create(
         id=1,
@@ -334,6 +387,14 @@ def rule_update(request):
 
 @staff_member_required
 def retrieve_api(request):
+    """Performs API call for bulk data urls.
+
+    Calls Scryfall API for retrieval of bulk data urls. Parses bulk data url Json file. Stores URLs for cards and rules.
+
+    :param request: Does not utilize any portions of this param.
+
+    :todo: Set to process in background
+    """
     logger.debug("Run: retrieve_api; Params: " + json.dumps(request.GET.dict()))
     global APIapi
     global APIcard

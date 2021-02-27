@@ -12,11 +12,31 @@ logger = logging.getLogger(__name__)
 
 # Create your views here.
 def collection_index(request):
+    """Display landing page for collections.
+
+    This page is not currently used by the application.
+
+    :param request: Does not utilize any portions of this param.
+
+    :returns: "Hello World From Collections"
+
+    :todo: None
+    """
     logger.debug("Run: collection_index; Params: " + json.dumps(request.GET.dict()))
     return HttpResponse("Hello World From Collections")
 
 
 def collection_display(request):
+    """Display entire card database.
+
+    Retrieves all cards from database in alphabetical order and displays them based on what 'page' is in request.
+
+    :param request: GET data: 'page' - page number for paginator
+
+    :returns: HTML rendering of all cards contained in the database.
+
+    :todo: Add search/filter feature
+    """
     logger.debug("Run: collection_display; Params: " + json.dumps(request.GET.dict()))
     card_list = CardFace.objects.filter(firstFace=1).order_by('name')
     page = request.GET.get('page', 1)
@@ -34,6 +54,16 @@ def collection_display(request):
 
 
 def card_display(request):
+    """Display individual cards.
+
+    Retrieves card information from the database based on what 'cardID' is in request. Then displays the card data.
+
+    :param request: GET data: 'cardID' - card id for retrieving data from database
+
+    :returns: HTML rendering of single card.
+
+    :todo: Touch up data display/layout, Add ruling/legalities to the page
+    """
     logger.debug("Run: card_display; Params: " + json.dumps(request.GET.dict()))
     card = request.GET.get('cardID')
     card_obj = Card.objects.filter(cardID=card)
