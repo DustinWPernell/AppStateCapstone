@@ -1,16 +1,26 @@
-<div class="row">
-    <div class="">
-        <h4>Account Details</h4>
-        <span class="profileName">Welcome, {{ user.username }}</span>
-        <form action="" method="post" class="form-horizontal" >
-            {% csrf_token %}
-
-            <table class="table">
-                <tr>
-                    <td>&nbsp;</td>
-                    <td><button type="submit" class="btn btn-primary">Submit</button></td>
-                </tr>
-            </table>
-        </form>
+{% if o_player %}
+    <div class="row">
+        <div class="">
+            <h4>Account Details</h4>
+        </div>
     </div>
-</div>
+{% else %}
+    <div class="row">
+        <div class="">
+            <h4>Account Details</h4>
+            <div class="userAvatarDiv">
+                <img class="userAvatarImg" src="">
+            </div>
+            <form action="" method="post" class="form-horizontal" >
+                {% csrf_token %}
+    
+                <table class="table">
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td><button type="submit" class="btn btn-primary">Submit</button></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+{% endif %}

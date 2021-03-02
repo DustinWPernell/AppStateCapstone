@@ -24,6 +24,20 @@
     font-size: 20px;
 }
 
+.friendLinkA{
+    font-size: 15px;
+    text-decoration: none !important;
+}
+
+.friendLinkBtn{
+    font-size: 15px;
+    background-color: rgba(0, 0, 0, 0.0);
+    background-repeat: no-repeat;
+    background-size: 15px 15px;
+    padding: 0;
+    border: none;
+}
+
 .friendBtn{
     width: 15px;
     height: 15px;

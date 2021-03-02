@@ -5,5 +5,5 @@ from . import views
 urlpatterns = [
     path('', views.collection_index, name='index'),
     path('collectionAll', views.collection_display, name='collectionAll'),
-    path('Card', views.card_display, name='Card'),
+    path('Card/<cardID>/', views.card_display, name='Card'),
 ]
