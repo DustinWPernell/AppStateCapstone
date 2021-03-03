@@ -14,4 +14,6 @@ urlpatterns = [
     path('user_profile/<userID>/remove_friend', views.remove_friend, name='remove_friend'),
     path('user_profile/<userID>/add_follower', views.add_follower, name='add_follower'),
     path('user_profile/<userID>/remove_follower', views.remove_follower, name='remove_follower'),
+    path('select_avatar', views.select_avatar, name='select_avatar'),
+    path('save_avatar', views.save_avatar, name='save_avatar'),
 ]

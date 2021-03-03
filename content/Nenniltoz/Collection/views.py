@@ -36,7 +36,7 @@ def collection_display(request):
 
     :returns: HTML rendering of all cards contained in the database.
 
-    :todo: Loading image for long searches \ Filter for keywords
+    :todo: Loading image for long searches \ Filter for keywords \ Colorless pulls all cards with any mana color
     """
     logger.debug("Run: collection_display; Params: " + json.dumps(request.GET.dict()))
     init_mana_list = Symbol.objects.filter(symbol__in=['{W}', '{U}', '{B}', '{R}', '{G}', '{C}', '{S}'])

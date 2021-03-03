@@ -6,8 +6,11 @@ from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 
+from Collection.models import CardFace
 from .forms import CreateUserForm
 from .models import News, UserProfile, Friends, PendingFriends, Followers
 
@@ -95,7 +98,7 @@ def register(request):
             f.save(request)
 
             messages.success(request, 'Account created successfully')
-            return redirect('user_profile', userID=str(request.user.id))
+            return redirect('login')
 
     else:
         f = UserCreationForm()
@@ -280,7 +283,7 @@ def process_friend(request, userID):
             messages.error(request, 'Friend request rejected. Send new request to add as friend.')
         else:
             messages.success(request, 'Friend request accepted.')
-            add_friend(request)
+            add_friend(request, userID)
         return redirect('user_profile', userID=str(request.user.id))
     else:
         return redirect('user_profile', userID=str(friend_obj.id))
@@ -367,3 +370,73 @@ def remove_follower(request, userID):
         return redirect('user_profile', userID=str(request.user.id))
     else:
         return redirect('user_profile', userID=str(follower_obj))
+
+
+@login_required
+def select_avatar(request):
+    """Displays list for selecting new avatar
+
+    Displays full list of card art with search by name feature.
+
+    :param request: POST data: Initial Search terms
+
+    :todo: None
+    """
+    SearchTerm = 'Search'
+    if request.method == 'POST':
+        if 'clearSearch' in request.POST:
+            del request.session['search']
+            del request.session['avatarSearchTerm']
+            card_list = CardFace.objects.all().order_by('name')
+            SearchTerm = ''
+            clear_search = False
+        else:
+            SearchTerm = request.POST.get('avatarSearchTerm')
+
+            card_list = CardFace.objects.filter(Q(name__icontains=SearchTerm)).order_by('name')
+
+            request.session['search'] = True
+            request.session['avatarSearchTerm'] = SearchTerm
+            clear_search = True
+    else:
+        try:
+            SearchTerm = request.session['avatarSearchTerm']
+
+            card_list = CardFace.objects.filter(Q(name__icontains=SearchTerm)).order_by('name')
+            clear_search = True
+        except KeyError:
+            card_list = CardFace.objects.all().order_by('name')
+            clear_search = False
+
+    page = request.GET.get('page', 1)
+
+    paginator = Paginator(card_list, 50)
+    try:
+        cards = paginator.page(page)
+    except PageNotAnInteger:
+        cards = paginator.page(1)
+    except EmptyPage:
+        cards = paginator.page(paginator.num_pages)
+
+    context = {'pages': cards, 'SearchTerm': SearchTerm, 'clearSearch': clear_search}
+    return render(request, 'Users/select_avatar.html', context)
+
+
+def save_avatar(request):
+    """Saves new avatar to user
+
+    Sets new avatar image to selected URL returned by POST.
+
+    :param request: POST data: image URL
+
+    :todo: None
+    """
+    user = request.POST['curUser']
+    avatar = request.POST['newAvatar']
+    user_obj = User.objects.get(id=user).id
+
+    user_profile = UserProfile.objects.get(user=user_obj)
+    user_profile.avatarImg = avatar
+    user_profile.save()
+
+    return redirect('user_profile', userID=str(user_obj))
