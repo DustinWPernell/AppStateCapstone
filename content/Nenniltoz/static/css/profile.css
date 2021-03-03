@@ -1,0 +1,95 @@
+.alert{
+    text-align: center;
+    opacity: 70%
+}
+
+.successAlert{
+    background: green;
+}
+
+.errorAlert{
+    background: darkred;
+}
+
+.userAvatarImg{
+    max-height: 200px;
+}
+
+.avatarGrid{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 300px);
+    column-gap: 20px;
+    row-gap: 20px;
+}
+
+.avatarBtn{
+    background-color: rgba(0, 0, 0, 0.0);
+    padding: 0;
+    border: none;
+    color: white;
+}
+
+.avatarImg{
+    max-height: 300px;
+    max-width: 300px;
+    border-color: white;
+    border-width: 1px;
+    border-style: solid;
+}
+
+.newFriendButton{
+    color: black;
+}
+
+.friendGrid{
+    display: grid;
+    row-gap: 10px;
+}
+
+.pendUserLbl{
+    font-size: 20px;
+}
+
+.friendLinkA{
+    font-size: 15px;
+    text-decoration: none !important;
+}
+
+.friendLinkBtn{
+    font-size: 15px;
+    background-color: rgba(0, 0, 0, 0.0);
+    background-repeat: no-repeat;
+    background-size: 15px 15px;
+    padding: 0;
+    border: none;
+}
+
+.friendBtn{
+    width: 15px;
+    height: 15px;
+    background-color: rgba(0, 0, 0, 0.0);
+    background-repeat: no-repeat;
+    background-size: 15px 15px;
+    padding: 0;
+    border: none;
+}
+
+.friendAcceptBtn{
+    background-image: URL("../images/accept-icon.png");
+}
+
+.friendRejectBtn{
+    background-image: URL("../images/erase-icon.png");
+}
+
+@media screen and (min-width: 700px) {
+    .ProfileGrid{
+        display: grid;
+        grid-template-columns: minmax(300px, auto) 300px;
+        grid-gap: 20px;
+    }
+
+    .rightGridHR{
+        display: none;
+    }
+}

@@ -35,12 +35,15 @@ INSTALLED_APPS = [
     'LifeCounter.apps.LifeCounterConfig',
     'Management.apps.ManagementConfig',
     'Users.apps.UsersConfig',
+    'dal',
+    'dal_select2',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.admindocs',
 ]
 
 MIDDLEWARE = [

@@ -1,34 +1,143 @@
 import json
 import logging
-from datetime import datetime
-from urllib.request import urlopen
 
-import ijson
-from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render
 
-from Collection.models import Card, CardFace, Legality, Symbol, Rule, IgnoreCards
-from Management.models import Settings
+from Collection.models import Card, CardFace, Symbol, CardSets, CardLayout
 
 logger = logging.getLogger(__name__)
-APIapi = "https://api.scryfall.com/bulk-data"
-APIcard = ""
-APIrule = ""
-APIsymbol = "https://api.scryfall.com/symbology"
 
 
 # Create your views here.
 def collection_index(request):
+    """Display landing page for collections.
+
+    This page is not currently used by the application.
+
+    :param request: Does not utilize any portions of this param.
+
+    :returns: "Hello World From Collections"
+
+    :todo: None
+    """
     logger.debug("Run: collection_index; Params: " + json.dumps(request.GET.dict()))
     return HttpResponse("Hello World From Collections")
 
 
 def collection_display(request):
+    """Display entire card database.
+
+    Retrieves all cards from database in alphabetical order and displays them based on what 'page' is in request.
+
+    :param request: GET data: 'page' - page number for paginator
+
+    :returns: HTML rendering of all cards contained in the database.
+
+    :todo: Loading image for long searches \ Filter for keywords \ Colorless pulls all cards with any mana color
+    """
     logger.debug("Run: collection_display; Params: " + json.dumps(request.GET.dict()))
-    card_list = CardFace.objects.filter(firstFace=1).order_by('name')
+    init_mana_list = Symbol.objects.filter(symbol__in=['{W}', '{U}', '{B}', '{R}', '{G}', '{C}', '{S}'])
+    selected_mana = []
+    SearchTerm = 'Search'
+    if request.method == 'POST':
+        if 'clearSearch' in request.POST:
+            del request.session['search']
+            del request.session['searchTerm']
+            del request.session['selected_mana']
+            card_list = CardFace.objects.raw(
+                "SELECT * FROM main.Collection_cardface Where firstFace = 1 GROUP BY name ORDER BY name ")
+            SearchTerm = ''
+            clear_search = False
+        else:
+            selected_mana = []
+            for selected in init_mana_list:
+                mana_ele = request.POST.get("mana-" + str(selected.id))
+                if mana_ele == '':
+                    selected_mana.append(selected.symbol)
+                    if selected.symbol == '{W}':
+                        alt_mana = Symbol.objects.filter(
+                            symbol__in=['{W/U}','{W/B}','{R/W}','{G/W}','{2/W}','{W/P}','{HW}'])
+                    elif selected.symbol == '{U}':
+                        alt_mana = Symbol.objects.filter(
+                            symbol__in=['{W/U}', '{U/B}', '{U/R}', '{G/U}', '{2/U}', '{U/P}', '{HU}'])
+                    elif selected.symbol == '{B}':
+                        alt_mana = Symbol.objects.filter(
+                            symbol__in=['{W/B}', '{B/R}', '{B/G}', '{U/B}', '{2/B}', '{B/P}', '{HB}'])
+                    elif selected.symbol == '{R}':
+                        alt_mana = Symbol.objects.filter(
+                            symbol__in=['{B/R}', '{U/R}', '{R/G}', '{R/W}', '{2/R}', '{R/P}', '{HR}'])
+                    elif selected.symbol == '{G}':
+                        alt_mana = Symbol.objects.filter(
+                            symbol__in=['{B/G}', '{R/G}', '{G/W}', '{G/U}', '{2/G}', '{G/P}', '{HG}'])
+                    elif selected.symbol == '{C}':
+                        alt_mana = Symbol.objects.filter(
+                            symbol__in=['', '{X}', '{Y}', '{Z}', '{0}', '{1/2}', '{1}','{2}','{3}','{4}','{5}','{6}','{7}',
+                                            '{8}','{9}','{10}','{11}','{12}','{13}','{14}','{15}','{16}','{17}','{18}','{19}',
+                                            '{20}','{100}','{1000000}','{P}'])
+                    else:
+                        alt_mana= []
+
+                    for am in alt_mana:
+                        if am.symbol not in selected_mana:
+                            selected_mana.append(am.symbol)
+
+            SearchTerm = request.POST.get('SearchTerm')
+            full_card_id_list = CardFace.objects.raw("SELECT id FROM main.Collection_cardface GROUP BY name ORDER BY name ")
+            if len(selected_mana) == 0:
+                card_id_list = full_card_id_list
+            else:
+                card_id_list = []
+                for mana_color in selected_mana:
+                    mana_match = CardFace.objects.values('id').filter(id__in=full_card_id_list, manaCost__contains=mana_color)
+                    for match in mana_match:
+                        match_int = int(match['id'])
+                        if match_int not in card_id_list:
+                            card_id_list.append(match_int)
+
+            card_list = CardFace.objects.filter(Q(id__in=card_id_list) &
+                                                (Q(name__icontains=SearchTerm)  | Q(text__icontains=SearchTerm)
+                                                | Q(typeLine__icontains=SearchTerm) | Q(flavorText__icontains=SearchTerm))
+                                                ).order_by('name')
+
+            request.session['search'] = True
+            request.session['searchTerm'] = SearchTerm
+            request.session['selected_mana'] = selected_mana
+            clear_search = True
+    else:
+        try:
+            SearchTerm = request.session['searchTerm']
+            selected_mana = request.session['selected_mana']
+            full_card_id_list = CardFace.objects.raw("SELECT id FROM main.Collection_cardface GROUP BY name ORDER BY name ")
+            if len(selected_mana) == 0:
+                card_id_list = full_card_id_list
+            else:
+                card_id_list = []
+                for mana_color in selected_mana:
+                    mana_match = CardFace.objects.values('id').filter(id__in=full_card_id_list, manaCost__contains=mana_color)
+                    for match in mana_match:
+                        match_int = int(match['id'])
+                        if match_int not in card_id_list:
+                            card_id_list.append(match_int)
+
+            card_list = CardFace.objects.filter(Q(id__in=card_id_list) & (Q(name__contains=SearchTerm)  | Q(text__contains=SearchTerm) |
+                                                Q(typeLine__contains=SearchTerm) | Q(flavorText__contains=SearchTerm))).order_by('name')
+            clear_search = True
+        except KeyError:
+            card_list = CardFace.objects.raw("SELECT * FROM main.Collection_cardface Where firstFace = 1 GROUP BY name ORDER BY name ")
+            clear_search = False
+
+    mana_list = []
+    for init_mana in init_mana_list:
+        if init_mana.symbol in selected_mana:
+            mana_list.append({'symbol': init_mana.symbol, 'checked': True, 'imageURL': init_mana.imageURL, 'id': init_mana.id})
+        else:
+            mana_list.append({'symbol': init_mana.symbol, 'checked': False, 'imageURL': init_mana.imageURL, 'id': init_mana.id})
+
+
+
     page = request.GET.get('page', 1)
 
     paginator = Paginator(card_list, 50)
@@ -39,7 +148,9 @@ def collection_display(request):
     except EmptyPage:
         cards = paginator.page(paginator.num_pages)
 
-    context = {'pages': cards, }
+
+
+    context = {'pages': cards, 'SearchTerm': SearchTerm, 'mana_list': mana_list, 'clearSearch': clear_search}
     return render(request, 'Collection/CollectionDisplay.html', context)
 
 def deck_list(request):
@@ -68,327 +179,40 @@ def deck_display(request):
     return render(request, 'Collection/DeckDisplay.html', context)
 
 
-def card_display(request):
-    logger.debug("Run: card_display; Params: " + json.dumps(request.GET.dict()))
-    card = request.GET.get('cardID')
-    card_obj = Card.objects.filter(cardID=card)
-    face_obj = CardFace.objects.filter(cardID=card)
+def card_display(request, cardID):
+    """Display individual cards.
 
-    context = {'card': card_obj, 'faces': face_obj}
+    Retrieves card information from the database based on what 'cardID' is in request. Then displays the card data.
+
+    :param request: GET data: 'cardID' - card id for retrieving data from database
+
+    :returns: HTML rendering of single card.
+
+    :todo: Touch up data display/layout, Add ruling/legalities to the page, fix set icons color
+    """
+    logger.debug("Run: card_display; Params: " + json.dumps(request.GET.dict()))
+    card_obj = Card.objects.filter(cardID=cardID)
+    face_obj = CardFace.objects.filter(cardID_id=cardID)
+
+    set_info = []
+    card_sets = CardFace.objects.filter(name=face_obj[0].name)
+
+    layouts = CardLayout.objects.filter(sides=2)
+    layout_strings = []
+    for lay in layouts:
+        layout_strings.append(lay.layout)
+
+    for card_set_obj in card_sets:
+        set_card_obj = Card.objects.get(cardID=card_set_obj.cardID_id)
+        face_obj = CardFace.objects.filter(cardID_id=card_set_obj.cardID_id)
+        card_set = CardSets.objects.get(order=card_set_obj.setOrder)
+
+
+        if set_card_obj.layout in layout_strings:
+            set_info.append({'set_name': card_set.name,'set_image': card_set.icon_svg_uri, 'card_image_one': face_obj[0].imageURL, 'card_image_two': face_obj[1].imageURL})
+        else:
+            set_info.append({'set_name': card_set.name,'set_image': card_set.icon_svg_uri, 'card_image_one': face_obj[0].imageURL, 'card_image_two': 'NONE'})
+
+    context = {'card': card_obj, 'faces': face_obj, 'set_info': set_info}
     return render(request, 'Collection/CardDisplay.html', context)
 
-
-@staff_member_required
-def card_update(request):
-    logger.debug("Run: card_update; Params: " + json.dumps(request.GET.dict()))
-    settings_obj = Settings.objects.update_or_create(
-        id=1,
-        defaults={'lastCardImport': datetime.now().date()}
-    )
-
-    Card.objects.all().delete()
-
-    global APIcard
-
-    f = urlopen(APIcard)
-    objects = list(ijson.items(f, 'item'))
-    for obj in objects:
-        if check_card_obj(obj):
-            card_id = obj['id']
-            ori_id = obj['oracle_id']
-            set_name=obj['set_name']
-            rarity=obj['rarity']
-            layout=obj['layout']
-            key_words = ""
-            keyword_array = obj['keywords']
-            for new_keyword in keyword_array:
-                key_words = key_words + ", " + new_keyword
-
-            key_words = key_words.strip()
-            key_words = key_words.strip(",")
-
-            newCard = Card.objects.create(
-                cardID=card_id,
-                oracleID=ori_id,
-                keywords=key_words,
-                setName=set_name,
-                rarity=rarity,
-                layout=layout,
-            )
-
-            newCard.save()
-
-            if 'card_faces' not in obj:
-                if 'name' in obj:
-                    name = obj['name']
-                else:
-                    name = ""
-                if 'image_uris' in obj:
-                    image_url = obj['image_uris']['png']
-                else:
-                    image_url = ""
-                if 'mana_cost' in obj:
-                    mana_cost = obj['mana_cost']
-                else:
-                    mana_cost = ""
-                if 'loyalty' in obj:
-                    loyalty = obj['loyalty']
-                else:
-                    loyalty = ""
-                if 'power' in obj:
-                    power = obj['power']
-                else:
-                    power = ""
-                if 'toughness' in obj:
-                    toughness = obj['toughness']
-                else:
-                    toughness = ""
-                if 'oracle_text' in obj:
-                    text = obj['oracle_text']
-                else:
-                    text = ""
-                if 'type_line' in obj:
-                    type_line = obj['type_line']
-                else:
-                    type_line = ""
-                if 'color_identity' in obj:
-                    colors_array = obj['color_identity']
-                else:
-                    colors_array = ""
-                if 'flavor_text' in obj:
-                    flavor_text = obj['flavor_text']
-                else:
-                    flavor_text = ""
-                color_id = ""
-                for newColor in colors_array:
-                    color_id = color_id + ", " + newColor
-
-                color_id = color_id.strip()
-                color_id = color_id.strip(",")
-
-                CardFace.objects.create(
-                    name=name,
-                    imageURL=image_url,
-                    manaCost=mana_cost,
-                    loyalty=loyalty,
-                    power=power,
-                    toughness=toughness,
-                    typeLine=type_line,
-                    colorId=color_id,
-                    text=text,
-                    flavorText=flavor_text,
-                    cardID=newCard,
-                    firstFace=True,
-                )
-            else:
-                firstFace = True
-                for face in obj['card_faces']:
-                    if 'name' in face:
-                        name = face['name']
-                    else:
-                        name = ""
-                    if 'image_uris' in face:
-                        image_url = face['image_uris']['png']
-                    else:
-                        if 'image_uris' in obj:
-                            image_url = obj['image_uris']['png']
-                        else:
-                            image_url = ""
-                    if 'mana_cost' in face:
-                        mana_cost = face['mana_cost']
-                    else:
-                        mana_cost = ""
-                    if 'loyalty' in face:
-                        loyalty = face['loyalty']
-                    else:
-                        loyalty = ""
-                    if 'power' in face:
-                        power = face['power']
-                    else:
-                        power = ""
-                    if 'toughness' in face:
-                        toughness = face['toughness']
-                    else:
-                        toughness = ""
-                    if 'oracle_text' in face:
-                        text = face['oracle_text']
-                    else:
-                        text = ""
-                    if 'type_line' in face:
-                        type_line = face['type_line']
-                    else:
-                        type_line = ""
-                    if 'color_identity' in face:
-                        colors_array = face['color_identity']
-                    else:
-                        colors_array = ""
-                    if 'flavor_text' in face:
-                        flavor_text = face['flavor_text']
-                    else:
-                        flavor_text = ""
-                    color_id = ""
-                    for newColor in colors_array:
-                        color_id = color_id + ", " + newColor
-
-                    color_id = color_id.strip()
-                    color_id = color_id.strip(",")
-
-                    CardFace.objects.create(
-                        name=name,
-                        imageURL=image_url,
-                        manaCost=mana_cost,
-                        loyalty=loyalty,
-                        power=power,
-                        toughness=toughness,
-                        typeLine=type_line,
-                        colorId=color_id,
-                        text=text,
-                        flavorText=flavor_text,
-                        cardID=newCard,
-                        firstFace=firstFace,
-                    )
-                    firstFace = False
-
-            Legality.objects.create(
-                cardID=newCard,
-                standard=obj['legalities']['standard'],
-                future=obj['legalities']['future'],
-                historic=obj['legalities']['historic'],
-                gladiator=obj['legalities']['gladiator'],
-                modern=obj['legalities']['modern'],
-                legacy=obj['legalities']['legacy'],
-                pauper=obj['legalities']['pauper'],
-                vintage=obj['legalities']['vintage'],
-                penny=obj['legalities']['penny'],
-                commander=obj['legalities']['commander'],
-                brawl=obj['legalities']['brawl'],
-                duel=obj['legalities']['duel'],
-                oldSchool=obj['legalities']['oldschool'],
-                premodern=obj['legalities']['premodern'],
-            )
-    return HttpResponse("Finished")
-
-
-def check_card_obj(obj):
-    setIgnore = IgnoreCards.objects.filter(type="set")
-    for set in setIgnore:
-        if obj['set_name'] == set.value:
-            return False
-
-    nameIgnore = IgnoreCards.objects.filter(type="name")
-    if 'card_faces' not in obj:
-        nameVal = obj['name']
-    else:
-        nameVal = ""
-
-    for name in nameIgnore:
-        if name.value in nameVal:
-            return False
-    return True
-
-
-@staff_member_required
-def symbol_update(request):
-    logger.debug("Run: symbol_update; Params: " + json.dumps(request.GET.dict()))
-    settings_obj = Settings.objects.update_or_create(
-        id=1,
-        defaults={'lastSymbolImport': datetime.now().date()},
-    )
-
-    Symbol.objects.all().delete()
-    global APIsymbol
-
-    f = urlopen(APIsymbol)
-    objects = list(ijson.items(f, 'data.item'))
-    for obj in objects:
-        colors_array = obj['colors']
-        color_id = ""
-        for new_color in colors_array:
-            color_id = color_id + ", " + new_color
-
-        color_id = color_id.strip()
-        color_id = color_id.strip(",")
-
-        if 'symbol' in obj:
-            symbol = obj['symbol']
-        else:
-            symbol = ""
-        if 'english' in obj:
-            english = obj['english']
-        else:
-            english = ""
-        if 'svg_uri' in obj:
-            svg_uri = obj['svg_uri']
-        else:
-            svg_uri = ""
-        if 'represents_mana' in obj:
-            represents_mana = obj['represents_mana']
-        else:
-            represents_mana = ""
-        if 'cmc' in obj:
-            cmc = obj['cmc']
-        else:
-            cmc = ""
-
-        Symbol.objects.create(
-            symbol=symbol,
-            text=english,
-            imageURL=svg_uri,
-            isMana=represents_mana,
-            manaCost=cmc,
-            colorID=color_id,
-        )
-    return HttpResponse("Finished")
-
-
-@staff_member_required
-def rule_update(request):
-    logger.debug("Run: rule_update; Params: " + json.dumps(request.GET.dict()))
-    settings_obj = Settings.objects.update_or_create(
-        id=1,
-        defaults={'lastRuleImport': datetime.now().date()},
-    )
-
-    Rule.objects.all().delete()
-    global APIrule
-    global APIcard
-
-    f = urlopen(APIrule)
-    objects = list(ijson.items(f, 'item'))
-    for obj in objects:
-        if 'oracle_id' in obj:
-            oracle_id = obj['oracle_id']
-        else:
-            oracle_id = ""
-        if 'published_at' in obj:
-            published_at = obj['published_at']
-        else:
-            published_at = ""
-        if 'comment' in obj:
-            comment = obj['comment']
-        else:
-            comment = ""
-
-        Rule.objects.create(
-            oracleID=oracle_id,
-            pub_date=published_at,
-            comment=comment,
-        )
-    return HttpResponse("Finished")
-
-
-@staff_member_required
-def retrieve_api(request):
-    logger.debug("Run: retrieve_api; Params: " + json.dumps(request.GET.dict()))
-    global APIapi
-    global APIcard
-    global APIrule
-
-    f = urlopen(APIapi)
-    objects = list(ijson.items(f, 'data'))[0]
-    for obj in objects:
-        if obj['type'] == "oracle_cards":
-            APIcard = obj['download_uri']
-        elif obj['type'] == "rulings":
-            APIrule = obj['download_uri']
-    return HttpResponse("Finished")

@@ -1,0 +1,41 @@
+{% load cardLayout %}
+<div class="outerCardImage">
+    <div class="setImagesArea">
+        <div>
+            <div id="singCardSetName" class="singCardSetName">{{ card_obj.setName }}</div>
+        </div>
+        <div>
+            <div class="singCardSetImages">
+{% for set_images in set_info %}
+    {% if card_obj.setName == set_images.set_name %}
+                <button id="setImage-{{ set_images.set_name }}" class="singSetObjActive singSetObj" type="submit" name="singSetObjBtn"
+                    onclick="setSwitch('{{ set_images.set_name }}', '{{ set_images.set_image }}', '{{ set_images.card_image_one }}', '{{ set_images.card_image_two }}');"
+                    style="background-image: url('{{ set_images.set_image }}')"></button>
+    {% else %}
+                <button id="setImage-{{ set_images.set_name }}" class="singSetObj clickable" type="submit" name="singSetObjBtn"
+                    onclick="setSwitch('{{ set_images.set_name }}', '{{ set_images.set_image }}', '{{ set_images.card_image_one }}', '{{ set_images.card_image_two }}');"
+                    style="background-image: url('{{ set_images.set_image }}')"></button>
+    {% endif %}
+{% endfor %}
+            </div>
+        </div>
+    </div>
+{% if card_obj.layout|cardDuelSide %}
+    <div class="singCardImagesMulti">
+{% else %}
+    {% if card_obj.layout|cardLandscapeFace %}
+    <div class="singCardImagesLandscape">
+    {% else %}
+    <div class="singCardImages">
+    {% endif %}
+{% endif %}
+        <div class="singCardObj">
+            <img id="singCardFirstImg" class="singCardImg" src="{{ faces.0.imageURL }}" alt="{{ faces.0.name }}">
+        </div>
+{% if card_obj.layout|cardDuelSide %}
+        <div class="singCardObj">
+            <img id="singCardSecondImg" class="singCardImg" src="{{ faces.1.imageURL }}" alt="{{ faces.1.name }}">
+        </div>
+{% endif %}
+    </div>
+</div>

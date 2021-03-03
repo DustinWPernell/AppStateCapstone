@@ -1,0 +1,40 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<div class="cardFilter">
+    <form action="select_avatar" method="post">
+        {% csrf_token %}
+{% if clearSearch %}
+        <input type="text" name="avatarSearchTerm" value="{{ SearchTerm }}">
+{% else %}
+        <input type="text" name="avatarSearchTerm" placeholder="Search">
+{% endif %}
+        <input type="submit" value="Search">
+{% if clearSearch %}
+        <input type="submit" value="Clear Search" name="clearSearch">
+{% endif %}
+    </form>
+</div>
+
+{% include "./pager.html" %}
+<div id="avatarGrid" class="avatarGrid">
+{% for card_obj in pages %}
+    <div>
+        <form action="save_avatar" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="curUser" value="{{ user.id }}">
+            <input type="hidden" name="newAvatar" value="{{ card_obj.avatarImg }}">
+            <button class="avatarBtn clickable" type="submit"
+                onclick="return confirm('Select avatar: {{ card_obj.name }}?');">
+                <img class="avatarImg" src="{{ card_obj.avatarImg }}" alt="{{ card_obj.name }}">
+                <div class="cardObjText">
+                    {{ card_obj.name }}
+                </div>
+            </button>
+        </form>
+    </div>
+{% endfor %}
+</div>
+
+{% include "./pager.html" %}
+{% endblock %}
