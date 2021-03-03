@@ -11,6 +11,32 @@
     background: darkred;
 }
 
+.userAvatarImg{
+    max-height: 200px;
+}
+
+.avatarGrid{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 300px);
+    column-gap: 20px;
+    row-gap: 20px;
+}
+
+.avatarBtn{
+    background-color: rgba(0, 0, 0, 0.0);
+    padding: 0;
+    border: none;
+    color: white;
+}
+
+.avatarImg{
+    max-height: 300px;
+    max-width: 300px;
+    border-color: white;
+    border-width: 1px;
+    border-style: solid;
+}
+
 .newFriendButton{
     color: black;
 }
@@ -22,6 +48,20 @@
 
 .pendUserLbl{
     font-size: 20px;
+}
+
+.friendLinkA{
+    font-size: 15px;
+    text-decoration: none !important;
+}
+
+.friendLinkBtn{
+    font-size: 15px;
+    background-color: rgba(0, 0, 0, 0.0);
+    background-repeat: no-repeat;
+    background-size: 15px 15px;
+    padding: 0;
+    border: none;
 }
 
 .friendBtn{

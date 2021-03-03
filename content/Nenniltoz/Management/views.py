@@ -9,14 +9,15 @@ from django.http import HttpResponse
 from django.shortcuts import render
 
 # Create your views here.
-from Collection.models import Card, CardFace, Legality, IgnoreCards, Symbol, Rule
+from Collection.models import Card, CardFace, Legality, IgnoreCards, Symbol, Rule, CardSets
 from Management.models import Settings
 
 logger = logging.getLogger(__name__)
-APIapi = "https://api.scryfall.com/bulk-data"
-APIcard = ""
-APIrule = ""
-APIsymbol = "https://api.scryfall.com/symbology"
+api_bulk_data = "https://api.scryfall.com/bulk-data"
+api_card = ""
+api_rule = ""
+api_symbol = "https://api.scryfall.com/symbology"
+api_set = "https://api.scryfall.com/sets"
 
 
 @staff_member_required
@@ -68,9 +69,9 @@ def card_update(request):
 
     Card.objects.all().delete()
 
-    global APIcard
+    global api_card
 
-    f = urlopen(APIcard)
+    f = urlopen(api_card)
     objects = list(ijson.items(f, 'item'))
     for obj in objects:
         if check_card_obj(obj):
@@ -87,6 +88,8 @@ def card_update(request):
             key_words = key_words.strip()
             key_words = key_words.strip(",")
 
+            set_order = CardSets.objects.get(name=set_name).order
+
             new_card = Card.objects.create(
                 cardID=card_id,
                 oracleID=ori_id,
@@ -94,6 +97,7 @@ def card_update(request):
                 setName=set_name,
                 rarity=rarity,
                 layout=layout,
+                setOrder=set_order,
             )
 
             new_card.save()
@@ -105,8 +109,13 @@ def card_update(request):
                     name = ""
                 if 'image_uris' in obj:
                     image_url = obj['image_uris']['png']
+                    if 'art_crop' in obj['image_uris']:
+                        avatarImg = obj['image_uris']['art_crop']
+                    else:
+                        avatarImg = ""
                 else:
                     image_url = ""
+                    avatarImg = ""
                 if 'mana_cost' in obj:
                     mana_cost = obj['mana_cost']
                 else:
@@ -159,53 +168,72 @@ def card_update(request):
                     flavorText=flavor_text,
                     cardID=new_card,
                     firstFace=True,
+                    avatarImg=avatarImg,
+                    setOrder=set_order,
                 )
             else:
                 first_face = True
                 for face in obj['card_faces']:
+                    if 'image_uris' in face:
+                        image_url = face['image_uris']['png']
+                        if 'art_crop' in face['image_uris']:
+                            avatarImg = face['image_uris']['art_crop']
+                    else:
+                        if 'image_uris' in obj:
+                            image_url = obj['image_uris']['png']
+                            if 'art_crop' in obj['image_uris']:
+                                avatarImg = obj['image_uris']['art_crop']
+                            else:
+                                avatarImg = ""
+                        else:
+                            image_url = ""
+                            avatarImg = ""
+
                     if 'name' in face:
                         name = face['name']
                     else:
                         name = ""
-                    if 'image_uris' in face:
-                        image_url = face['image_uris']['png']
-                    else:
-                        if 'image_uris' in obj:
-                            image_url = obj['image_uris']['png']
-                        else:
-                            image_url = ""
+
                     if 'mana_cost' in face:
                         mana_cost = face['mana_cost']
                     else:
                         mana_cost = ""
+
                     if 'loyalty' in face:
                         loyalty = face['loyalty']
                     else:
                         loyalty = ""
+
                     if 'power' in face:
                         power = face['power']
                     else:
                         power = ""
+
                     if 'toughness' in face:
                         toughness = face['toughness']
                     else:
                         toughness = ""
+
                     if 'oracle_text' in face:
                         text = face['oracle_text']
                     else:
                         text = ""
+
                     if 'type_line' in face:
                         type_line = face['type_line']
                     else:
                         type_line = ""
+
                     if 'color_identity' in face:
                         colors_array = face['color_identity']
                     else:
                         colors_array = ""
+
                     if 'flavor_text' in face:
                         flavor_text = face['flavor_text']
                     else:
                         flavor_text = ""
+
                     color_id = ""
                     for newColor in colors_array:
                         color_id = color_id + ", " + newColor
@@ -226,6 +254,8 @@ def card_update(request):
                         flavorText=flavor_text,
                         cardID=new_card,
                         firstFace=first_face,
+                        avatarImg=avatarImg,
+                        setOrder=set_order,
                     )
                     first_face = False
 
@@ -280,6 +310,58 @@ def check_card_obj(obj):
 
 
 @staff_member_required
+def set_update(request):
+    """Performs API call for sets.
+
+    Calls Scryfall API for retrieval of sets. Parses sets Json file. Creates sets objects for each set.
+
+    :param request: Does not utilize any portions of this param.
+
+    :todo: Set to process in background
+    """
+    logger.debug("Run: set_update; Params: " + json.dumps(request.GET.dict()))
+
+    CardSets.objects.all().delete()
+    global api_set
+
+    f = urlopen(api_set)
+    objects = list(ijson.items(f, 'data.item'))
+    cur_order = 0
+    for obj in objects:
+        if 'id' in obj:
+            set_id = obj['id']
+        else:
+            set_id = ""
+        if 'code' in obj:
+            code = obj['code']
+        else:
+            code = ""
+        if 'name' in obj:
+            name = obj['name']
+        else:
+            name = ""
+        if 'released_at' in obj:
+            released_at = obj['released_at']
+        else:
+            released_at = ""
+        if 'icon_svg_uri' in obj:
+            icon_svg_uri = obj['icon_svg_uri']
+        else:
+            icon_svg_uri = ""
+
+        CardSets.objects.create(
+            set_id=set_id,
+            code=code,
+            name=name,
+            released_at=released_at,
+            icon_svg_uri=icon_svg_uri,
+            order=cur_order,
+        )
+        cur_order = cur_order + 1
+    return HttpResponse("Finished")
+
+
+@staff_member_required
 def symbol_update(request):
     """Performs API call for symbols.
 
@@ -296,9 +378,9 @@ def symbol_update(request):
     )
 
     Symbol.objects.all().delete()
-    global APIsymbol
+    global api_symbol
 
-    f = urlopen(APIsymbol)
+    f = urlopen(api_symbol)
     objects = list(ijson.items(f, 'data.item'))
     for obj in objects:
         colors_array = obj['colors']
@@ -358,10 +440,10 @@ def rule_update(request):
     )
 
     Rule.objects.all().delete()
-    global APIrule
-    global APIcard
+    global api_rule
+    global api_card
 
-    f = urlopen(APIrule)
+    f = urlopen(api_rule)
     objects = list(ijson.items(f, 'item'))
     for obj in objects:
         if 'oracle_id' in obj:
@@ -396,15 +478,15 @@ def retrieve_api(request):
     :todo: Set to process in background
     """
     logger.debug("Run: retrieve_api; Params: " + json.dumps(request.GET.dict()))
-    global APIapi
-    global APIcard
-    global APIrule
+    global api_bulk_data
+    global api_card
+    global api_rule
 
-    f = urlopen(APIapi)
+    f = urlopen(api_bulk_data)
     objects = list(ijson.items(f, 'data'))[0]
     for obj in objects:
-        if obj['type'] == "oracle_cards":
-            APIcard = obj['download_uri']
+        if obj['type'] == "default_cards":
+            api_card = obj['download_uri']
         elif obj['type'] == "rulings":
-            APIrule = obj['download_uri']
+            api_rule = obj['download_uri']
     return HttpResponse("Finished")

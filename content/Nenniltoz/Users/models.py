@@ -69,6 +69,7 @@ class UserProfile(models.Model):
     user = models.ForeignKey(User, related_name='user_profile', on_delete=models.CASCADE)
     default_exposure = models.CharField(max_length=10, choices=Preference.exposure_choices,
                                         default=Preference.SNIPPET_EXPOSURE_PUBLIC)
+    avatarImg = models.CharField(max_length=200)
 
     def __int__(self):
         return self.user.id

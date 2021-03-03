@@ -4,8 +4,8 @@ function runImport(type){
 }
 
 function showLoad(){
-    document.getElementById("APILoader").classList.toggle("loaderShow");
-    document.getElementById("APIButtons").classList.toggle("loaderShow");
+    document.getElementById("APILoader").classList.toggle("show");
+    document.getElementById("APIButtons").classList.toggle("show");
 }
 
 function printToList(print){
@@ -24,12 +24,25 @@ function RetrieveAPI(type){
         success : function(json) {
             printToList("Finished calling API");
             if(type == "card"){
-                CardImport();
+                SetImport();
             } else if(type == "rule"){
                 RuleImport();
             } else if(type == "symbol"){
                 SymbolImport();
             }
+        }
+    })
+}
+
+function SetImport(){
+    printToList("Running set import");
+    var request_data = "Sets";
+    $.ajax({
+        url: "../Management/setUpdate",
+        data : {request: request_data},
+        success : function(json) {
+            printToList("Finished Set import");
+            CardImport();
         }
     })
 }

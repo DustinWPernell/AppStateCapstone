@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db import models
 
 
@@ -39,6 +41,7 @@ class Card(models.Model):
             * rarity - How rare the card is
             * setName - Set of the card
             * layout - Layout of the card
+            * setOrder - Order in which set occurs
     """
     cardID = models.CharField(max_length=200, primary_key=True)
     oracleID = models.CharField(max_length=200)
@@ -46,6 +49,7 @@ class Card(models.Model):
     rarity = models.CharField(max_length=20)
     setName = models.CharField(max_length=100)
     layout = models.CharField(max_length=30)
+    setOrder = models.IntegerField()
 
     def __str__(self):
         return self.cardID
@@ -65,6 +69,8 @@ class CardFace(models.Model):
             * text - The text displayed in the main area of the card
             * flavorText - The fun text normally display at the bottom of the card (may be empty)
             * cardID - ID for the card (specific to printing)
+            * avatarImg - Image URL for profile avatars
+            * setOrder - Order in which set occurs
             * firstFace - Boolean used in displaying cards with multiple faces
     """
     name = models.CharField(max_length=200)
@@ -78,10 +84,12 @@ class CardFace(models.Model):
     text = models.CharField(max_length=500)
     flavorText = models.CharField(max_length=500)
     cardID = models.ForeignKey(Card, on_delete=models.CASCADE)
+    avatarImg = models.CharField(max_length=200)
+    setOrder = models.IntegerField()
     firstFace = models.BooleanField()
 
-    def __str__(self):
-        return self.cardID
+    def __int__(self):
+        return self.id
 
 
 class Legality(models.Model):
@@ -158,3 +166,24 @@ class Rule(models.Model):
 
     def __str__(self):
         return self.oracleID
+
+
+class CardSets(models.Model):
+    """
+        Stores rule objects
+            * set_id - ID for the set
+            * code - Short string to identify set
+            * name - Full name of set
+            * released_at - Data the set was released
+            * icon_svg_uri - Set icon
+            * order - Order in which the set will appear (newest first)
+    """
+    set_id = models.CharField(max_length=200, primary_key=True)
+    code = models.CharField(max_length=5)
+    name = models.CharField(max_length=100)
+    released_at = models.DateField(default=datetime.now)
+    icon_svg_uri = models.CharField(max_length=200)
+    order = models.IntegerField()
+
+    def __str__(self):
+        return self.name

@@ -6,8 +6,11 @@ from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 
+from Collection.models import CardFace
 from .forms import CreateUserForm
 from .models import News, UserProfile, Friends, PendingFriends, Followers
 
@@ -51,7 +54,7 @@ def login_page(request):
         if user is not None:
             # correct username and password login the user
             auth.login(request, user)
-            return redirect('user_profile')
+            return redirect('user_profile', userID=str(request.user.id))
 
         else:
             messages.error(request, 'Error wrong username/password')
@@ -87,7 +90,7 @@ def register(request):
     logger.debug("Run: register; Params: " + json.dumps(request.GET.dict()))
 
     if request.user.is_authenticated:
-        return redirect('user_profile', username=request.user.username)
+        return redirect('user_profile', userID=str(request.user.id))
 
     if request.method == 'POST':
         f = CreateUserForm(request.POST)
@@ -95,7 +98,7 @@ def register(request):
             f.save(request)
 
             messages.success(request, 'Account created successfully')
-            return redirect('user_profile')
+            return redirect('login')
 
     else:
         f = UserCreationForm()
@@ -140,6 +143,7 @@ def build_friend_list(user):
 
     return friend_user_list
 
+
 def build_follower_list(user):
     """Build followers list.
 
@@ -159,49 +163,33 @@ def build_follower_list(user):
     return follower_user_list
 
 
-def player_profile(request):
-    """Display the profile of a user that is not logged in.
-
-    Uses the GET data from request to display user data. Displayed user data is not the current user.
-
-    :param request: GET data: User id/username which is being displayed
-    
-    :todo: Alter to work with non current user
-    """
-    logger.debug("Run: player_profile; Params: " + json.dumps(request.GET.dict()))
-    user = get_object_or_404(User, id=request.user.id)
-    user_profile_obj = UserProfile.objects.get(user=user)
-    friend_obj = build_friend_list(user)
-    pending_obj = build_pending_list(user)
-    follower_obj = build_follower_list(user)
-
-    return render(request, 'Users/UserProfile.html', {'user_profile_obj': user_profile_obj, 'user': user,
-                                                      'friend_obj': friend_obj, 'pending_obj': pending_obj, 'follower_obj':follower_obj})
-
-
 @login_required
-def user_profile(request):
-    """Display the profile of a user that is logged in.
+def user_profile(request, userID):
+    """Display the profile of a user.
 
-    Uses the GET data from request to display user data. Displayed user data is the current user.
+    Uses the GET data from request to display user data.
 
     :param request: GET data: User id which is being displayed
+    :param userID: User id of displayed profile.
 
-    :todo: Alter to work with non current user
+    :todo: None
     """
     logger.debug("Run: user_profile; Params: " + json.dumps(request.GET.dict()))
-    user = get_object_or_404(User, id=request.user.id)
+    user = get_object_or_404(User, id=userID)
     user_profile_obj = UserProfile.objects.get(user=user)
     friend_obj = build_friend_list(user)
     pending_obj = build_pending_list(user)
     follower_obj = build_follower_list(user)
 
+    o_player = not str(request.user.id) == userID
+
     return render(request, 'Users/UserProfile.html', {'user_profile_obj': user_profile_obj, 'user': user,
-                                                      'friend_obj': friend_obj, 'pending_obj': pending_obj, 'follower_obj':follower_obj})
+                                                      'friend_obj': friend_obj, 'pending_obj': pending_obj,
+                                                      'follower_obj': follower_obj, 'o_player': o_player})
 
 
 @login_required
-def send_friend_request(request):
+def send_friend_request(request, userID):
     """Sends friend request
 
     Uses POST data to send friend request to user. Error checks for
@@ -215,9 +203,10 @@ def send_friend_request(request):
     :todo: None
     """
     user = request.POST['curUser']
-    friend=request.POST['newFriend']
+    friend = request.POST['newFriend']
     user_obj = User.objects.get(username=user)
     friend_obj = User.objects.get(username=friend)
+    friend_obj_exist = User.objects.filter(username=friend).exists()
     pending_friends_exist = PendingFriends.objects.filter(user_one=user_obj, user_two=friend_obj).exists()
     friends_exist = Friends.objects.filter(user_one=user_obj, user_two=friend_obj).exists()
     pending_sent_exist = PendingFriends.objects.filter(user_one=friend_obj, user_two=user_obj).exists()
@@ -229,22 +218,21 @@ def send_friend_request(request):
     elif pending_sent_exist:
         messages.success(request, 'Friend request accepted.')
         add_friend(request)
+    elif not friend_obj_exist:
+        messages.success(request, 'Username does not exist.')
     else:
-        try:
-            PendingFriends.objects.create(
-                user_one=user_obj,
-                user_two=friend_obj,
-                created_on=datetime.now()
-            )
-            messages.success(request, 'Friend request sent.')
-        except ValueError:
-            messages.error(request, 'Username does not exist.')
+        PendingFriends.objects.create(
+            user_one=user_obj,
+            user_two=friend_obj,
+            created_on=datetime.now()
+        )
+        messages.success(request, 'Friend request sent.')
 
-    return redirect('user_profile')
+    return redirect('user_profile', userID=str(request.user.id))
 
 
 @login_required
-def add_friend(request):
+def add_friend(request, userID):
     """Creates freind relationship.
 
     Creates the 2 way friend relationship in the database. Removes the pending friend request from the database
@@ -254,7 +242,7 @@ def add_friend(request):
     :todo: None
     """
     user = request.POST['curUser']
-    friend=request.POST['newFriend']
+    friend = request.POST['newFriend']
     user_obj = User.objects.get(username=user)
     friend_obj = User.objects.get(username=friend)
     Friends.objects.create(
@@ -271,11 +259,11 @@ def add_friend(request):
         PendingFriends.objects.get(user_one=friend_obj, user_two=user_obj).delete()
     except:
         PendingFriends.objects.get(user_one=user_obj, user_two=friend_obj).delete()
-    return redirect('user_profile')
+    return redirect('user_profile', userID=str(request.user.id))
 
 
 @login_required
-def process_friend(request):
+def process_friend(request, userID):
     """Processes button click for friend request on receivers profile.
 
     Determines if the user selected to accept or reject the friend request.
@@ -285,21 +273,24 @@ def process_friend(request):
     :todo: None
     """
     user = request.POST['curUser']
-    friend=request.POST['newFriend']
+    friend = request.POST['newFriend']
     user_obj = User.objects.get(username=user)
     friend_obj = User.objects.get(username=friend)
 
-    if 'pendAcceptBtn' not in request.POST:
-        PendingFriends.objects.filter(user_one=friend_obj, user_two=user_obj).update(rejected=True)
-        messages.error(request, 'Friend request rejected. Send new request to add as friend.')
+    if 'userRedirect' not in request.POST:
+        if 'pendAcceptBtn' not in request.POST:
+            PendingFriends.objects.filter(user_one=friend_obj, user_two=user_obj).update(rejected=True)
+            messages.error(request, 'Friend request rejected. Send new request to add as friend.')
+        else:
+            messages.success(request, 'Friend request accepted.')
+            add_friend(request, userID)
+        return redirect('user_profile', userID=str(request.user.id))
     else:
-        messages.success(request, 'Friend request accepted.')
-        add_friend(request)
-    return redirect('user_profile')
+        return redirect('user_profile', userID=str(friend_obj.id))
 
 
 @login_required
-def remove_friend(request):
+def remove_friend(request, userID):
     """Removes a friend
 
     Removes the 2 way relationship for friends.
@@ -309,19 +300,22 @@ def remove_friend(request):
     :todo: None
     """
     user = request.POST['curUser']
-    friend=request.POST['newFriend']
+    friend = request.POST['newFriend']
     user_obj = User.objects.get(username=user).id
     friend_obj = User.objects.get(username=friend).id
+    if 'userRedirect' not in request.POST:
+        Friends.objects.get(user_one=user_obj, user_two=friend_obj).delete()
+        Friends.objects.get(user_one=friend_obj, user_two=user_obj).delete()
 
-    Friends.objects.get(user_one=user_obj, user_two=friend_obj).delete()
-    Friends.objects.get(user_one=friend_obj, user_two=user_obj).delete()
+        messages.error(request, 'Removed friend. Send new request to add as friend.')
 
-    messages.error(request, 'Removed friend. Send new request to add as friend.')
+        return redirect('user_profile', userID=str(request.user.id))
+    else:
+        return redirect('user_profile', userID=str(friend_obj))
 
-    return redirect('user_profile')
 
 @login_required
-def add_follower(request):
+def add_follower(request, userID):
     """Adds a followed user to the user.
 
     Add the followed user to the database.  Error checks for
@@ -333,30 +327,30 @@ def add_follower(request):
     :todo: None
     """
     user = request.POST['curUser']
-    follower=request.POST['newFollower']
+    follower = request.POST['newFollower']
     user_obj = User.objects.get(username=user)
     follower_obj = User.objects.get(username=follower)
+    follower_obj_exist = User.objects.filter(username=follower).exists()
 
     follower_exist = Followers.objects.filter(user_one=user_obj, user_two=follower_obj).exists()
 
     if follower_exist:
         messages.error(request, 'Already following.')
+    elif not follower_obj_exist:
+        messages.error(request, 'Username does not exist.')
     else:
-        try:
-            Followers.objects.create(
-                user_one=user_obj,
-                user_two=follower_obj,
-                created_on=datetime.now()
-            )
-            messages.success(request, 'Follower Added.')
-        except ValueError:
-            messages.error(request, 'Username does not exist.')
+        Followers.objects.create(
+            user_one=user_obj,
+            user_two=follower_obj,
+            created_on=datetime.now()
+        )
+        messages.success(request, 'Follower Added.')
 
+    return redirect('user_profile', userID=str(request.user.id))
 
-    return redirect('user_profile')
 
 @login_required
-def remove_follower(request):
+def remove_follower(request, userID):
     """Removes a followed user
 
     Removes the followed user from the relationship with the current user.
@@ -370,8 +364,79 @@ def remove_follower(request):
     user_obj = User.objects.get(username=user).id
     follower_obj = User.objects.get(username=follower).id
 
-    Followers.objects.get(user_one=user_obj, user_two=follower_obj).delete()
+    if 'userRedirect' not in request.POST:
+        Followers.objects.get(user_one=user_obj, user_two=follower_obj).delete()
+        messages.error(request, 'Removed follower.')
+        return redirect('user_profile', userID=str(request.user.id))
+    else:
+        return redirect('user_profile', userID=str(follower_obj))
 
-    messages.error(request, 'Removed follower.')
 
-    return redirect('user_profile')
+@login_required
+def select_avatar(request):
+    """Displays list for selecting new avatar
+
+    Displays full list of card art with search by name feature.
+
+    :param request: POST data: Initial Search terms
+
+    :todo: None
+    """
+    SearchTerm = 'Search'
+    if request.method == 'POST':
+        if 'clearSearch' in request.POST:
+            del request.session['search']
+            del request.session['avatarSearchTerm']
+            card_list = CardFace.objects.all().order_by('name')
+            SearchTerm = ''
+            clear_search = False
+        else:
+            SearchTerm = request.POST.get('avatarSearchTerm')
+
+            card_list = CardFace.objects.filter(Q(name__icontains=SearchTerm)).order_by('name')
+
+            request.session['search'] = True
+            request.session['avatarSearchTerm'] = SearchTerm
+            clear_search = True
+    else:
+        try:
+            SearchTerm = request.session['avatarSearchTerm']
+
+            card_list = CardFace.objects.filter(Q(name__icontains=SearchTerm)).order_by('name')
+            clear_search = True
+        except KeyError:
+            card_list = CardFace.objects.all().order_by('name')
+            clear_search = False
+
+    page = request.GET.get('page', 1)
+
+    paginator = Paginator(card_list, 50)
+    try:
+        cards = paginator.page(page)
+    except PageNotAnInteger:
+        cards = paginator.page(1)
+    except EmptyPage:
+        cards = paginator.page(paginator.num_pages)
+
+    context = {'pages': cards, 'SearchTerm': SearchTerm, 'clearSearch': clear_search}
+    return render(request, 'Users/select_avatar.html', context)
+
+
+def save_avatar(request):
+    """Saves new avatar to user
+
+    Sets new avatar image to selected URL returned by POST.
+
+    :param request: POST data: image URL
+
+    :todo: None
+    """
+    user = request.POST['curUser']
+    avatar = request.POST['newAvatar']
+    user_obj = User.objects.get(id=user).id
+
+    user_profile = UserProfile.objects.get(user=user_obj)
+    user_profile.avatarImg = avatar
+    user_profile.save()
+
+    return redirect('user_profile', userID=str(user_obj))

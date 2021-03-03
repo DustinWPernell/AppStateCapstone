@@ -1,14 +1,42 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
+<div class="cardFilter">
+  <form action="collectionAll" method="post">
+    {% csrf_token %}
+    {% if clearSearch %}
+      <input type="text" name="SearchTerm" value="{{ SearchTerm }}">
+    {% else %}
+      <input type="text" name="SearchTerm" placeholder="Search">
+    {% endif %}
+    <input type="submit" value="Search">
+    {% if clearSearch %}
+      <input type="submit" value="Clear Search" name="clearSearch">
+    {% endif %}
+    <a class="advFilterA clickable colorText" onclick="advFilterFunc();">Advanced Search</a>
+    <div id="advFilter" class="cardAdvFilter">
+      {% for mana in mana_list %}
+        <span class='manaSearchObj'>
+          {% if mana.checked %}
+            <input type="checkbox" name="mana-{{ mana.id }}" value="{{ mama.id }}" checked="checked">
+          {% else %}
+            <input type="checkbox" name="mana-{{ mana.id }}" value="{{ mama.id }}">
+          {% endif %}
+          <img class='mamaSearchSymbols' src='{{ mana.imageURL }}'/>
+        </span>
+      {% endfor %}
+    </div>
+  </form>
+</div>
+
 {% include "./pager.html" %}
   <div id="cardGrid" class="cardGrid">
-    {% for card in pages %}
+    {% for card_obj in pages %}
       <div class="cardObj">
-        <a class="cardDirection" href="./Card?cardID={{ card.cardID }}">
-          <img class="cardImg" src="{{ card.imageURL }}" alt="Avatar">
+        <a class="cardDirection" href="/Collection/Card/{{ card_obj.cardID_id }}/">
+          <img class="cardImg" src="{{ card_obj.imageURL }}" alt="Avatar">
           <div class="cardObjText">
-            {{ card.name }}
+            {{ card_obj.name }}
           </div>
         </a>
       </div>
