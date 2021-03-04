@@ -9,7 +9,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 
 # Create your views here.
-from Collection.models import Card, CardFace, Legality, IgnoreCards, Symbol, Rule, CardSets
+from Collection.models import Card, CardFace, Legality, IgnoreCards, Symbol, Rule, CardSets, CardIDList
 from Management.models import Settings
 
 logger = logging.getLogger(__name__)
@@ -276,6 +276,16 @@ def card_update(request):
                 oldSchool=obj['legalities']['oldschool'],
                 premodern=obj['legalities']['premodern'],
             )
+
+    full_card_list_all = CardFace.objects.raw("SELECT * FROM main.Collection_cardface GROUP BY name ORDER BY name")
+    full_card_id_list_all = []
+    for card_obj in full_card_list_all:
+        if card_obj.cardID.cardID not in full_card_id_list_all:
+            CardIDList.objects.create(
+                cardID=card_obj.cardID.cardID,
+                cardName=card_obj.cardID.name
+            )
+
     return HttpResponse("Finished")
 
 

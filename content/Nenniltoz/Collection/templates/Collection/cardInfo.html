@@ -1,5 +1,5 @@
 {% load cardLayout %}
-{% load replaceMana %}
+{% load replaceValues %}
 
 <div class="singCardHead">
     <span class="singCardAttLbl">Name:</span>
@@ -87,8 +87,8 @@
         <div class="singCardValue">
     {% endif %}
         {% for face in faces %}
-            <div class="singCardInValue">
-                {{ face.text|replaceMana|safe }}
+            <div class="singCardInValue" >
+                <p style="white-space: pre-line;">{{ face.text|replaceTextMana|replacePeriod|safe }}</p>
             </div>
         {% endfor %}
     </div>

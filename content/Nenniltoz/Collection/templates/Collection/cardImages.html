@@ -7,15 +7,9 @@
         <div>
             <div class="singCardSetImages">
 {% for set_images in set_info %}
-    {% if card_obj.setName == set_images.set_name %}
-                <button id="setImage-{{ set_images.set_name }}" class="singSetObjActive singSetObj" type="submit" name="singSetObjBtn"
-                    onclick="setSwitch('{{ set_images.set_name }}', '{{ set_images.set_image }}', '{{ set_images.card_image_one }}', '{{ set_images.card_image_two }}');"
+                <button id="setImage-{{ set_images.set_name }}" class="singSetObj singSetObj" type="submit" name="singSetObjBtn"
+                    onclick="setSwitch('{{ set_images.set_name }}', '{{ set_images.set_image }}', '{{ set_images.card_image_one }}', '{{ set_images.card_image_two }}', {{ set_list }});"
                     style="background-image: url('{{ set_images.set_image }}')"></button>
-    {% else %}
-                <button id="setImage-{{ set_images.set_name }}" class="singSetObj clickable" type="submit" name="singSetObjBtn"
-                    onclick="setSwitch('{{ set_images.set_name }}', '{{ set_images.set_image }}', '{{ set_images.card_image_one }}', '{{ set_images.card_image_two }}');"
-                    style="background-image: url('{{ set_images.set_image }}')"></button>
-    {% endif %}
 {% endfor %}
             </div>
         </div>
@@ -24,7 +18,7 @@
     <div class="singCardImagesMulti">
 {% else %}
     {% if card_obj.layout|cardLandscapeFace %}
-    <div class="singCardImagesLandscape">
+    <div class="singCardImages">
     {% else %}
     <div class="singCardImages">
     {% endif %}
