@@ -55,6 +55,17 @@ class Card(models.Model):
         return self.cardID
 
 
+class CardIDList(models.Model):
+    """
+        Stores Unique card named objects
+            * cardID - ID for the card (specific to printing)
+            * name - Name of the card
+    """
+    cardID = models.CharField(max_length=200, primary_key=True)
+    cardName = models.CharField(max_length=200)
+    cardName.null = True
+
+
 class CardFace(models.Model):
     """
         Stores card face object (could be many for one card object)
