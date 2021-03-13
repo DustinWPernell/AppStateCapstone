@@ -4,15 +4,6 @@ from django.contrib.auth.forms import UserCreationForm
 
 from Users.models import UserProfile
 
-class SettingForm(forms.ModelForm):
-    class Meta:
-        model = UserProfile
-        fields = ( 'default_exposure',)
-        widgets = {
-            'default_exposure': forms.Select(attrs={'class': 'selectPicker form-control'})
-
-        }
-
 class CreateUserForm(UserCreationForm):
     class Meta:
         model = User

@@ -1,0 +1,42 @@
+
+{% if wishShow %}
+  {% load replaceValues %}
+  <div class="cardFilter">
+    <form action="user_profile" method="post">
+      {% csrf_token %}
+      {% if clear_wish_search %}
+        <input type="text" name="searchWishTerm" value="{{ search_wish_term }}">
+      {% else %}
+        <input type="text" name="searchWishTerm" placeholder="Search">
+      {% endif %}
+      <input type="submit" value="Search" name="searchWish">
+      {% if clear_wish_search %}
+        <input type="submit" value="Clear Search" name="clearWishSearch">
+      {% endif %}
+    </form>
+  </div>
+
+  {% include "./wishPager.html" %}
+    <table id="cardGrid" class="cardTable">
+        <tr>
+          <td>Name</td>
+          <td>Mana Cost</td>
+        </tr>
+        {% for card_obj in cardWishPager %}
+        <tr>
+          <td>
+            {{ card_obj.name }}
+          </td>
+          <td>
+            {{ card_obj.manaCost|replaceMana|safe }}
+          </td>
+          <td>
+            <a class="cardDirection" href="/Collection/Card/{{ card_obj.cardID_id }}/">
+              <img class="smallCardImg" src="{{ card_obj.avatarImg }}" alt="Avatar">
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+    </table>
+  {% include "./wishPager.html" %}
+{% endif %}

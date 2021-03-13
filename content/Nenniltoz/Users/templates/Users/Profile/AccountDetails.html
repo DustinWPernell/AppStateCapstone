@@ -1,0 +1,23 @@
+{% if o_player %}
+    <div class="row">
+        <div class="">
+            <h4>Account Details</h4>
+        </div>
+    </div>
+{% else %}
+    <div class="row">
+        <div class="">
+            <h3>Welcome, {{ user.username }}</h3>
+            {% if user_profile_obj.deckView == 'public' %}
+                {% include "./userDecks.html" %}
+            {% endif %}
+            {% if user_profile_obj.cardView == 'public' %}
+                {% include "./userCards.html" %}
+            {% endif %}
+            {% if user_profile_obj.cardView == 'public' %}
+                <h4>Card Wish List</h4>
+                {% include "./userWishCards.html" %}
+            {% endif %}
+        </div>
+    </div>
+{% endif %}

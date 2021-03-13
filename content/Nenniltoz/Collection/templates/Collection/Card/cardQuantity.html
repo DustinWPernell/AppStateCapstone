@@ -1,0 +1,22 @@
+    <div class="cardQuantity">
+{% if cardCount > 0 %}
+    <form action="update_quantity" method="post">
+        {% csrf_token %}
+        <input class="quantityText" onkeypress='numValidate(event)' type="text" name="quantity" value="{{ quantity }}">
+        <button class="clickable" type="submit" name="update">Update quantity</button>
+        <button class="clickable" type="submit" name="remove">Remove card(s)</button>
+    </form>
+{% elif cardCount == 0 %}
+    <form action="update_quantity" method="post">
+        {% csrf_token %}
+        <button class="clickable" type="submit" name="remove">Remove wish list</button>
+    </form>
+{% else %}
+    <form action="add_card" method="post">
+        {% csrf_token %}
+        <input class="quantityText" onkeypress='numValidate(event)' type="text" name="quantity" value="{{ quantity }}">
+        <button class="clickable" type="submit" name="addCards">Add card(s)</button>
+        <button class="clickable" type="submit" name="wishCards">Add to wish list</button>
+    </form>
+{% endif %}
+    </div>

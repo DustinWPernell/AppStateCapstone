@@ -1,5 +1,5 @@
 {% if o_player %}
-        <h4>Friends:</h4>
+    <h4>Friends:</h4>
     <div class="friendGrid">
         {% for friend in friend_obj %}
             <div>
@@ -8,13 +8,7 @@
         {% endfor %}
     </div>
 {% else %}
-    <h4>Send Friend Request:</h4>
-    <form action="send_friend_request" method="post">
-        {% csrf_token %}
-        <input type="hidden" id="curUserRequest" name="curUser" value="{{ user.username }}">
-        <input id="newFriendRequest" class="newFriendRequest" name="newFriend" placeholder="Friend's Username">
-        <button class="newFriendButton clickable" type="submit">Add Friend</button>
-    </form>
+{% if pending_obj.length > 0 %}
     <h4>Pending Friend Requests:</h4>
     <div class="friendGrid">
         {% for new_friends in pending_obj %}
@@ -32,8 +26,15 @@
             </div>
         {% endfor %}
     </div>
+{% endif %}
     <h4>Friends:</h4>
     <div class="friendGrid">
+        <form action="send_friend_request" method="post">
+            {% csrf_token %}
+            <input type="hidden" id="curUserRequest" name="curUser" value="{{ user.username }}">
+            <input id="newFriendRequest" class="newFriendRequest" name="newFriend" placeholder="Username">
+            <button class="newFriendButton clickable" type="submit">Add Friend</button>
+        </form>
         {% for friend in friend_obj %}
             <div>
                 <form action="remove_friend" method="post">

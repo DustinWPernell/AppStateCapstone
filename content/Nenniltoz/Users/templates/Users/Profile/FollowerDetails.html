@@ -1,5 +1,5 @@
 {% if o_player %}
-    <h4>Followers:</h4>
+    <h4>Following:</h4>
     <div class="followerGrid">
         {% for follower in follower_obj %}
             <div>
@@ -8,15 +8,14 @@
         {% endfor %}
     </div>
 {% else %}
-    <h4>Add Follower:</h4>
-    <form action="add_follower" method="post">
-        {% csrf_token %}
-        <input type="hidden" id="curUserRequest" name="curUser" value="{{ user.username }}">
-        <input id="newFollowerRequest" class="newFollowerRequest" name="newFollower" placeholder="Follower's Username">
-        <button class="newFollowerButton clickable" type="submit">Add follower</button>
-    </form>
-    <h4>Followers:</h4>
+    <h4>Following:</h4>
     <div class="followerGrid">
+        <form action="add_follower" method="post">
+            {% csrf_token %}
+            <input type="hidden" id="curUserRequest" name="curUser" value="{{ user.username }}">
+            <input id="newFollowerRequest" class="newFollowerRequest" name="newFollower" placeholder="Username">
+            <button class="newFollowerButton clickable" type="submit">Follow User</button>
+        </form>
         {% for follower in follower_obj %}
             <div>
                 <form action="remove_follower" method="post">

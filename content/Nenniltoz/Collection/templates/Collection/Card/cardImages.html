@@ -2,7 +2,7 @@
 <div class="outerCardImage">
     <div class="setImagesArea">
         <div>
-            <div id="singCardSetName" class="singCardSetName">{{ card_obj.setName }}</div>
+            <div id="singCardSetName" class="singCardSetName">{{ card.setName }}</div>
         </div>
         <div>
             <div class="singCardSetImages">
@@ -14,10 +14,10 @@
             </div>
         </div>
     </div>
-{% if card_obj.layout|cardDuelSide %}
+{% if card.layout|cardDuelSide %}
     <div class="singCardImagesMulti">
 {% else %}
-    {% if card_obj.layout|cardLandscapeFace %}
+    {% if card.layout|cardLandscapeFace %}
     <div class="singCardImages">
     {% else %}
     <div class="singCardImages">
@@ -26,7 +26,7 @@
         <div class="singCardObj">
             <img id="singCardFirstImg" class="singCardImg" src="{{ faces.0.imageURL }}" alt="{{ faces.0.name }}">
         </div>
-{% if card_obj.layout|cardDuelSide %}
+{% if card.layout|cardDuelSide %}
         <div class="singCardObj">
             <img id="singCardSecondImg" class="singCardImg" src="{{ faces.1.imageURL }}" alt="{{ faces.1.name }}">
         </div>

@@ -1,0 +1,53 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+                <p class="successAlert alert">{{ message }}</p>
+            {% else %}
+                <p class="errorAlert alert">{{ message }}</p>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    <div class="ProfileGrid">
+        <div id="leftGrid">
+            {% if o_player %}
+                <div class="AccountDetails">
+                    {% include "./AccountDetails.html" %}
+                </div>
+            {% else %}
+                <div class="tab">
+                    <button class="tablinks" onclick="openTab(event, 'profile')" id="defaultOpen">Profile</button>
+                    <button class="tablinks" onclick="openTab(event, 'editProfile')">Edit Profile</button>
+                </div>
+                <div id="profile" class="tabcontent">
+                    <div class="AccountDetails">
+                        {% include "./AccountDetails.html" %}
+                    </div>
+                </div>
+                <div id="editProfile" class="tabcontent">
+                    <div class="ChAccountPref">
+                        {% include "./ChAccountPref.html" %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        <div id="rightGrid">
+            <hr class="rightGridHR">
+            <div class="userAvatarDiv">
+                <img class="userAvatarImg" src="{{ user_profile_obj.avatarImg }}">
+            </div>
+            <div class="FriendDetails">
+                {% include "./FriendDetails.html" %}
+            </div>
+            <hr>
+            <div class="FollowerDetails">
+                {% include "./FollowerDetails.html" %}
+            </div>
+        </div>
+    </div>
+<script>
+    document.getElementById("defaultOpen").click();
+</script>
+{% endblock %}

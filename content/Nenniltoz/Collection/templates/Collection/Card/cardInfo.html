@@ -3,7 +3,7 @@
 
 <div class="singCardHead">
     <span class="singCardAttLbl">Name:</span>
-    {% if card_obj.layout|cardMultiFace %}
+    {% if card.layout|cardMultiFace %}
         <div class="singCardValueMulti">
     {% else %}
         <div class="singCardValue">
@@ -16,7 +16,7 @@
     </div>
 
     <span class="singCardAttLbl">Mana Cost:</span>
-    {% if card_obj.layout|cardMultiFace %}
+    {% if card.layout|cardMultiFace %}
         <div class="singCardValueMulti">
     {% else %}
         <div class="singCardValue">
@@ -29,7 +29,7 @@
     </div>
 
     <span class="singCardAttLbl">Type:</span>
-    {% if card_obj.layout|cardMultiFace %}
+    {% if card.layout|cardMultiFace %}
         <div class="singCardValueMulti">
     {% else %}
         <div class="singCardValue">
@@ -42,7 +42,7 @@
     </div>
 
     <span class="singCardAttLbl">Loyalty:</span>
-    {% if card_obj.layout|cardMultiFace %}
+    {% if card.layout|cardMultiFace %}
         <div class="singCardValueMulti">
     {% else %}
         <div class="singCardValue">
@@ -55,7 +55,7 @@
     </div>
 
     <span class="singCardAttLbl">Power:</span>
-    {% if card_obj.layout|cardMultiFace %}
+    {% if card.layout|cardMultiFace %}
         <div class="singCardValueMulti">
     {% else %}
         <div class="singCardValue">
@@ -68,7 +68,7 @@
     </div>
 
     <span class="singCardAttLbl">Toughness:</span>
-    {% if card_obj.layout|cardMultiFace %}
+    {% if card.layout|cardMultiFace %}
         <div class="singCardValueMulti">
     {% else %}
         <div class="singCardValue">
@@ -81,7 +81,7 @@
     </div>
 
     <span class="singCardAttLbl">Text:</span>
-    {% if card_obj.layout|cardMultiFace %}
+    {% if card.layout|cardMultiFace %}
         <div class="singCardValueMulti">
     {% else %}
         <div class="singCardValue">
@@ -94,7 +94,7 @@
     </div>
 
     <span class="singCardAttLbl">Flavor Text:</span>
-    {% if card_obj.layout|cardMultiFace %}
+    {% if card.layout|cardMultiFace %}
         <div class="singCardValueMulti">
     {% else %}
         <div class="singCardValue">
@@ -107,8 +107,8 @@
     </div>
 
     <span class="singCardAttLbl">Most recent set:</span>
-    <div class="singCardSet">{{ card_obj.setName }}</div>
+    <div class="singCardSet">{{ card.setName }}</div>
 
     <span class="singCardAttLbl">Keywords:</span>
-    <div class="singCardKeywords">{{ card_obj.keywords }}</div>
+    <div class="singCardKeywords">{{ card.keywords }}</div>
 </div>
