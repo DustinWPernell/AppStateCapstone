@@ -75,11 +75,11 @@
 }
 
 .friendAcceptBtn{
-    background-image: URL("../images/accept-icon.png");
+    background-image: URL("../img/accept-icon.png");
 }
 
 .friendRejectBtn{
-    background-image: URL("../images/erase-icon.png");
+    background-image: URL("../img/erase-icon.png");
 }
 
 .tab {

@@ -1,45 +1,47 @@
 {% extends "base_generic.html" %}
 {% block content %}
-    <div class="row">
-        <div class="">
+<div class="row">
+    <div class="">
 
-            <h4>Login</h4>
-            <hr>
+        <h4>Login</h4>
+        <hr>
 
-            {% if messages %}
-                {% for message in messages %}
-                    <p class="alert alert-info">{{ message }}</p>
-                {% endfor %}
-            {% endif %}
+        {% if messages %}
+        {% for message in messages %}
+        <p class="alert alert-info">{{ message }}</p>
+        {% endfor %}
+        {% endif %}
 
-                <form method="post">
+        <form method="post">
 
-                    {% csrf_token %}
+            {% csrf_token %}
 
-                    <table class="table">
-                        <tr>
-                            <th><label for="id_username">Username:</label></th>
-                            <td><input type="text" name="username" id="id_username" required /></td>
-                        </tr>
-                        <tr>
-                            <th><label for="id_password">Password:</label></th>
-                            <td><input type="password" name="password" id="id_password" required /></td>
-                        </tr>
-                        <tr>
-                            <td><input type="hidden" name="next" value=""></td>
-                            <td><button type="submit" class="btn btn-primary">Submit</button></td>
-                        </tr>
-                    </table>
+            <table class="table">
+                <tr>
+                    <th><label for="id_username">Username:</label></th>
+                    <td><input id="id_username" name="username" required type="text"/></td>
+                </tr>
+                <tr>
+                    <th><label for="id_password">Password:</label></th>
+                    <td><input id="id_password" name="password" required type="password"/></td>
+                </tr>
+                <tr>
+                    <td><input name="next" type="hidden" value=""></td>
+                    <td>
+                        <button class="btn btn-primary" type="submit">Submit</button>
+                    </td>
+                </tr>
+            </table>
 
-                </form>
-        </div>
-
-        <div class="">
-            <h4>Related Links</h4>
-            <p>
-                <a href="{% url 'register' %}">Create new account.</a> <br>
-            </p>
-        </div>
-
+        </form>
     </div>
+
+    <div class="">
+        <h4>Related Links</h4>
+        <p>
+            <a href="{% url 'register' %}">Create new account.</a> <br>
+        </p>
+    </div>
+
+</div>
 {% endblock %}

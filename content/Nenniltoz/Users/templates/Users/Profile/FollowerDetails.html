@@ -1,33 +1,34 @@
 {% if o_player %}
-    <h4>Following:</h4>
-    <div class="followerGrid">
-        {% for follower in follower_obj %}
-            <div>
-                <a class="friendLinkA clickable colorText" href="/Users/user_profile/{{ follower.id }}/">&emsp;{{ follower.username }}</a>
-            </div>
-        {% endfor %}
+<h4>Following:</h4>
+<div class="followerGrid">
+    {% for follower in follower_obj %}
+    <div>
+        <a class="friendLinkA clickable colorText" href="/Users/user_profile/{{ follower.id }}/">&emsp;{{ follower.username }}</a>
     </div>
+    {% endfor %}
+</div>
 {% else %}
-    <h4>Following:</h4>
-    <div class="followerGrid">
-        <form action="add_follower" method="post">
+<h4>Following:</h4>
+<div class="followerGrid">
+    <form action="add_follower" method="post">
+        {% csrf_token %}
+        <input id="curUserRequest" name="curUser" type="hidden" value="{{ user.username }}">
+        <input class="newFollowerRequest" id="newFollowerRequest" name="newFollower" placeholder="Username">
+        <button class="newFollowerButton clickable" type="submit">Follow User</button>
+    </form>
+    {% for follower in follower_obj %}
+    <div>
+        <form action="remove_follower" method="post">
             {% csrf_token %}
-            <input type="hidden" id="curUserRequest" name="curUser" value="{{ user.username }}">
-            <input id="newFollowerRequest" class="newFollowerRequest" name="newFollower" placeholder="Username">
-            <button class="newFollowerButton clickable" type="submit">Follow User</button>
+            <input name="curUser" type="hidden" value="{{ user.username }}">
+            <input name="newFollower" type="hidden" value="{{ follower.username }}">
+            <input name="newFollowerID" type="hidden" value="{{ follower.id }}">
+            <button class="friendLinkBtn clickable colorText" name="userRedirect" type="submit">&emsp;{{ follower.username }}
+            </button>
+            <button class="friendRejectBtn friendBtn clickable" name="friendRejectBtn" onclick="return confirm('Remove follower: {{ follower.username }}?');"
+                    type="submit"></button>
         </form>
-        {% for follower in follower_obj %}
-            <div>
-                <form action="remove_follower" method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="curUser" value="{{ user.username }}">
-                    <input type="hidden" name="newFollower" value="{{ follower.username }}">
-                    <input type="hidden" name="newFollowerID" value="{{ follower.id }}">
-                    <button class="friendLinkBtn clickable colorText" type="submit" name="userRedirect">&emsp;{{ follower.username }}</button>
-                    <button class="friendRejectBtn friendBtn clickable" type="submit" name="friendRejectBtn"
-                            onclick="return confirm('Remove follower: {{ follower.username }}?');"></button>
-                </form>
-            </div>
-        {% endfor %}
     </div>
+    {% endfor %}
+</div>
 {% endif %}

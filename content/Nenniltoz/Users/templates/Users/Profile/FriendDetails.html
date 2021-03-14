@@ -1,51 +1,55 @@
 {% if o_player %}
-    <h4>Friends:</h4>
-    <div class="friendGrid">
-        {% for friend in friend_obj %}
-            <div>
-                <a class="friendLinkA clickable colorText" href="/Users/user_profile/{{ friend.id }}/">&emsp;{{ friend.username }}</a>
-            </div>
-        {% endfor %}
+<h4>Friends:</h4>
+<div class="friendGrid">
+    {% for friend in friend_obj %}
+    <div>
+        <a class="friendLinkA clickable colorText" href="/Users/user_profile/{{ friend.id }}/">&emsp;{{ friend.username }}</a>
     </div>
+    {% endfor %}
+</div>
 {% else %}
 {% if pending_obj.length > 0 %}
-    <h4>Pending Friend Requests:</h4>
-    <div class="friendGrid">
-        {% for new_friends in pending_obj %}
-            <div>
-                <form action="process_friend" method="post">
-                    {% csrf_token %}
-                    <button class="friendLinkBtn clickable colorText" type="submit" name="userRedirect">&emsp;{{ new_friends.username }}</button>
-                    <input type="hidden" id="curPendUserRequest" name="curUser" value="{{ user.username }}">
-                    <input type="hidden" id="newPendFriendRequest" name="newFriend" value="{{ new_friends.username }}">
-                    <button class="friendAcceptBtn friendBtn clickable" type="submit" name="pendAcceptBtn"
-                            onclick="return confirm('Accept friend request from {{ new_friends.username }}?');"></button>
-                    <button class="friendRejectBtn friendBtn clickable" type="submit" name="pendRejectBtn"
-                            onclick="return confirm('Reject friend request from {{ new_friends.username }}?');"></button>
-                </form>
-            </div>
-        {% endfor %}
-    </div>
-{% endif %}
-    <h4>Friends:</h4>
-    <div class="friendGrid">
-        <form action="send_friend_request" method="post">
+<h4>Pending Friend Requests:</h4>
+<div class="friendGrid">
+    {% for new_friends in pending_obj %}
+    <div>
+        <form action="process_friend" method="post">
             {% csrf_token %}
-            <input type="hidden" id="curUserRequest" name="curUser" value="{{ user.username }}">
-            <input id="newFriendRequest" class="newFriendRequest" name="newFriend" placeholder="Username">
-            <button class="newFriendButton clickable" type="submit">Add Friend</button>
+            <button class="friendLinkBtn clickable colorText" name="userRedirect" type="submit">&emsp;
+                {{ new_friends.username }}
+            </button>
+            <input id="curPendUserRequest" name="curUser" type="hidden" value="{{ user.username }}">
+            <input id="newPendFriendRequest" name="newFriend" type="hidden" value="{{ new_friends.username }}">
+            <button class="friendAcceptBtn friendBtn clickable" name="pendAcceptBtn" onclick="return confirm('Accept friend request from {{ new_friends.username }}?');"
+                    type="submit"></button>
+            <button class="friendRejectBtn friendBtn clickable" name="pendRejectBtn" onclick="return confirm('Reject friend request from {{ new_friends.username }}?');"
+                    type="submit"></button>
         </form>
-        {% for friend in friend_obj %}
-            <div>
-                <form action="remove_friend" method="post">
-                    {% csrf_token %}
-                    <button class="friendLinkBtn clickable colorText" type="submit" name="userRedirect">&emsp;{{ friend.username }}</button>
-                    <input type="hidden" name="curUser" value="{{ user.username }}">
-                    <input type="hidden" name="newFriend" value="{{ friend.username }}">
-                    <button class="friendRejectBtn friendBtn clickable" type="submit" name="friendRejectBtn"
-                            onclick="return confirm('Remove friend: {{ friend.username }}?');"></button>
-                </form>
-            </div>
-        {% endfor %}
     </div>
+    {% endfor %}
+</div>
+{% endif %}
+<h4>Friends:</h4>
+<div class="friendGrid">
+    <form action="send_friend_request" method="post">
+        {% csrf_token %}
+        <input id="curUserRequest" name="curUser" type="hidden" value="{{ user.username }}">
+        <input class="newFriendRequest" id="newFriendRequest" name="newFriend" placeholder="Username">
+        <button class="newFriendButton clickable" type="submit">Add Friend</button>
+    </form>
+    {% for friend in friend_obj %}
+    <div>
+        <form action="remove_friend" method="post">
+            {% csrf_token %}
+            <button class="friendLinkBtn clickable colorText" name="userRedirect" type="submit">&emsp;
+                {{ friend.username }}
+            </button>
+            <input name="curUser" type="hidden" value="{{ user.username }}">
+            <input name="newFriend" type="hidden" value="{{ friend.username }}">
+            <button class="friendRejectBtn friendBtn clickable" name="friendRejectBtn" onclick="return confirm('Remove friend: {{ friend.username }}?');"
+                    type="submit"></button>
+        </form>
+    </div>
+    {% endfor %}
+</div>
 {% endif %}

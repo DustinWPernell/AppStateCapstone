@@ -2,15 +2,16 @@
 <div class="outerCardImage">
     <div class="setImagesArea">
         <div>
-            <div id="singCardSetName" class="singCardSetName">{{ card.setName }}</div>
+            <div class="singCardSetName" id="singCardSetName">{{ card.setName }}</div>
         </div>
         <div>
             <div class="singCardSetImages">
-{% for set_images in set_info %}
-                <button id="setImage-{{ set_images.set_name }}" class="singSetObj singSetObj" type="submit" name="singSetObjBtn"
-                    onclick="setSwitch('{{ set_images.set_name }}', '{{ set_images.set_image }}', '{{ set_images.card_image_one }}', '{{ set_images.card_image_two }}', {{ set_list }});"
-                    style="background-image: url('{{ set_images.set_image }}')"></button>
-{% endfor %}
+                {% for set_images in set_info %}
+                <button class="singSetObj singSetObj" id="setImage-{{ set_images.set_name }}" name="singSetObjBtn"
+                        onclick="setSwitch('{{ set_images.set_name }}', '{{ set_images.set_image }}', '{{ set_images.card_image_one }}', '{{ set_images.card_image_two }}', {{ set_list }});"
+                        style="background-image: url('{{ set_images.set_image }}')"
+                        type="submit"></button>
+                {% endfor %}
             </div>
         </div>
     </div>
@@ -24,11 +25,13 @@
     {% endif %}
 {% endif %}
         <div class="singCardObj">
-            <img id="singCardFirstImg" class="singCardImg" src="{{ faces.0.imageURL }}" alt="{{ faces.0.name }}">
+            <img alt="{{ faces.0.name }}" class="singCardImg" id="singCardFirstImg"
+                 src="{{ faces.0.imageURL }}">
         </div>
 {% if card.layout|cardDuelSide %}
         <div class="singCardObj">
-            <img id="singCardSecondImg" class="singCardImg" src="{{ faces.1.imageURL }}" alt="{{ faces.1.name }}">
+            <img alt="{{ faces.1.name }}" class="singCardImg" id="singCardSecondImg"
+                 src="{{ faces.1.imageURL }}">
         </div>
 {% endif %}
     </div>

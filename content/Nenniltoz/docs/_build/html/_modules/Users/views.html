@@ -1,54 +1,68 @@
-
 <!DOCTYPE html>
 
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>Users.views &#8212; Nenniltoz 1.0 documentation</title>
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+    <link href="../../_static/alabaster.css" rel="stylesheet" type="text/css"/>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
-    <link rel="index" title="Index" href="../../genindex.html" />
-    <link rel="search" title="Search" href="../../search.html" />
-   
-  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
-  
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+    <link href="../../genindex.html" rel="index" title="Index"/>
+    <link href="../../search.html" rel="search" title="Search"/>
 
-  </head><body>
-  
+    <link href="../../_static/custom.css" rel="stylesheet" type="text/css"/>
 
-    <div class="document">
-      <div class="documentwrapper">
+
+    <meta content="width=device-width, initial-scale=0.9, maximum-scale=0.9" name="viewport"/>
+
+</head>
+<body>
+
+
+<div class="document">
+    <div class="documentwrapper">
         <div class="bodywrapper">
-          
 
-          <div class="body" role="main">
-            
-  <h1>Source code for Users.views</h1><div class="highlight"><pre>
+
+            <div class="body" role="main">
+
+                <h1>Source code for Users.views</h1>
+                <div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span
+                        class="n">datetime</span>
 
-<span class="kn">from</span> <span class="nn">django.contrib</span> <span class="kn">import</span> <span class="n">messages</span><span class="p">,</span> <span class="n">auth</span>
-<span class="kn">from</span> <span class="nn">django.contrib.auth.decorators</span> <span class="kn">import</span> <span class="n">login_required</span>
-<span class="kn">from</span> <span class="nn">django.contrib.auth.forms</span> <span class="kn">import</span> <span class="n">UserCreationForm</span>
-<span class="kn">from</span> <span class="nn">django.contrib.auth.models</span> <span class="kn">import</span> <span class="n">User</span>
-<span class="kn">from</span> <span class="nn">django.shortcuts</span> <span class="kn">import</span> <span class="n">render</span><span class="p">,</span> <span class="n">redirect</span><span class="p">,</span> <span class="n">get_object_or_404</span>
+<span class="kn">from</span> <span class="nn">django.contrib</span> <span class="kn">import</span> <span class="n">messages</span><span
+                        class="p">,</span> <span class="n">auth</span>
+<span class="kn">from</span> <span class="nn">django.contrib.auth.decorators</span> <span class="kn">import</span> <span
+                        class="n">login_required</span>
+<span class="kn">from</span> <span class="nn">django.contrib.auth.forms</span> <span class="kn">import</span> <span
+                        class="n">UserCreationForm</span>
+<span class="kn">from</span> <span class="nn">django.contrib.auth.models</span> <span class="kn">import</span> <span
+                        class="n">User</span>
+<span class="kn">from</span> <span class="nn">django.shortcuts</span> <span class="kn">import</span> <span class="n">render</span><span
+                        class="p">,</span> <span class="n">redirect</span><span class="p">,</span> <span class="n">get_object_or_404</span>
 
 <span class="kn">from</span> <span class="nn">.forms</span> <span class="kn">import</span> <span class="n">CreateUserForm</span>
-<span class="kn">from</span> <span class="nn">.models</span> <span class="kn">import</span> <span class="n">News</span><span class="p">,</span> <span class="n">UserProfile</span><span class="p">,</span> <span class="n">Friends</span><span class="p">,</span> <span class="n">PendingFriends</span><span class="p">,</span> <span class="n">Followers</span>
+<span class="kn">from</span> <span class="nn">.models</span> <span class="kn">import</span> <span
+                        class="n">News</span><span class="p">,</span> <span class="n">UserProfile</span><span class="p">,</span> <span
+                        class="n">Friends</span><span class="p">,</span> <span class="n">PendingFriends</span><span
+                        class="p">,</span> <span class="n">Followers</span>
 
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span
+                        class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span
+                        class="p">)</span>
 
 
 <span class="c1"># Create your views here.</span>
-<div class="viewcode-block" id="index"><a class="viewcode-back" href="../../modules/views/Users.html#Users.views.index">[docs]</a><span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="index"><a class="viewcode-back" href="../../modules/views/Users.html#Users.views.index">[docs]</a><span
+        class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="n">request</span><span
+        class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Display the home page.</span>
 
 <span class="sd">    Retrieves the most recent news articles from the database and displays them on the page</span>
@@ -57,14 +71,27 @@
 
 <span class="sd">    :returns: HTML rendering of the home page.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Run: index; Params: &quot;</span> <span class="o">+</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">dict</span><span class="p">()))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span
+            class="s2">&quot;Run: index; Params: &quot;</span> <span class="o">+</span> <span class="n">json</span><span
+            class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">request</span><span
+            class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">dict</span><span
+            class="p">()))</span>
 
-    <span class="n">latest_news_list</span> <span class="o">=</span> <span class="n">News</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;-headline&#39;</span><span class="p">)[:</span><span class="mi">5</span><span class="p">]</span>
-    <span class="n">context</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;latest_news_list&#39;</span><span class="p">:</span> <span class="n">latest_news_list</span><span class="p">,</span> <span class="p">}</span>
-    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Users/index.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></div>
+    <span class="n">latest_news_list</span> <span class="o">=</span> <span class="n">News</span><span class="o">.</span><span
+            class="n">objects</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span
+            class="s1">&#39;-headline&#39;</span><span class="p">)[:</span><span class="mi">5</span><span
+            class="p">]</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;latest_news_list&#39;</span><span
+            class="p">:</span> <span class="n">latest_news_list</span><span class="p">,</span> <span class="p">}</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span
+            class="n">request</span><span class="p">,</span> <span class="s1">&#39;Users/index.html&#39;</span><span
+            class="p">,</span> <span class="n">context</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="login_page"><a class="viewcode-back" href="../../modules/views/Users.html#Users.views.login_page">[docs]</a><span class="k">def</span> <span class="nf">login_page</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="login_page"><a class="viewcode-back"
+                                               href="../../modules/views/Users.html#Users.views.login_page">[docs]</a><span
+        class="k">def</span> <span class="nf">login_page</span><span class="p">(</span><span
+        class="n">request</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Display the home page.</span>
 
 <span class="sd">    Retreives the most recent news articles from the database and displays them on the page</span>
@@ -75,25 +102,47 @@
 
 <span class="sd">    :todo: generate documentation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Run: login_page; Params: &quot;</span> <span class="o">+</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">dict</span><span class="p">()))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span
+            class="s2">&quot;Run: login_page; Params: &quot;</span> <span class="o">+</span> <span class="n">json</span><span
+            class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">request</span><span
+            class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">dict</span><span
+            class="p">()))</span>
 
-    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
-        <span class="n">username</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;username&#39;</span><span class="p">)</span>
-        <span class="n">password</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;password&#39;</span><span class="p">)</span>
-        <span class="n">user</span> <span class="o">=</span> <span class="n">auth</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span
+            class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">username</span> <span class="o">=</span> <span class="n">request</span><span
+            class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span
+            class="p">(</span><span class="s1">&#39;username&#39;</span><span class="p">)</span>
+        <span class="n">password</span> <span class="o">=</span> <span class="n">request</span><span
+            class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span
+            class="p">(</span><span class="s1">&#39;password&#39;</span><span class="p">)</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="n">auth</span><span class="o">.</span><span
+            class="n">authenticate</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span
+            class="n">username</span><span class="p">,</span> <span class="n">password</span><span
+            class="o">=</span><span class="n">password</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">user</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">user</span> <span class="ow">is</span> <span
+            class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># correct username and password login the user</span>
-            <span class="n">auth</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">user</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;user_profile&#39;</span><span class="p">)</span>
+            <span class="n">auth</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span
+            class="n">request</span><span class="p">,</span> <span class="n">user</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;user_profile&#39;</span><span
+            class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Error wrong username/password&#39;</span><span class="p">)</span>
+            <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span
+            class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Error wrong username/password&#39;</span><span
+            class="p">)</span>
 
-    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Users/login.html&#39;</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span
+            class="n">request</span><span class="p">,</span> <span class="s1">&#39;Users/login.html&#39;</span><span
+            class="p">)</span></div>
 
-<div class="viewcode-block" id="logout_page"><a class="viewcode-back" href="../../modules/views/Users.html#Users.views.logout_page">[docs]</a><span class="nd">@login_required</span>
-<span class="k">def</span> <span class="nf">logout_page</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="logout_page"><a class="viewcode-back"
+                                                href="../../modules/views/Users.html#Users.views.logout_page">[docs]</a><span
+        class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">logout_page</span><span class="p">(</span><span
+            class="n">request</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Display the home page.</span>
 
 <span class="sd">    Retreives the most recent news articles from the database and displays them on the page</span>
@@ -104,13 +153,23 @@
 
 <span class="sd">    :todo: generate documentation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Run: logout_page; Params: &quot;</span> <span class="o">+</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">dict</span><span class="p">()))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span
+            class="s2">&quot;Run: logout_page; Params: &quot;</span> <span class="o">+</span> <span
+            class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span
+            class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span
+            class="n">dict</span><span class="p">()))</span>
 
-    <span class="n">auth</span><span class="o">.</span><span class="n">logout</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Users/logout.html&#39;</span><span class="p">)</span></div>
+    <span class="n">auth</span><span class="o">.</span><span class="n">logout</span><span class="p">(</span><span
+            class="n">request</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span
+            class="n">request</span><span class="p">,</span> <span class="s1">&#39;Users/logout.html&#39;</span><span
+            class="p">)</span></div>
 
 
-<div class="viewcode-block" id="register"><a class="viewcode-back" href="../../modules/views/Users.html#Users.views.register">[docs]</a><span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="register"><a class="viewcode-back"
+                                             href="../../modules/views/Users.html#Users.views.register">[docs]</a><span
+        class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="n">request</span><span
+        class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Display the home page.</span>
 
 <span class="sd">    Retreives the most recent news articles from the database and displays them on the page</span>
@@ -121,26 +180,49 @@
 
 <span class="sd">    :todo: generate documentation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Run: register; Params: &quot;</span> <span class="o">+</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">dict</span><span class="p">()))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span
+            class="s2">&quot;Run: register; Params: &quot;</span> <span class="o">+</span> <span
+            class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span
+            class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span
+            class="n">dict</span><span class="p">()))</span>
 
-    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_authenticated</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;user_profile&#39;</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span
+            class="o">.</span><span class="n">is_authenticated</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;user_profile&#39;</span><span
+            class="p">,</span> <span class="n">username</span><span class="o">=</span><span
+            class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span
+            class="n">username</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
-        <span class="n">f</span> <span class="o">=</span> <span class="n">CreateUserForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span
+            class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">CreateUserForm</span><span
+            class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span
+            class="p">)</span>
+        <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">is_valid</span><span
+            class="p">():</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span
+            class="n">request</span><span class="p">)</span>
 
-            <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Account created successfully&#39;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;user_profile&#39;</span><span class="p">)</span>
+            <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span
+            class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Account created successfully&#39;</span><span
+            class="p">)</span>
+            <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;user_profile&#39;</span><span
+            class="p">)</span>
 
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">f</span> <span class="o">=</span> <span class="n">UserCreationForm</span><span class="p">()</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">UserCreationForm</span><span
+            class="p">()</span>
 
-    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Users/register.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;form&#39;</span><span class="p">:</span> <span class="n">f</span><span class="p">})</span></div>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span
+            class="n">request</span><span class="p">,</span> <span class="s1">&#39;Users/register.html&#39;</span><span
+            class="p">,</span> <span class="p">{</span><span class="s1">&#39;form&#39;</span><span
+            class="p">:</span> <span class="n">f</span><span class="p">})</span></div>
 
 
-<div class="viewcode-block" id="build_pending_list"><a class="viewcode-back" href="../../modules/views/Users.html#Users.views.build_pending_list">[docs]</a><span class="k">def</span> <span class="nf">build_pending_list</span><span class="p">(</span><span class="n">user</span><span class="p">):</span>
+<div class="viewcode-block" id="build_pending_list"><a class="viewcode-back"
+                                                       href="../../modules/views/Users.html#Users.views.build_pending_list">[docs]</a><span
+        class="k">def</span> <span class="nf">build_pending_list</span><span class="p">(</span><span
+        class="n">user</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Display the home page.</span>
 
 <span class="sd">    Retreives the most recent news articles from the database and displays them on the page</span>
@@ -151,15 +233,25 @@
 
 <span class="sd">    :todo: generate documentation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">pending_list</span> <span class="o">=</span> <span class="n">PendingFriends</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">user_two</span><span class="o">=</span><span class="n">user</span><span class="p">,</span> <span class="n">rejected</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">pending_list</span> <span class="o">=</span> <span class="n">PendingFriends</span><span
+            class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span
+            class="p">(</span><span class="n">user_two</span><span class="o">=</span><span class="n">user</span><span
+            class="p">,</span> <span class="n">rejected</span><span class="o">=</span><span class="kc">False</span><span
+            class="p">)</span>
     <span class="n">pending_user_list</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">pending</span> <span class="ow">in</span> <span class="n">pending_list</span><span class="p">:</span>
-        <span class="n">pending_user_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pending</span><span class="o">.</span><span class="n">user_one</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">pending</span> <span class="ow">in</span> <span
+            class="n">pending_list</span><span class="p">:</span>
+        <span class="n">pending_user_list</span><span class="o">.</span><span class="n">append</span><span
+            class="p">(</span><span class="n">pending</span><span class="o">.</span><span class="n">user_one</span><span
+            class="p">)</span>
 
     <span class="k">return</span> <span class="n">pending_user_list</span></div>
 
 
-<div class="viewcode-block" id="build_friend_list"><a class="viewcode-back" href="../../modules/views/Users.html#Users.views.build_friend_list">[docs]</a><span class="k">def</span> <span class="nf">build_friend_list</span><span class="p">(</span><span class="n">user</span><span class="p">):</span>
+<div class="viewcode-block" id="build_friend_list"><a class="viewcode-back"
+                                                      href="../../modules/views/Users.html#Users.views.build_friend_list">[docs]</a><span
+        class="k">def</span> <span class="nf">build_friend_list</span><span class="p">(</span><span
+        class="n">user</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Display the home page.</span>
 
 <span class="sd">    Retreives the most recent news articles from the database and displays them on the page</span>
@@ -170,14 +262,23 @@
 
 <span class="sd">    :todo: generate documentation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">friend_list</span> <span class="o">=</span> <span class="n">Friends</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">user_one</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
+    <span class="n">friend_list</span> <span class="o">=</span> <span class="n">Friends</span><span
+            class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span
+            class="p">(</span><span class="n">user_one</span><span class="o">=</span><span class="n">user</span><span
+            class="p">)</span>
     <span class="n">friend_user_list</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">friend</span> <span class="ow">in</span> <span class="n">friend_list</span><span class="p">:</span>
-        <span class="n">friend_user_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">friend</span><span class="o">.</span><span class="n">user_two</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">friend</span> <span class="ow">in</span> <span
+            class="n">friend_list</span><span class="p">:</span>
+        <span class="n">friend_user_list</span><span class="o">.</span><span class="n">append</span><span
+            class="p">(</span><span class="n">friend</span><span class="o">.</span><span class="n">user_two</span><span
+            class="p">)</span>
 
     <span class="k">return</span> <span class="n">friend_user_list</span></div>
 
-<div class="viewcode-block" id="build_follower_list"><a class="viewcode-back" href="../../modules/views/Users.html#Users.views.build_follower_list">[docs]</a><span class="k">def</span> <span class="nf">build_follower_list</span><span class="p">(</span><span class="n">user</span><span class="p">):</span>
+<div class="viewcode-block" id="build_follower_list"><a class="viewcode-back"
+                                                        href="../../modules/views/Users.html#Users.views.build_follower_list">[docs]</a><span
+        class="k">def</span> <span class="nf">build_follower_list</span><span class="p">(</span><span
+        class="n">user</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Display the home page.</span>
 
 <span class="sd">    Retreives the most recent news articles from the database and displays them on the page</span>
@@ -188,15 +289,24 @@
 
 <span class="sd">    :todo: generate documentation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">follower_list</span> <span class="o">=</span> <span class="n">Followers</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">user_one</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
+    <span class="n">follower_list</span> <span class="o">=</span> <span class="n">Followers</span><span
+            class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span
+            class="p">(</span><span class="n">user_one</span><span class="o">=</span><span class="n">user</span><span
+            class="p">)</span>
     <span class="n">follower_user_list</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">follower</span> <span class="ow">in</span> <span class="n">follower_list</span><span class="p">:</span>
-        <span class="n">follower_user_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">follower</span><span class="o">.</span><span class="n">user_two</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">follower</span> <span class="ow">in</span> <span
+            class="n">follower_list</span><span class="p">:</span>
+        <span class="n">follower_user_list</span><span class="o">.</span><span class="n">append</span><span
+            class="p">(</span><span class="n">follower</span><span class="o">.</span><span
+            class="n">user_two</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">follower_user_list</span></div>
 
 
-<div class="viewcode-block" id="player_profile"><a class="viewcode-back" href="../../modules/views/Users.html#Users.views.player_profile">[docs]</a><span class="k">def</span> <span class="nf">player_profile</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="player_profile"><a class="viewcode-back"
+                                                   href="../../modules/views/Users.html#Users.views.player_profile">[docs]</a><span
+        class="k">def</span> <span class="nf">player_profile</span><span class="p">(</span><span
+        class="n">request</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Display the home page.</span>
 
 <span class="sd">    Retreives the most recent news articles from the database and displays them on the page</span>
@@ -207,19 +317,43 @@
 
 <span class="sd">    :todo: generate documentation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Run: player_profile; Params: &quot;</span> <span class="o">+</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">dict</span><span class="p">()))</span>
-    <span class="n">user</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">User</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
-    <span class="n">user_profile_obj</span> <span class="o">=</span> <span class="n">UserProfile</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
-    <span class="n">friend_obj</span> <span class="o">=</span> <span class="n">build_friend_list</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
-    <span class="n">pending_obj</span> <span class="o">=</span> <span class="n">build_pending_list</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
-    <span class="n">follower_obj</span> <span class="o">=</span> <span class="n">build_follower_list</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span
+            class="s2">&quot;Run: player_profile; Params: &quot;</span> <span class="o">+</span> <span
+            class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span
+            class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span
+            class="n">dict</span><span class="p">()))</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span
+            class="p">(</span><span class="n">User</span><span class="p">,</span> <span class="nb">id</span><span
+            class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span
+            class="o">.</span><span class="n">id</span><span class="p">)</span>
+    <span class="n">user_profile_obj</span> <span class="o">=</span> <span class="n">UserProfile</span><span
+            class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span
+            class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">user</span><span
+            class="p">)</span>
+    <span class="n">friend_obj</span> <span class="o">=</span> <span class="n">build_friend_list</span><span
+            class="p">(</span><span class="n">user</span><span class="p">)</span>
+    <span class="n">pending_obj</span> <span class="o">=</span> <span class="n">build_pending_list</span><span
+            class="p">(</span><span class="n">user</span><span class="p">)</span>
+    <span class="n">follower_obj</span> <span class="o">=</span> <span class="n">build_follower_list</span><span
+            class="p">(</span><span class="n">user</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Users/UserProfile.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;user_profile_obj&#39;</span><span class="p">:</span> <span class="n">user_profile_obj</span><span class="p">,</span> <span class="s1">&#39;user&#39;</span><span class="p">:</span> <span class="n">user</span><span class="p">,</span>
-                                                      <span class="s1">&#39;friend_obj&#39;</span><span class="p">:</span> <span class="n">friend_obj</span><span class="p">,</span> <span class="s1">&#39;pending_obj&#39;</span><span class="p">:</span> <span class="n">pending_obj</span><span class="p">,</span> <span class="s1">&#39;follower_obj&#39;</span><span class="p">:</span><span class="n">follower_obj</span><span class="p">})</span></div>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span
+            class="n">request</span><span class="p">,</span> <span
+            class="s1">&#39;Users/UserProfile.html&#39;</span><span class="p">,</span> <span class="p">{</span><span
+            class="s1">&#39;user_profile_obj&#39;</span><span class="p">:</span> <span class="n">user_profile_obj</span><span
+            class="p">,</span> <span class="s1">&#39;user&#39;</span><span class="p">:</span> <span
+            class="n">user</span><span class="p">,</span>
+                                                      <span class="s1">&#39;friend_obj&#39;</span><span
+            class="p">:</span> <span class="n">friend_obj</span><span class="p">,</span> <span class="s1">&#39;pending_obj&#39;</span><span
+            class="p">:</span> <span class="n">pending_obj</span><span class="p">,</span> <span class="s1">&#39;follower_obj&#39;</span><span
+            class="p">:</span><span class="n">follower_obj</span><span class="p">})</span></div>
 
 
-<div class="viewcode-block" id="user_profile"><a class="viewcode-back" href="../../modules/views/Users.html#Users.views.user_profile">[docs]</a><span class="nd">@login_required</span>
-<span class="k">def</span> <span class="nf">user_profile</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="user_profile"><a class="viewcode-back"
+                                                 href="../../modules/views/Users.html#Users.views.user_profile">[docs]</a><span
+        class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">user_profile</span><span class="p">(</span><span
+            class="n">request</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Display the home page.</span>
 
 <span class="sd">    Retreives the most recent news articles from the database and displays them on the page</span>
@@ -230,19 +364,43 @@
 
 <span class="sd">    :todo: generate documentation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Run: user_profile; Params: &quot;</span> <span class="o">+</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">dict</span><span class="p">()))</span>
-    <span class="n">user</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">User</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
-    <span class="n">user_profile_obj</span> <span class="o">=</span> <span class="n">UserProfile</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
-    <span class="n">friend_obj</span> <span class="o">=</span> <span class="n">build_friend_list</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
-    <span class="n">pending_obj</span> <span class="o">=</span> <span class="n">build_pending_list</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
-    <span class="n">follower_obj</span> <span class="o">=</span> <span class="n">build_follower_list</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span
+            class="s2">&quot;Run: user_profile; Params: &quot;</span> <span class="o">+</span> <span
+            class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span
+            class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span
+            class="n">dict</span><span class="p">()))</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span
+            class="p">(</span><span class="n">User</span><span class="p">,</span> <span class="nb">id</span><span
+            class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span
+            class="o">.</span><span class="n">id</span><span class="p">)</span>
+    <span class="n">user_profile_obj</span> <span class="o">=</span> <span class="n">UserProfile</span><span
+            class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span
+            class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">user</span><span
+            class="p">)</span>
+    <span class="n">friend_obj</span> <span class="o">=</span> <span class="n">build_friend_list</span><span
+            class="p">(</span><span class="n">user</span><span class="p">)</span>
+    <span class="n">pending_obj</span> <span class="o">=</span> <span class="n">build_pending_list</span><span
+            class="p">(</span><span class="n">user</span><span class="p">)</span>
+    <span class="n">follower_obj</span> <span class="o">=</span> <span class="n">build_follower_list</span><span
+            class="p">(</span><span class="n">user</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Users/UserProfile.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;user_profile_obj&#39;</span><span class="p">:</span> <span class="n">user_profile_obj</span><span class="p">,</span> <span class="s1">&#39;user&#39;</span><span class="p">:</span> <span class="n">user</span><span class="p">,</span>
-                                                      <span class="s1">&#39;friend_obj&#39;</span><span class="p">:</span> <span class="n">friend_obj</span><span class="p">,</span> <span class="s1">&#39;pending_obj&#39;</span><span class="p">:</span> <span class="n">pending_obj</span><span class="p">,</span> <span class="s1">&#39;follower_obj&#39;</span><span class="p">:</span><span class="n">follower_obj</span><span class="p">})</span></div>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span
+            class="n">request</span><span class="p">,</span> <span
+            class="s1">&#39;Users/UserProfile.html&#39;</span><span class="p">,</span> <span class="p">{</span><span
+            class="s1">&#39;user_profile_obj&#39;</span><span class="p">:</span> <span class="n">user_profile_obj</span><span
+            class="p">,</span> <span class="s1">&#39;user&#39;</span><span class="p">:</span> <span
+            class="n">user</span><span class="p">,</span>
+                                                      <span class="s1">&#39;friend_obj&#39;</span><span
+            class="p">:</span> <span class="n">friend_obj</span><span class="p">,</span> <span class="s1">&#39;pending_obj&#39;</span><span
+            class="p">:</span> <span class="n">pending_obj</span><span class="p">,</span> <span class="s1">&#39;follower_obj&#39;</span><span
+            class="p">:</span><span class="n">follower_obj</span><span class="p">})</span></div>
 
 
-<div class="viewcode-block" id="send_friend_request"><a class="viewcode-back" href="../../modules/views/Users.html#Users.views.send_friend_request">[docs]</a><span class="nd">@login_required</span>
-<span class="k">def</span> <span class="nf">send_friend_request</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="send_friend_request"><a class="viewcode-back"
+                                                        href="../../modules/views/Users.html#Users.views.send_friend_request">[docs]</a><span
+        class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">send_friend_request</span><span class="p">(</span><span
+            class="n">request</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Display the home page.</span>
 
 <span class="sd">    Retreives the most recent news articles from the database and displays them on the page</span>
@@ -253,37 +411,77 @@
 
 <span class="sd">    :todo: generate documentation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">user</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">[</span><span class="s1">&#39;curUser&#39;</span><span class="p">]</span>
-    <span class="n">friend</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">[</span><span class="s1">&#39;newFriend&#39;</span><span class="p">]</span>
-    <span class="n">user_obj</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
-    <span class="n">friend_obj</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">friend</span><span class="p">)</span>
-    <span class="n">pending_friends_exist</span> <span class="o">=</span> <span class="n">PendingFriends</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">user_one</span><span class="o">=</span><span class="n">user_obj</span><span class="p">,</span> <span class="n">user_two</span><span class="o">=</span><span class="n">friend_obj</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
-    <span class="n">friends_exist</span> <span class="o">=</span> <span class="n">Friends</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">user_one</span><span class="o">=</span><span class="n">user_obj</span><span class="p">,</span> <span class="n">user_two</span><span class="o">=</span><span class="n">friend_obj</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
-    <span class="n">pending_sent_exist</span> <span class="o">=</span> <span class="n">PendingFriends</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">user_one</span><span class="o">=</span><span class="n">friend_obj</span><span class="p">,</span> <span class="n">user_two</span><span class="o">=</span><span class="n">user_obj</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span
+            class="n">POST</span><span class="p">[</span><span class="s1">&#39;curUser&#39;</span><span
+            class="p">]</span>
+    <span class="n">friend</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span
+            class="n">POST</span><span class="p">[</span><span class="s1">&#39;newFriend&#39;</span><span
+            class="p">]</span>
+    <span class="n">user_obj</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span
+            class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span
+            class="n">username</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
+    <span class="n">friend_obj</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span
+            class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span
+            class="n">username</span><span class="o">=</span><span class="n">friend</span><span class="p">)</span>
+    <span class="n">pending_friends_exist</span> <span class="o">=</span> <span class="n">PendingFriends</span><span
+            class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span
+            class="p">(</span><span class="n">user_one</span><span class="o">=</span><span
+            class="n">user_obj</span><span class="p">,</span> <span class="n">user_two</span><span
+            class="o">=</span><span class="n">friend_obj</span><span class="p">)</span><span class="o">.</span><span
+            class="n">exists</span><span class="p">()</span>
+    <span class="n">friends_exist</span> <span class="o">=</span> <span class="n">Friends</span><span class="o">.</span><span
+            class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span
+            class="n">user_one</span><span class="o">=</span><span class="n">user_obj</span><span
+            class="p">,</span> <span class="n">user_two</span><span class="o">=</span><span
+            class="n">friend_obj</span><span class="p">)</span><span class="o">.</span><span
+            class="n">exists</span><span class="p">()</span>
+    <span class="n">pending_sent_exist</span> <span class="o">=</span> <span class="n">PendingFriends</span><span
+            class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span
+            class="p">(</span><span class="n">user_one</span><span class="o">=</span><span
+            class="n">friend_obj</span><span class="p">,</span> <span class="n">user_two</span><span
+            class="o">=</span><span class="n">user_obj</span><span class="p">)</span><span class="o">.</span><span
+            class="n">exists</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">pending_friends_exist</span><span class="p">:</span>
-        <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Friend already sent.&#39;</span><span class="p">)</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span
+            class="n">request</span><span class="p">,</span> <span class="s1">&#39;Friend already sent.&#39;</span><span
+            class="p">)</span>
     <span class="k">elif</span> <span class="n">friends_exist</span><span class="p">:</span>
-        <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Already friends.&#39;</span><span class="p">)</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span
+            class="n">request</span><span class="p">,</span> <span class="s1">&#39;Already friends.&#39;</span><span
+            class="p">)</span>
     <span class="k">elif</span> <span class="n">pending_sent_exist</span><span class="p">:</span>
-        <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Friend request accepted.&#39;</span><span class="p">)</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span
+            class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Friend request accepted.&#39;</span><span
+            class="p">)</span>
         <span class="n">add_friend</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">PendingFriends</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-                <span class="n">user_one</span><span class="o">=</span><span class="n">user_obj</span><span class="p">,</span>
+            <span class="n">PendingFriends</span><span class="o">.</span><span class="n">objects</span><span
+            class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">user_one</span><span class="o">=</span><span class="n">user_obj</span><span
+            class="p">,</span>
                 <span class="n">user_two</span><span class="o">=</span><span class="n">friend_obj</span><span class="p">,</span>
-                <span class="n">created_on</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+                <span class="n">created_on</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span
+            class="n">now</span><span class="p">()</span>
             <span class="p">)</span>
-            <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Friend request sent.&#39;</span><span class="p">)</span>
+            <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span
+            class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Friend request sent.&#39;</span><span
+            class="p">)</span>
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Username does not exist.&#39;</span><span class="p">)</span>
+            <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span
+            class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Username does not exist.&#39;</span><span
+            class="p">)</span>
 
-    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;user_profile&#39;</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;user_profile&#39;</span><span
+            class="p">)</span></div>
 
 
-<div class="viewcode-block" id="add_friend"><a class="viewcode-back" href="../../modules/views/Users.html#Users.views.add_friend">[docs]</a><span class="nd">@login_required</span>
-<span class="k">def</span> <span class="nf">add_friend</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="add_friend"><a class="viewcode-back"
+                                               href="../../modules/views/Users.html#Users.views.add_friend">[docs]</a><span
+        class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">add_friend</span><span class="p">(</span><span class="n">request</span><span
+            class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Display the home page.</span>
 
 <span class="sd">    Retreives the most recent news articles from the database and displays them on the page</span>
@@ -294,29 +492,53 @@
 
 <span class="sd">    :todo: generate documentation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">user</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">[</span><span class="s1">&#39;curUser&#39;</span><span class="p">]</span>
-    <span class="n">friend</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">[</span><span class="s1">&#39;newFriend&#39;</span><span class="p">]</span>
-    <span class="n">user_obj</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
-    <span class="n">friend_obj</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">friend</span><span class="p">)</span>
-    <span class="n">Friends</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span
+            class="n">POST</span><span class="p">[</span><span class="s1">&#39;curUser&#39;</span><span
+            class="p">]</span>
+    <span class="n">friend</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span
+            class="n">POST</span><span class="p">[</span><span class="s1">&#39;newFriend&#39;</span><span
+            class="p">]</span>
+    <span class="n">user_obj</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span
+            class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span
+            class="n">username</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
+    <span class="n">friend_obj</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span
+            class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span
+            class="n">username</span><span class="o">=</span><span class="n">friend</span><span class="p">)</span>
+    <span class="n">Friends</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span
+            class="n">create</span><span class="p">(</span>
         <span class="n">user_one</span><span class="o">=</span><span class="n">user_obj</span><span class="p">,</span>
         <span class="n">user_two</span><span class="o">=</span><span class="n">friend_obj</span><span class="p">,</span>
-        <span class="n">created_on</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="n">created_on</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span
+            class="n">now</span><span class="p">()</span>
     <span class="p">)</span>
-    <span class="n">Friends</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+    <span class="n">Friends</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span
+            class="n">create</span><span class="p">(</span>
         <span class="n">user_one</span><span class="o">=</span><span class="n">friend_obj</span><span class="p">,</span>
         <span class="n">user_two</span><span class="o">=</span><span class="n">user_obj</span><span class="p">,</span>
-        <span class="n">created_on</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="n">created_on</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span
+            class="n">now</span><span class="p">()</span>
     <span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">PendingFriends</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">user_one</span><span class="o">=</span><span class="n">friend_obj</span><span class="p">,</span> <span class="n">user_two</span><span class="o">=</span><span class="n">user_obj</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+        <span class="n">PendingFriends</span><span class="o">.</span><span class="n">objects</span><span
+            class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">user_one</span><span
+            class="o">=</span><span class="n">friend_obj</span><span class="p">,</span> <span
+            class="n">user_two</span><span class="o">=</span><span class="n">user_obj</span><span
+            class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
     <span class="k">except</span><span class="p">:</span>
-        <span class="n">PendingFriends</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">user_one</span><span class="o">=</span><span class="n">user_obj</span><span class="p">,</span> <span class="n">user_two</span><span class="o">=</span><span class="n">friend_obj</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;user_profile&#39;</span><span class="p">)</span></div>
+        <span class="n">PendingFriends</span><span class="o">.</span><span class="n">objects</span><span
+            class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">user_one</span><span
+            class="o">=</span><span class="n">user_obj</span><span class="p">,</span> <span
+            class="n">user_two</span><span class="o">=</span><span class="n">friend_obj</span><span
+            class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;user_profile&#39;</span><span
+            class="p">)</span></div>
 
 
-<div class="viewcode-block" id="process_friend"><a class="viewcode-back" href="../../modules/views/Users.html#Users.views.process_friend">[docs]</a><span class="nd">@login_required</span>
-<span class="k">def</span> <span class="nf">process_friend</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="process_friend"><a class="viewcode-back"
+                                                   href="../../modules/views/Users.html#Users.views.process_friend">[docs]</a><span
+        class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">process_friend</span><span class="p">(</span><span
+            class="n">request</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Display the home page.</span>
 
 <span class="sd">    Retreives the most recent news articles from the database and displays them on the page</span>
@@ -327,22 +549,45 @@
 
 <span class="sd">    :todo: generate documentation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">user</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">[</span><span class="s1">&#39;curUser&#39;</span><span class="p">]</span>
-    <span class="n">friend</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">[</span><span class="s1">&#39;newFriend&#39;</span><span class="p">]</span>
-    <span class="n">user_obj</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
-    <span class="n">friend_obj</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">friend</span><span class="p">)</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span
+            class="n">POST</span><span class="p">[</span><span class="s1">&#39;curUser&#39;</span><span
+            class="p">]</span>
+    <span class="n">friend</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span
+            class="n">POST</span><span class="p">[</span><span class="s1">&#39;newFriend&#39;</span><span
+            class="p">]</span>
+    <span class="n">user_obj</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span
+            class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span
+            class="n">username</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
+    <span class="n">friend_obj</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span
+            class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span
+            class="n">username</span><span class="o">=</span><span class="n">friend</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="s1">&#39;pendAcceptBtn&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">:</span>
-        <span class="n">PendingFriends</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">user_one</span><span class="o">=</span><span class="n">friend_obj</span><span class="p">,</span> <span class="n">user_two</span><span class="o">=</span><span class="n">user_obj</span><span class="p">)</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">rejected</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Friend request rejected. Send new request to add as friend.&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">&#39;pendAcceptBtn&#39;</span> <span class="ow">not</span> <span
+            class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span
+            class="p">:</span>
+        <span class="n">PendingFriends</span><span class="o">.</span><span class="n">objects</span><span
+            class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">user_one</span><span
+            class="o">=</span><span class="n">friend_obj</span><span class="p">,</span> <span
+            class="n">user_two</span><span class="o">=</span><span class="n">user_obj</span><span
+            class="p">)</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span
+            class="n">rejected</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span
+            class="n">request</span><span class="p">,</span> <span class="s1">&#39;Friend request rejected. Send new request to add as friend.&#39;</span><span
+            class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Friend request accepted.&#39;</span><span class="p">)</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span
+            class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Friend request accepted.&#39;</span><span
+            class="p">)</span>
         <span class="n">add_friend</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;user_profile&#39;</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;user_profile&#39;</span><span
+            class="p">)</span></div>
 
 
-<div class="viewcode-block" id="remove_friend"><a class="viewcode-back" href="../../modules/views/Users.html#Users.views.remove_friend">[docs]</a><span class="nd">@login_required</span>
-<span class="k">def</span> <span class="nf">remove_friend</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="remove_friend"><a class="viewcode-back"
+                                                  href="../../modules/views/Users.html#Users.views.remove_friend">[docs]</a><span
+        class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">remove_friend</span><span class="p">(</span><span
+            class="n">request</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Display the home page.</span>
 
 <span class="sd">    Retreives the most recent news articles from the database and displays them on the page</span>
@@ -353,20 +598,44 @@
 
 <span class="sd">    :todo: generate documentation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">user</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">[</span><span class="s1">&#39;curUser&#39;</span><span class="p">]</span>
-    <span class="n">friend</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">[</span><span class="s1">&#39;newFriend&#39;</span><span class="p">]</span>
-    <span class="n">user_obj</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">user</span><span class="p">)</span><span class="o">.</span><span class="n">id</span>
-    <span class="n">friend_obj</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">friend</span><span class="p">)</span><span class="o">.</span><span class="n">id</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span
+            class="n">POST</span><span class="p">[</span><span class="s1">&#39;curUser&#39;</span><span
+            class="p">]</span>
+    <span class="n">friend</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span
+            class="n">POST</span><span class="p">[</span><span class="s1">&#39;newFriend&#39;</span><span
+            class="p">]</span>
+    <span class="n">user_obj</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span
+            class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span
+            class="n">username</span><span class="o">=</span><span class="n">user</span><span class="p">)</span><span
+            class="o">.</span><span class="n">id</span>
+    <span class="n">friend_obj</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span
+            class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span
+            class="n">username</span><span class="o">=</span><span class="n">friend</span><span class="p">)</span><span
+            class="o">.</span><span class="n">id</span>
 
-    <span class="n">Friends</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">user_one</span><span class="o">=</span><span class="n">user_obj</span><span class="p">,</span> <span class="n">user_two</span><span class="o">=</span><span class="n">friend_obj</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
-    <span class="n">Friends</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">user_one</span><span class="o">=</span><span class="n">friend_obj</span><span class="p">,</span> <span class="n">user_two</span><span class="o">=</span><span class="n">user_obj</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+    <span class="n">Friends</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span
+            class="n">get</span><span class="p">(</span><span class="n">user_one</span><span class="o">=</span><span
+            class="n">user_obj</span><span class="p">,</span> <span class="n">user_two</span><span
+            class="o">=</span><span class="n">friend_obj</span><span class="p">)</span><span class="o">.</span><span
+            class="n">delete</span><span class="p">()</span>
+    <span class="n">Friends</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span
+            class="n">get</span><span class="p">(</span><span class="n">user_one</span><span class="o">=</span><span
+            class="n">friend_obj</span><span class="p">,</span> <span class="n">user_two</span><span
+            class="o">=</span><span class="n">user_obj</span><span class="p">)</span><span class="o">.</span><span
+            class="n">delete</span><span class="p">()</span>
 
-    <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Removed friend. Send new request to add as friend.&#39;</span><span class="p">)</span>
+    <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span
+            class="n">request</span><span class="p">,</span> <span class="s1">&#39;Removed friend. Send new request to add as friend.&#39;</span><span
+            class="p">)</span>
 
-    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;user_profile&#39;</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;user_profile&#39;</span><span
+            class="p">)</span></div>
 
-<div class="viewcode-block" id="add_follower"><a class="viewcode-back" href="../../modules/views/Users.html#Users.views.add_follower">[docs]</a><span class="nd">@login_required</span>
-<span class="k">def</span> <span class="nf">add_follower</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="add_follower"><a class="viewcode-back"
+                                                 href="../../modules/views/Users.html#Users.views.add_follower">[docs]</a><span
+        class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">add_follower</span><span class="p">(</span><span
+            class="n">request</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Display the home page.</span>
 
 <span class="sd">    Retreives the most recent news articles from the database and displays them on the page</span>
@@ -377,31 +646,59 @@
 
 <span class="sd">    :todo: generate documentation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">user</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">[</span><span class="s1">&#39;curUser&#39;</span><span class="p">]</span>
-    <span class="n">follower</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">[</span><span class="s1">&#39;newFollower&#39;</span><span class="p">]</span>
-    <span class="n">user_obj</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
-    <span class="n">follower_obj</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">follower</span><span class="p">)</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span
+            class="n">POST</span><span class="p">[</span><span class="s1">&#39;curUser&#39;</span><span
+            class="p">]</span>
+    <span class="n">follower</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span
+            class="n">POST</span><span class="p">[</span><span class="s1">&#39;newFollower&#39;</span><span
+            class="p">]</span>
+    <span class="n">user_obj</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span
+            class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span
+            class="n">username</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
+    <span class="n">follower_obj</span> <span class="o">=</span> <span class="n">User</span><span
+            class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span
+            class="p">(</span><span class="n">username</span><span class="o">=</span><span
+            class="n">follower</span><span class="p">)</span>
 
-    <span class="n">follower_exist</span> <span class="o">=</span> <span class="n">Followers</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">user_one</span><span class="o">=</span><span class="n">user_obj</span><span class="p">,</span> <span class="n">user_two</span><span class="o">=</span><span class="n">follower_obj</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+    <span class="n">follower_exist</span> <span class="o">=</span> <span class="n">Followers</span><span
+            class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span
+            class="p">(</span><span class="n">user_one</span><span class="o">=</span><span
+            class="n">user_obj</span><span class="p">,</span> <span class="n">user_two</span><span
+            class="o">=</span><span class="n">follower_obj</span><span class="p">)</span><span class="o">.</span><span
+            class="n">exists</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">follower_exist</span><span class="p">:</span>
-        <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Already following.&#39;</span><span class="p">)</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span
+            class="n">request</span><span class="p">,</span> <span class="s1">&#39;Already following.&#39;</span><span
+            class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">Followers</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-                <span class="n">user_one</span><span class="o">=</span><span class="n">user_obj</span><span class="p">,</span>
-                <span class="n">user_two</span><span class="o">=</span><span class="n">follower_obj</span><span class="p">,</span>
-                <span class="n">created_on</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+            <span class="n">Followers</span><span class="o">.</span><span class="n">objects</span><span
+            class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">user_one</span><span class="o">=</span><span class="n">user_obj</span><span
+            class="p">,</span>
+                <span class="n">user_two</span><span class="o">=</span><span class="n">follower_obj</span><span
+            class="p">,</span>
+                <span class="n">created_on</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span
+            class="n">now</span><span class="p">()</span>
             <span class="p">)</span>
-            <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Follower Added.&#39;</span><span class="p">)</span>
+            <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span
+            class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Follower Added.&#39;</span><span
+            class="p">)</span>
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Username does not exist.&#39;</span><span class="p">)</span>
+            <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span
+            class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Username does not exist.&#39;</span><span
+            class="p">)</span>
 
 
-    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;user_profile&#39;</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;user_profile&#39;</span><span
+            class="p">)</span></div>
 
-<div class="viewcode-block" id="remove_follower"><a class="viewcode-back" href="../../modules/views/Users.html#Users.views.remove_follower">[docs]</a><span class="nd">@login_required</span>
-<span class="k">def</span> <span class="nf">remove_follower</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="remove_follower"><a class="viewcode-back"
+                                                    href="../../modules/views/Users.html#Users.views.remove_follower">[docs]</a><span
+        class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">remove_follower</span><span class="p">(</span><span class="n">request</span><span
+            class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Display the home page.</span>
 
 <span class="sd">    Retreives the most recent news articles from the database and displays them on the page</span>
@@ -412,81 +709,89 @@
 
 <span class="sd">    :todo: generate documentation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">user</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">[</span><span class="s1">&#39;curUser&#39;</span><span class="p">]</span>
-    <span class="n">follower</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">[</span><span class="s1">&#39;newFollower&#39;</span><span class="p">]</span>
-    <span class="n">user_obj</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">user</span><span class="p">)</span><span class="o">.</span><span class="n">id</span>
-    <span class="n">follower_obj</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">follower</span><span class="p">)</span><span class="o">.</span><span class="n">id</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span
+            class="n">POST</span><span class="p">[</span><span class="s1">&#39;curUser&#39;</span><span
+            class="p">]</span>
+    <span class="n">follower</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span
+            class="n">POST</span><span class="p">[</span><span class="s1">&#39;newFollower&#39;</span><span
+            class="p">]</span>
+    <span class="n">user_obj</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span
+            class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span
+            class="n">username</span><span class="o">=</span><span class="n">user</span><span class="p">)</span><span
+            class="o">.</span><span class="n">id</span>
+    <span class="n">follower_obj</span> <span class="o">=</span> <span class="n">User</span><span
+            class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span
+            class="p">(</span><span class="n">username</span><span class="o">=</span><span
+            class="n">follower</span><span class="p">)</span><span class="o">.</span><span class="n">id</span>
 
-    <span class="n">Followers</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">user_one</span><span class="o">=</span><span class="n">user_obj</span><span class="p">,</span> <span class="n">user_two</span><span class="o">=</span><span class="n">follower_obj</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+    <span class="n">Followers</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span
+            class="n">get</span><span class="p">(</span><span class="n">user_one</span><span class="o">=</span><span
+            class="n">user_obj</span><span class="p">,</span> <span class="n">user_two</span><span
+            class="o">=</span><span class="n">follower_obj</span><span class="p">)</span><span class="o">.</span><span
+            class="n">delete</span><span class="p">()</span>
 
-    <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Removed follower.&#39;</span><span class="p">)</span>
+    <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span
+            class="n">request</span><span class="p">,</span> <span class="s1">&#39;Removed follower.&#39;</span><span
+            class="p">)</span>
 
-    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;user_profile&#39;</span><span class="p">)</span></div>
-</pre></div>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;user_profile&#39;</span><span
+            class="p">)</span></div>
+</pre>
+                </div>
 
-          </div>
-          
+            </div>
+
         </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+    </div>
+    <div aria-label="main navigation" class="sphinxsidebar" role="navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="../../index.html">Nenniltoz</a></h1>
+            <h1 class="logo"><a href="../../index.html">Nenniltoz</a></h1>
 
 
+            <h3>Navigation</h3>
+            <p class="caption"><span class="caption-text">Contents:</span></p>
+            <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../modules/views.html">Views</a></li>
+            </ul>
 
-
-
-
-
-
-<h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../modules/views.html">Views</a></li>
-</ul>
-
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="../../index.html">Documentation overview</a><ul>
-  <li><a href="../index.html">Module code</a><ul>
-  </ul></li>
-  </ul></li>
-</ul>
-</div>
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script>$('#searchbox').show(0);</script>
-
-
-
-
-
-
+            <div class="relations">
+                <h3>Related Topics</h3>
+                <ul>
+                    <li><a href="../../index.html">Documentation overview</a>
+                        <ul>
+                            <li><a href="../index.html">Module code</a>
+                                <ul>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <div id="searchbox" role="search" style="display: none">
+                <h3 id="searchlabel">Quick search</h3>
+                <div class="searchformwrapper">
+                    <form action="../../search.html" class="search" method="get">
+                        <input aria-labelledby="searchlabel" name="q" type="text"/>
+                        <input type="submit" value="Go"/>
+                    </form>
+                </div>
+            </div>
+            <script>$('#searchbox').show(0);</script>
 
 
         </div>
-      </div>
-      <div class="clearer"></div>
     </div>
-    <div class="footer">
-      &copy;2021, Dustin Pernell, Jonah Ross.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
-      
-    </div>
+    <div class="clearer"></div>
+</div>
+<div class="footer">
+    &copy;2021, Dustin Pernell, Jonah Ross.
 
-    
+    |
+    Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.1</a>
+    &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
 
-    
-  </body>
+</div>
+
+
+</body>
 </html>

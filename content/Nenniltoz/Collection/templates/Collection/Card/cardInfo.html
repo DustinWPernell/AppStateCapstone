@@ -4,108 +4,100 @@
 <div class="singCardHead">
     <span class="singCardAttLbl">Name:</span>
     {% if card.layout|cardMultiFace %}
-        <div class="singCardValueMulti">
-    {% else %}
+    <div class="singCardValueMulti">
+        {% else %}
         <div class="singCardValue">
-    {% endif %}
-        {% for face in faces %}
+            {% endif %}
+            {% for face in faces %}
             <div class="singCardInValue">
                 {{ face.name }}
             </div>
-        {% endfor %}
-    </div>
-
+            {% endfor %}
+        </div>
     <span class="singCardAttLbl">Mana Cost:</span>
     {% if card.layout|cardMultiFace %}
-        <div class="singCardValueMulti">
-    {% else %}
+    <div class="singCardValueMulti">
+        {% else %}
         <div class="singCardValue">
-    {% endif %}
-        {% for face in faces %}
+            {% endif %}
+            {% for face in faces %}
             <div class="singCardInValue">
                 {{ face.manaCost|replaceMana|safe }}
             </div>
-        {% endfor %}
-    </div>
-
+            {% endfor %}
+        </div>
     <span class="singCardAttLbl">Type:</span>
     {% if card.layout|cardMultiFace %}
-        <div class="singCardValueMulti">
-    {% else %}
+    <div class="singCardValueMulti">
+        {% else %}
         <div class="singCardValue">
-    {% endif %}
-        {% for face in faces %}
+            {% endif %}
+            {% for face in faces %}
             <div class="singCardInValue">
                 {{ face.typeLine }}
             </div>
-        {% endfor %}
-    </div>
-
+            {% endfor %}
+        </div>
     <span class="singCardAttLbl">Loyalty:</span>
     {% if card.layout|cardMultiFace %}
-        <div class="singCardValueMulti">
-    {% else %}
+    <div class="singCardValueMulti">
+        {% else %}
         <div class="singCardValue">
-    {% endif %}
-        {% for face in faces %}
+            {% endif %}
+            {% for face in faces %}
             <div class="singCardInValue">
                 {{ face.loyalty }}
             </div>
-        {% endfor %}
-    </div>
-
+            {% endfor %}
+        </div>
     <span class="singCardAttLbl">Power:</span>
-    {% if card.layout|cardMultiFace %}
-        <div class="singCardValueMulti">
-    {% else %}
-        <div class="singCardValue">
-    {% endif %}
-        {% for face in faces %}
-            <div class="singCardInValue">
-                {{ face.power }}
-            </div>
-        {% endfor %}
+{% if card.layout|cardMultiFace %}
+    <div class="singCardValueMulti">
+{% else %}
+    <div class="singCardValue">
+{% endif %}
+{% for face in faces %}
+        <div class="singCardInValue">
+            {{ face.power }}
+        </div>
+{% endfor %}
     </div>
-
     <span class="singCardAttLbl">Toughness:</span>
-    {% if card.layout|cardMultiFace %}
-        <div class="singCardValueMulti">
-    {% else %}
-        <div class="singCardValue">
-    {% endif %}
-        {% for face in faces %}
-            <div class="singCardInValue">
-                {{ face.toughness }}
-            </div>
-        {% endfor %}
+{% if card.layout|cardMultiFace %}
+    <div class="singCardValueMulti">
+{% else %}
+    <div class="singCardValue">
+{% endif %}
+{% for face in faces %}
+        <div class="singCardInValue">
+            {{ face.toughness }}
+        </div>
+{% endfor %}
     </div>
-
     <span class="singCardAttLbl">Text:</span>
-    {% if card.layout|cardMultiFace %}
-        <div class="singCardValueMulti">
-    {% else %}
-        <div class="singCardValue">
-    {% endif %}
-        {% for face in faces %}
-            <div class="singCardInValue" >
-                <p style="white-space: pre-line;">{{ face.text|replaceTextMana|replacePeriod|safe }}</p>
-            </div>
-        {% endfor %}
+{% if card.layout|cardMultiFace %}
+    <div class="singCardValueMulti">
+{% else %}
+    <div class="singCardValue">
+{% endif %}
+{% for face in faces %}
+        <div class="singCardInValue">
+            <p style="white-space: pre-line;">{{ face.text|replaceTextMana|replacePeriod|safe }}</p>
+        </div>
+{% endfor %}
     </div>
-
     <span class="singCardAttLbl">Flavor Text:</span>
-    {% if card.layout|cardMultiFace %}
-        <div class="singCardValueMulti">
-    {% else %}
-        <div class="singCardValue">
-    {% endif %}
-        {% for face in faces %}
-            <div class="singCardInValue">
-                {{ face.flavorText }}
-            </div>
-        {% endfor %}
+{% if card.layout|cardMultiFace %}
+    <div class="singCardValueMulti">
+{% else %}
+    <div class="singCardValue">
+{% endif %}
+{% for face in faces %}
+        <div class="singCardInValue">
+            {{ face.flavorText }}
+        </div>
+{% endfor %}
     </div>
-
     <span class="singCardAttLbl">Most recent set:</span>
     <div class="singCardSet">{{ card.setName }}</div>
 

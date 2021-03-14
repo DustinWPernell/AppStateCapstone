@@ -1,42 +1,43 @@
+{% load replaceValues %}
 
 {% if wishShow %}
-  {% load replaceValues %}
-  <div class="cardFilter">
+<h4>Card Wish List</h4>
+<div class="cardFilter">
     <form action="user_profile" method="post">
-      {% csrf_token %}
-      {% if clear_wish_search %}
-        <input type="text" name="searchWishTerm" value="{{ search_wish_term }}">
-      {% else %}
-        <input type="text" name="searchWishTerm" placeholder="Search">
-      {% endif %}
-      <input type="submit" value="Search" name="searchWish">
-      {% if clear_wish_search %}
-        <input type="submit" value="Clear Search" name="clearWishSearch">
-      {% endif %}
+        {% csrf_token %}
+        {% if clear_wish_search %}
+        <input name="searchWishTerm" type="text" value="{{ search_wish_term }}">
+        {% else %}
+        <input name="searchWishTerm" placeholder="Search" type="text">
+        {% endif %}
+        <input name="searchWish" type="submit" value="Search">
+        {% if clear_wish_search %}
+        <input name="clearWishSearch" type="submit" value="Clear Search">
+        {% endif %}
     </form>
-  </div>
+</div>
 
-  {% include "./wishPager.html" %}
-    <table id="cardGrid" class="cardTable">
-        <tr>
-          <td>Name</td>
-          <td>Mana Cost</td>
-        </tr>
-        {% for card_obj in cardWishPager %}
-        <tr>
-          <td>
+{% include "./wishPager.html" %}
+<table class="cardTable" id="cardGrid">
+    <tr>
+        <td>Name</td>
+        <td>Mana Cost</td>
+    </tr>
+    {% for card_obj in cardWishPager %}
+    <tr>
+        <td>
             {{ card_obj.name }}
-          </td>
-          <td>
+        </td>
+        <td>
             {{ card_obj.manaCost|replaceMana|safe }}
-          </td>
-          <td>
+        </td>
+        <td>
             <a class="cardDirection" href="/Collection/Card/{{ card_obj.cardID_id }}/">
-              <img class="smallCardImg" src="{{ card_obj.avatarImg }}" alt="Avatar">
+                <img alt="Avatar" class="smallCardImg" src="{{ card_obj.avatarImg }}">
             </a>
-          </td>
-        </tr>
-        {% endfor %}
-    </table>
-  {% include "./wishPager.html" %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% include "./wishPager.html" %}
 {% endif %}

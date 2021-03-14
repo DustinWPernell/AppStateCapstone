@@ -5,6 +5,7 @@ from Collection.models import CardLayout
 
 register = template.Library()
 
+
 @register.filter
 def cardDuelSide(val):
     layout = CardLayout.objects.all().filter(
@@ -15,6 +16,7 @@ def cardDuelSide(val):
             return True
     return False
 
+
 @register.filter
 def cardMultiFace(val):
     layout = CardLayout.objects.all().filter(
@@ -24,6 +26,7 @@ def cardMultiFace(val):
         if lay.layout == val:
             return True
     return False
+
 
 @register.filter
 def cardLandscapeFace(val):

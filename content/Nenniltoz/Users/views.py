@@ -8,6 +8,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 from Collection.models import CardFace
@@ -15,6 +16,7 @@ from .forms import CreateUserForm
 from .models import News, UserProfile, Friends, PendingFriends, Followers, UserCards
 
 logger = logging.getLogger(__name__)
+
 
 @login_required
 def add_follower(request, user_id):
@@ -48,7 +50,7 @@ def add_follower(request, user_id):
         )
         messages.success(request, 'Follower Added.')
 
-    return redirect('user_profile', userID=str(request.user.id))
+    return redirect('user_profile', user_id=str(request.user.id))
 
 
 @login_required
@@ -79,7 +81,7 @@ def add_friend(request, user_id):
         PendingFriends.objects.get(user_one=friend_obj, user_two=user_obj).delete()
     except:
         PendingFriends.objects.get(user_one=user_obj, user_two=friend_obj).delete()
-    return redirect('user_profile', userID=str(request.user.id))
+    return redirect('user_profile', user_id=str(request.user.id))
 
 
 def build_follower_list(user):
@@ -174,7 +176,7 @@ def login_page(request):
         if user is not None:
             # correct username and password login the user
             auth.login(request, user)
-            return redirect('user_profile', userID=str(request.user.id))
+            return redirect('user_profile', user_id=str(request.user.id))
 
         else:
             messages.error(request, 'Error wrong username/password')
@@ -234,9 +236,9 @@ def process_friend(request, user_id):
         else:
             messages.success(request, 'Friend request accepted.')
             add_friend(request, user_id)
-        return redirect('user_profile', userID=str(request.user.id))
+        return redirect('user_profile', user_id=str(request.user.id))
     else:
-        return redirect('user_profile', userID=str(friend_obj.id))
+        return redirect('user_profile', user_id=str(friend_obj.id))
 
 
 def register(request):
@@ -251,7 +253,7 @@ def register(request):
     logger.debug("Run: register; Params: " + json.dumps(request.GET.dict()))
 
     if request.user.is_authenticated:
-        return redirect('user_profile', userID=str(request.user.id))
+        return redirect('user_profile', user_id=str(request.user.id))
 
     if request.method == 'POST':
         f = CreateUserForm(request.POST)
@@ -285,9 +287,9 @@ def remove_follower(request, user_id):
     if 'userRedirect' not in request.POST:
         Followers.objects.get(user_one=user_obj, user_two=follower_obj).delete()
         messages.error(request, 'Removed follower.')
-        return redirect('user_profile', userID=str(request.user.id))
+        return redirect('user_profile', user_id=str(request.user.id))
     else:
-        return redirect('user_profile', userID=str(follower_obj))
+        return redirect('user_profile', user_id=str(follower_obj))
 
 
 @login_required
@@ -310,12 +312,12 @@ def remove_friend(request, user_id):
 
         messages.error(request, 'Removed friend. Send new request to add as friend.')
 
-        return redirect('user_profile', userID=str(request.user.id))
+        return redirect('user_profile', user_id=str(request.user.id))
     else:
-        return redirect('user_profile', userID=str(friend_obj))
+        return redirect('user_profile', user_id=str(friend_obj))
 
 
-def save_avatar(request):
+def save_avatar(request, user_id):
     """Saves new avatar to user
 
     Sets new avatar image to selected URL returned by POST.
@@ -325,15 +327,14 @@ def save_avatar(request):
     :todo: None
     """
 
-    user = request.POST['curUser']
     avatar = request.POST['newAvatar']
-    user_obj = User.objects.get(id=user).id
+    user_obj = User.objects.get(id=user_id)
 
     custom_user_profile = UserProfile.objects.get(user=user_obj)
     custom_user_profile.avatarImg = avatar
     custom_user_profile.save()
 
-    return redirect('user_profile', userID=str(user_obj))
+    return redirect('user_profile', user_id=str(user_obj))
 
 
 @login_required
@@ -387,7 +388,7 @@ def select_avatar(request):
 
 
 @login_required
-def send_friend_request(request):
+def send_friend_request(request, user_id):
     """Sends friend request
 
     Uses POST data to send friend request to user. Error checks for
@@ -402,7 +403,7 @@ def send_friend_request(request):
     """
     user = request.POST['curUser']
     friend = request.POST['newFriend']
-    user_obj = User.objects.get(username=user)
+    user_obj = User.objects.get(id=user_id)
     friend_obj = User.objects.get(username=friend)
     friend_obj_exist = User.objects.filter(username=friend).exists()
     pending_friends_exist = PendingFriends.objects.filter(user_one=user_obj, user_two=friend_obj).exists()
@@ -426,7 +427,37 @@ def send_friend_request(request):
         )
         messages.success(request, 'Friend request sent.')
 
-    return redirect('user_profile', userID=str(request.user.id))
+    return redirect('user_profile', user_id=str(request.user.id))
+
+
+@login_required
+def update_settings(request, user_id):
+    """Updated setting
+
+    Updates user settings in database
+
+    @param request:
+    @param user_id: Current user ID
+    @param setting: Setting to be changed
+    @param value: Value to be set
+
+    :todo: None
+    """
+    logger.debug("Run: update_settings; Params: " + json.dumps(request.GET.dict()))
+    user_obj = User.objects.get(id=user_id).id
+
+    setting = request.GET['setting']
+    value = request.GET['value']
+    if value == 'false':
+        value = False
+    elif value == 'true':
+        value = True
+
+    custom_user_profile = UserProfile.objects.get(user=user_obj)
+    setattr(custom_user_profile, setting, value)
+    custom_user_profile.save()
+
+    return HttpResponse("Finished")
 
 
 @login_required
@@ -609,6 +640,7 @@ def user_profile(request, user_id):
     except EmptyPage:
         wish_cards = wish_paginator.page(wish_paginator.num_pages)
     o_player = not str(request.user.id) == user_id
+
 
     context = {
         'user_profile_obj': user_profile_obj, 'user': user, 'friend_obj': friend_obj, 'pending_obj': pending_obj,

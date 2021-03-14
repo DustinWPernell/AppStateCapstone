@@ -2,27 +2,27 @@
 <div class="outerCardRules">
     <table class="singCardRules">
         <thead>
-            <tr>
-                <th class="ruleTableHeader" style="width: 100px;">
-                    Publish Date
-                </th>
-                <th class="ruleTableHeader">
-                    Ruling
-                </th>
-            </tr>
+        <tr>
+            <th class="ruleTableHeader" style="width: 100px;">
+                Publish Date
+            </th>
+            <th class="ruleTableHeader">
+                Ruling
+            </th>
+        </tr>
         </thead>
-{% for rule in rulings %}
+        {% for rule in rulings %}
         <tbody>
-            <tr>
-                <td class="ruleTableField">
-                    {{ rule.pub_date }}
-                </td>
-                <td class="ruleTableField">
-                    {{ rule.comment }}
-                </td>
-            </tr>
+        <tr>
+            <td class="ruleTableField">
+                {{ rule.pub_date }}
+            </td>
+            <td class="ruleTableField">
+                {{ rule.comment }}
+            </td>
+        </tr>
         </tbody>
 
-{% endfor %}
+        {% endfor %}
     </table>
 </div>

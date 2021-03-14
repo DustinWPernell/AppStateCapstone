@@ -527,9 +527,3 @@ def symbol_update(request):
             colorID=color_id,
         )
     return HttpResponse("Finished")
-
-
-
-
-
-

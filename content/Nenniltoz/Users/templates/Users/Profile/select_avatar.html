@@ -4,36 +4,36 @@
 <div class="cardFilter">
     <form action="select_avatar" method="post">
         {% csrf_token %}
-{% if clearSearch %}
-        <input type="text" name="avatarSearchTerm" value="{{ SearchTerm }}">
-{% else %}
-        <input type="text" name="avatarSearchTerm" placeholder="Search">
-{% endif %}
+        {% if clearSearch %}
+        <input name="avatarSearchTerm" type="text" value="{{ SearchTerm }}">
+        {% else %}
+        <input name="avatarSearchTerm" placeholder="Search" type="text">
+        {% endif %}
         <input type="submit" value="Search">
-{% if clearSearch %}
-        <input type="submit" value="Clear Search" name="clearSearch">
-{% endif %}
+        {% if clearSearch %}
+        <input name="clearSearch" type="submit" value="Clear Search">
+        {% endif %}
     </form>
 </div>
 
 {% include "./pager.html" %}
-<div id="avatarGrid" class="avatarGrid">
-{% for card_obj in pages %}
+<div class="avatarGrid" id="avatarGrid">
+    {% for card_obj in pages %}
     <div>
         <form action="save_avatar" method="POST">
             {% csrf_token %}
-            <input type="hidden" name="curUser" value="{{ user.id }}">
-            <input type="hidden" name="newAvatar" value="{{ card_obj.avatarImg }}">
-            <button class="avatarBtn clickable" type="submit"
-                onclick="return confirm('Select avatar: {{ card_obj.name }}?');">
-                <img class="avatarImg" src="{{ card_obj.avatarImg }}" alt="{{ card_obj.name }}">
-                <div class="cardObjText">
+            <input name="curUser" type="hidden" value="{{ user.id }}">
+            <input name="newAvatar" type="hidden" value="{{ card_obj.avatarImg }}">
+            <button class="avatarBtn clickable" onclick="return confirm('Select avatar: {{ card_obj.name }}?');"
+                    type="submit">
+                <img alt="{{ card_obj.name }}" class="avatarImg" src="{{ card_obj.avatarImg }}">
+                <span class="cardObjText">
                     {{ card_obj.name }}
-                </div>
+                </span>
             </button>
         </form>
     </div>
-{% endfor %}
+    {% endfor %}
 </div>
 
 {% include "./pager.html" %}

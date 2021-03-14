@@ -1,5 +1,6 @@
 import string
-from django.core.paginator import InvalidPage, EmptyPage
+
+from django.core.paginator import InvalidPage
 
 
 class NamePaginator(object):
