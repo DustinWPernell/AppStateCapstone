@@ -15,6 +15,7 @@ from Management.models import Settings
 logger = logging.getLogger(__name__)
 api_bulk_data = "https://api.scryfall.com/bulk-data"
 api_card = ""
+api_sing_card = ""
 api_rule = ""
 api_symbol = "https://api.scryfall.com/symbology"
 api_set = "https://api.scryfall.com/sets"
@@ -26,7 +27,7 @@ def admin_index(request):
 
     This page is not currently used by the application.
 
-    :param request: Does not utilize any portions of this param.
+    @param request:
 
     :todo: None
     """
@@ -41,7 +42,7 @@ def api_import(request):
     Shows the Scryfall import option implemented. As import processes data, updates display progress.
     Warning: Processing takes a long time when importing cards an rules.
 
-    :param request: Does not utilize any portions of this param.
+    @param request:
 
     :todo: None
     """
@@ -55,9 +56,10 @@ def api_import(request):
 def card_update(request):
     """Performs API call for cards.
 
-    Calls Scryfall API for retrieval of bulk cards. Parses bulk card Json file. Creates Card, Card faces, and legalities objects for each card.
+    Calls Scryfall API for retrieval of bulk cards. Parses bulk card Json file.
+    Creates Card, Card faces, and legalities objects for each card.
 
-    :param request: Does not utilize any portions of this param.
+    @param request:
 
     :todo: Set to process in background
     """
@@ -68,8 +70,18 @@ def card_update(request):
     )
 
     Card.objects.all().delete()
+    CardIDList.objects.all().delete()
 
     global api_card
+    global api_sing_card
+
+    f = urlopen(api_sing_card)
+    objects = list(ijson.items(f, 'item'))
+    for obj in objects:
+        CardIDList.objects.create(
+            cardID=obj['id'],
+            cardName=obj['name']
+        )
 
     f = urlopen(api_card)
     objects = list(ijson.items(f, 'item'))
@@ -88,6 +100,14 @@ def card_update(request):
             key_words = key_words.strip()
             key_words = key_words.strip(",")
 
+            color_identity = obj['color_identity']
+            color_list = ""
+            for new_color in color_identity:
+                color_list = color_list + ", " + new_color
+
+            color_list = color_list.strip()
+            color_list = color_list.strip(",")
+
             set_order = CardSets.objects.get(name=set_name).order
 
             new_card = Card.objects.create(
@@ -98,6 +118,7 @@ def card_update(request):
                 rarity=rarity,
                 layout=layout,
                 setOrder=set_order,
+                colors=color_list
             )
 
             new_card.save()
@@ -107,47 +128,57 @@ def card_update(request):
                     name = obj['name']
                 else:
                     name = ""
+
                 if 'image_uris' in obj:
                     image_url = obj['image_uris']['png']
                     if 'art_crop' in obj['image_uris']:
-                        avatarImg = obj['image_uris']['art_crop']
+                        avatar_img = obj['image_uris']['art_crop']
                     else:
-                        avatarImg = ""
+                        avatar_img = ""
                 else:
                     image_url = ""
-                    avatarImg = ""
+                    avatar_img = ""
+
                 if 'mana_cost' in obj:
                     mana_cost = obj['mana_cost']
                 else:
                     mana_cost = ""
+
                 if 'loyalty' in obj:
                     loyalty = obj['loyalty']
                 else:
                     loyalty = ""
+
                 if 'power' in obj:
                     power = obj['power']
                 else:
                     power = ""
+
                 if 'toughness' in obj:
                     toughness = obj['toughness']
                 else:
                     toughness = ""
+
                 if 'oracle_text' in obj:
                     text = obj['oracle_text']
                 else:
                     text = ""
+
                 if 'type_line' in obj:
                     type_line = obj['type_line']
                 else:
                     type_line = ""
+
                 if 'color_identity' in obj:
                     colors_array = obj['color_identity']
                 else:
                     colors_array = ""
+
                 if 'flavor_text' in obj:
                     flavor_text = obj['flavor_text']
                 else:
                     flavor_text = ""
+
                 color_id = ""
                 for newColor in colors_array:
                     color_id = color_id + ", " + newColor
@@ -168,7 +199,7 @@ def card_update(request):
                     flavorText=flavor_text,
                     cardID=new_card,
                     firstFace=True,
-                    avatarImg=avatarImg,
+                    avatarImg=avatar_img,
                     setOrder=set_order,
                 )
             else:
@@ -177,17 +208,19 @@ def card_update(request):
                     if 'image_uris' in face:
                         image_url = face['image_uris']['png']
                         if 'art_crop' in face['image_uris']:
-                            avatarImg = face['image_uris']['art_crop']
+                            avatar_img = face['image_uris']['art_crop']
+                        else:
+                            avatar_img = ""
                     else:
                         if 'image_uris' in obj:
                             image_url = obj['image_uris']['png']
                             if 'art_crop' in obj['image_uris']:
-                                avatarImg = obj['image_uris']['art_crop']
+                                avatar_img = obj['image_uris']['art_crop']
                             else:
-                                avatarImg = ""
+                                avatar_img = ""
                         else:
                             image_url = ""
-                            avatarImg = ""
+                            avatar_img = ""
 
                     if 'name' in face:
                         name = face['name']
@@ -254,7 +287,7 @@ def card_update(request):
                         flavorText=flavor_text,
                         cardID=new_card,
                         firstFace=first_face,
-                        avatarImg=avatarImg,
+                        avatarImg=avatar_img,
                         setOrder=set_order,
                     )
                     first_face = False
@@ -277,15 +310,6 @@ def card_update(request):
                 premodern=obj['legalities']['premodern'],
             )
 
-    full_card_list_all = CardFace.objects.raw("SELECT * FROM main.Collection_cardface GROUP BY name ORDER BY name")
-    full_card_id_list_all = []
-    for card_obj in full_card_list_all:
-        if card_obj.cardID.cardID not in full_card_id_list_all:
-            CardIDList.objects.create(
-                cardID=card_obj.cardID.cardID,
-                cardName=card_obj.cardID.name
-            )
-
     return HttpResponse("Finished")
 
 
@@ -294,10 +318,10 @@ def check_card_obj(obj):
 
     Loops through values in the database to determine if passed card data should be ignored.
 
-    :param obj: Unprocessed card object in Json format
+    @param obj: Unprocessed card object in Json format
 
-    :returns:
-    :returns: * True: Card is good
+    @returns:
+        * True: Card is good
         * False: Card is bad
 
     :todo: None
@@ -320,12 +344,84 @@ def check_card_obj(obj):
 
 
 @staff_member_required
+def retrieve_api(request):
+    """Performs API call for bulk data urls.
+
+    Calls Scryfall API for retrieval of bulk data urls. Parses bulk data url Json file. Stores URLs for cards and rules.
+
+    @param request:
+
+    :todo: Set to process in background
+    """
+    logger.debug("Run: retrieve_api; Params: " + json.dumps(request.GET.dict()))
+    global api_bulk_data
+    global api_card
+    global api_rule
+    global api_sing_card
+
+    f = urlopen(api_bulk_data)
+    objects = list(ijson.items(f, 'data'))[0]
+    for obj in objects:
+        if obj['type'] == "default_cards":
+            api_card = obj['download_uri']
+        elif obj['type'] == "rulings":
+            api_rule = obj['download_uri']
+        elif obj['type'] == "oracle_cards":
+            api_sing_card = obj['download_uri']
+    return HttpResponse("Finished")
+
+
+@staff_member_required
+def rule_update(request):
+    """Performs API call for rules.
+
+    Calls Scryfall API for retrieval of bulk rules. Parses bulk rule Json file. Creates a Rule object for each rule.
+
+    @param request:
+
+    :todo: Set to process in background
+    """
+    logger.debug("Run: rule_update; Params: " + json.dumps(request.GET.dict()))
+    Settings.objects.update_or_create(
+        id=1,
+        defaults={'lastRuleImport': datetime.now().date()},
+    )
+
+    Rule.objects.all().delete()
+    global api_rule
+    global api_card
+
+    f = urlopen(api_rule)
+    objects = list(ijson.items(f, 'item'))
+    for obj in objects:
+        if 'oracle_id' in obj:
+            oracle_id = obj['oracle_id']
+        else:
+            oracle_id = ""
+        if 'published_at' in obj:
+            published_at = obj['published_at']
+        else:
+            published_at = ""
+        if 'comment' in obj:
+            comment = obj['comment']
+        else:
+            comment = ""
+
+        Rule.objects.create(
+            oracleID=oracle_id,
+            pub_date=published_at,
+            comment=comment,
+        )
+    return HttpResponse("Finished")
+
+
+@staff_member_required
 def set_update(request):
     """Performs API call for sets.
 
     Calls Scryfall API for retrieval of sets. Parses sets Json file. Creates sets objects for each set.
 
-    :param request: Does not utilize any portions of this param.
+    @param request:
 
     :todo: Set to process in background
     """
@@ -377,7 +473,7 @@ def symbol_update(request):
 
     Calls Scryfall API for retrieval of symbols. Parses symbols Json file. Creates symbols objects for each symbol.
 
-    :param request: Does not utilize any portions of this param.
+    @param request:
 
     :todo: Set to process in background
     """
@@ -430,73 +526,4 @@ def symbol_update(request):
             manaCost=cmc,
             colorID=color_id,
         )
-    return HttpResponse("Finished")
-
-
-@staff_member_required
-def rule_update(request):
-    """Performs API call for rules.
-
-    Calls Scryfall API for retrieval of bulk rules. Parses bulk rule Json file. Creates a Rule object for each rule.
-
-    :param request: Does not utilize any portions of this param.
-
-    :todo: Set to process in background
-    """
-    logger.debug("Run: rule_update; Params: " + json.dumps(request.GET.dict()))
-    Settings.objects.update_or_create(
-        id=1,
-        defaults={'lastRuleImport': datetime.now().date()},
-    )
-
-    Rule.objects.all().delete()
-    global api_rule
-    global api_card
-
-    f = urlopen(api_rule)
-    objects = list(ijson.items(f, 'item'))
-    for obj in objects:
-        if 'oracle_id' in obj:
-            oracle_id = obj['oracle_id']
-        else:
-            oracle_id = ""
-        if 'published_at' in obj:
-            published_at = obj['published_at']
-        else:
-            published_at = ""
-        if 'comment' in obj:
-            comment = obj['comment']
-        else:
-            comment = ""
-
-        Rule.objects.create(
-            oracleID=oracle_id,
-            pub_date=published_at,
-            comment=comment,
-        )
-    return HttpResponse("Finished")
-
-
-@staff_member_required
-def retrieve_api(request):
-    """Performs API call for bulk data urls.
-
-    Calls Scryfall API for retrieval of bulk data urls. Parses bulk data url Json file. Stores URLs for cards and rules.
-
-    :param request: Does not utilize any portions of this param.
-
-    :todo: Set to process in background
-    """
-    logger.debug("Run: retrieve_api; Params: " + json.dumps(request.GET.dict()))
-    global api_bulk_data
-    global api_card
-    global api_rule
-
-    f = urlopen(api_bulk_data)
-    objects = list(ijson.items(f, 'data'))[0]
-    for obj in objects:
-        if obj['type'] == "default_cards":
-            api_card = obj['download_uri']
-        elif obj['type'] == "rulings":
-            api_rule = obj['download_uri']
     return HttpResponse("Finished")

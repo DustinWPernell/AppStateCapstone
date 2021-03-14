@@ -49,7 +49,7 @@
     text-decoration: none;
 }
 
-    .cardObj{
+.cardObj{
         width: 200px;
         margin-top: 8px;
         vertical-align: middle;
@@ -58,21 +58,49 @@
         transition: 0.3s;
     }
 
-        .cardObj:hover {
-            box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
-        }
+.cardObjText{
+    padding: 2px 16px;
+}
 
-        .cardObjText {
-            padding: 2px 16px;
-        }
+.cardImg{
+    border-radius: 23px;
+    border-color: white;
+    border-style: solid;
+    width: 95%;
+    height: auto;
+}
 
-        .cardImg{
-            border-radius: 23px;
-            border-color: white;
-            border-style: solid;
-            width: 95%;
-            height: auto;
-        }
+.outerCardLegal{
+    grid-column: 1 / span 2;
+    display: grid;
+    grid-template-columns: 100px auto;
+}
+
+.innerCardLegal{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    column-gap: 5px;
+    row-gap: 5px;
+}
+
+.legalTableField{
+}
+
+.notLegalTableField{
+    color: red;
+}
+
+.outerCardRules{
+    grid-column: 1 / span 2;
+}
+
+.singCardRules{
+    margin: 10px;
+}
+
+.ruleTableField{
+    padding-top: 10px;
+}
 
 .singCardImages{
     margin: 2%;
@@ -173,6 +201,14 @@
     column-gap: 20px;
     row-gap: 20px;
     margin-top: 20px;
+}
+
+.cardQuantity{
+    margin-bottom:10px;
+}
+
+.quantityText{
+    width: 50px;
 }
 
 @media screen and (min-width: 1000px) {

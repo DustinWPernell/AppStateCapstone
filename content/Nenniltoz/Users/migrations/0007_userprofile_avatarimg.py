@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('Users', '0006_delete_snippet'),
     ]
@@ -13,7 +12,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='userprofile',
             name='avatarImg',
-            field=models.CharField(default='https://c1.scryfall.com/file/scryfall-cards/art_crop/front/0/2/0215cbbf-7bac-4ff7-bceb-23d728797848.jpg?1607534887', max_length=200),
+            field=models.CharField(
+                default='https://c1.scryfall.com/file/scryfall-cards/art_crop/front/0/2/0215cbbf-7bac-4ff7-bceb-23d728797848.jpg?1607534887',
+                max_length=200),
             preserve_default=False,
         ),
     ]

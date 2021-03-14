@@ -1,0 +1,43 @@
+{% load replaceValues %}
+
+{% if cardShow %}
+<h4>Cards</h4>
+<div class="cardFilter">
+    <form action="user_profile" method="post">
+        {% csrf_token %}
+        {% if clear_card_search %}
+        <input name="searchCardTerm" type="text" value="{{ search_card_term }}">
+        {% else %}
+        <input name="searchCardTerm" placeholder="Search" type="text">
+        {% endif %}
+        <input name="searchCard" type="submit" value="Search">
+        {% if clear_card_search %}
+        <input name="clearCardSearch" type="submit" value="Clear Search">
+        {% endif %}
+    </form>
+</div>
+
+{% include "./cardPager.html" %}
+<table class="cardTable" id="cardGrid">
+    <tr>
+        <td>Name</td>
+        <td>Mana Cost</td>
+    </tr>
+    {% for card_obj in cardPager %}
+    <tr>
+        <td>
+            {{ card_obj.name }}
+        </td>
+        <td>
+            {{ card_obj.manaCost|replaceMana|safe }}
+        </td>
+        <td>
+            <a class="cardDirection" href="/Collection/Card/{{ card_obj.cardID_id }}/">
+                <img alt="Avatar" class="smallCardImg" src="{{ card_obj.avatarImg }}">
+            </a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% include "./cardPager.html" %}
+{% endif %}

@@ -1,7 +1,6 @@
-import self as self
 from django.contrib.auth.models import User
 from django.db import models
-from django.urls import reverse
+
 
 # Create your models here.
 class Preference:
@@ -67,12 +66,25 @@ class UserProfile(models.Model):
             * default_exposure - Setting for privacy of a profile
     """
     user = models.ForeignKey(User, related_name='user_profile', on_delete=models.CASCADE)
-    default_exposure = models.CharField(max_length=10, choices=Preference.exposure_choices,
-                                        default=Preference.SNIPPET_EXPOSURE_PUBLIC)
+    cardView = models.BooleanField(default=False)
+    deckView = models.BooleanField(default=True)
+    profileView = models.BooleanField(default=True)
     avatarImg = models.CharField(max_length=200)
 
     def __int__(self):
         return self.user.id
+
+
+class UserCards(models.Model):
+    """
+        Stores user card relationship
+            * user - Foreign key for linking to a User object
+            * cardID - String containing cardID
+            * quantity - number of cards owned. If 0 on wish list
+    """
+    user = models.ForeignKey(User, related_name='user_card', on_delete=models.CASCADE)
+    cardID = models.CharField(max_length=200)
+    quantity = models.IntegerField(default=0)
 
 
 class News(models.Model):

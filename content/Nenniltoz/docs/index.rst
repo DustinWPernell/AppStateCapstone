@@ -1,7 +1,7 @@
 .. Nenniltoz documentation master file, created by
-   sphinx-quickstart on Fri Feb 26 22:41:02 2021.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+sphinx-quickstart on Fri Feb 26 22:41:02 2021.
+You can adapt this file completely to your liking, but it should at least
+contain the root `toctree` directive.
 
 Welcome to Nenniltoz's documentation!
 =====================================
@@ -11,7 +11,6 @@ Welcome to Nenniltoz's documentation!
    :caption: Contents:
 
    modules/models
-   modules/templates
    modules/views
 
 

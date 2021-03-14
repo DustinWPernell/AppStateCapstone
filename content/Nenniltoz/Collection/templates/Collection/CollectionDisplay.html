@@ -2,46 +2,46 @@
 
 {% block content %}
 <div class="cardFilter">
-  <form action="collectionAll" method="post">
-    {% csrf_token %}
-    {% if clearSearch %}
-      <input type="text" name="SearchTerm" value="{{ SearchTerm }}">
-    {% else %}
-      <input type="text" name="SearchTerm" placeholder="Search">
-    {% endif %}
-    <input type="submit" value="Search">
-    {% if clearSearch %}
-      <input type="submit" value="Clear Search" name="clearSearch">
-    {% endif %}
-    <a class="advFilterA clickable colorText" onclick="advFilterFunc();">Advanced Search</a>
-    <div id="advFilter" class="cardAdvFilter">
-      {% for mana in mana_list %}
-        <span class='manaSearchObj'>
+    <form action="collectionAll" method="post">
+        {% csrf_token %}
+        {% if clearSearch %}
+        <input name="SearchTerm" type="text" value="{{ SearchTerm }}">
+        {% else %}
+        <input name="SearchTerm" placeholder="Search" type="text">
+        {% endif %}
+        <input type="submit" value="Search">
+        {% if clearSearch %}
+        <input name="clearSearch" type="submit" value="Clear Search">
+        {% endif %}
+        <a class="advFilterA clickable colorText" onclick="advFilterFunc();">Advanced Search</a>
+        <div class="cardAdvFilter" id="advFilter">
+            {% for mana in mana_list %}
+            <span class='manaSearchObj'>
           {% if mana.checked %}
-            <input type="checkbox" name="mana-{{ mana.id }}" value="{{ mama.id }}" checked="checked">
+            <input checked="checked" name="mana-{{ mana.id }}" type="checkbox" value="{{ mama.id }}">
           {% else %}
-            <input type="checkbox" name="mana-{{ mana.id }}" value="{{ mama.id }}">
+            <input name="mana-{{ mana.id }}" type="checkbox" value="{{ mama.id }}">
           {% endif %}
           <img class='mamaSearchSymbols' src='{{ mana.imageURL }}'/>
         </span>
-      {% endfor %}
-    </div>
-  </form>
+            {% endfor %}
+        </div>
+    </form>
 </div>
 
 {% include "./pager.html" %}
-  <div id="cardGrid" class="cardGrid">
+<div class="cardGrid" id="cardGrid">
     {% for card_obj in pages %}
-      <div class="cardObj">
+    <div class="cardObj">
         <a class="cardDirection" href="/Collection/Card/{{ card_obj.cardID_id }}/">
-          <img class="cardImg" src="{{ card_obj.imageURL }}" alt="Avatar">
-          <div class="cardObjText">
-            {{ card_obj.name }}
-          </div>
+            <img alt="Avatar" class="cardImg" src="{{ card_obj.imageURL }}">
+            <div class="cardObjText">
+                {{ card_obj.name }}
+            </div>
         </a>
-      </div>
+    </div>
     {% endfor %}
-  </div>
-
+</div>
 {% include "./pager.html" %}
+
 {% endblock %}

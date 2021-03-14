@@ -1,10 +1,15 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
-    {% for card_obj in card %}
-        <div id="card" class="singCardBody">
-            {% include "./cardInfo.html" %}
-            {% include "./cardImages.html" %}
-        </div>
-    {% endfor %}
+{% if auth %}
+{% include "./Card/cardQuantity.html" %}
+{% endif %}
+<div class="singCardBody" id="card">
+    {% include "./Card/cardInfo.html" %}
+    {% include "./Card/cardImages.html" %}
+    {% include "./Card/cardLegal.html" %}
+    {% if has_rules %}
+    {% include "./Card/cardRules.html" %}
+    {% endif %}
+</div>
 {% endblock %}

@@ -11,7 +11,6 @@ Welcome to Nenniltoz's documentation!
    :caption: Contents:
 
    modules/models
-   modules/templates
    modules/views
 
 
