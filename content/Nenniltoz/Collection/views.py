@@ -9,7 +9,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
 from Collection.models import Card, CardFace, Symbol, CardSets, CardLayout, CardIDList, Rule, Legality
-from Users.models import UserCards
+from Users.models import UserCards, UserProfile
 
 logger = logging.getLogger(__name__)
 
@@ -101,8 +101,10 @@ def card_display(request, card_id):
         if user_card.count() > 0:
             quantity = user_card[0]['quantity']
             card_count = quantity
+    set_info.sort(key=lambda item: item.get("set_name"))
 
-    context = {'card': card_obj, 'faces': face_obj, 'set_info': set_info, 'set_list': card_set_list,
+    font_family = UserProfile.get_font(request.user.id)
+    context = {'font_family': font_family, 'card': card_obj, 'faces': face_obj, 'set_info': set_info, 'set_list': card_set_list,
                'rulings': rulings_list, 'has_rules': len(rulings_list) > 0, 'legal': legalities,
                'quantity': quantity, 'cardCount': card_count, 'auth': request.user.is_authenticated}
     return render(request, 'Collection/CardDisplay.html', context)
@@ -253,7 +255,8 @@ def collection_display(request):
     except EmptyPage:
         cards = paginator.page(paginator.num_pages)
 
-    context = {'pages': cards, 'SearchTerm': search_term, 'mana_list': mana_list, 'clearSearch': clear_search}
+    font_family = UserProfile.get_font(request.user.id)
+    context = {'font_family': font_family, 'pages': cards, 'SearchTerm': search_term, 'mana_list': mana_list, 'clearSearch': clear_search}
     return render(request, 'Collection/CollectionDisplay.html', context)
 
 

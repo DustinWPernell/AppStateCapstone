@@ -1,0 +1,59 @@
+.default_font{
+    font-family: Arial, Helvetica, sans-serif;
+    letter-spacing: normal;
+    font-size: 1em;
+}
+
+.dragonfly{
+    font-family: "dragonflyregular", Arial, Helvetica, sans-serif;
+    letter-spacing: 2px;
+    font-size: 1.10em;
+}
+
+.adistro{
+    font-family: "a_adistroregular", Arial, Helvetica, sans-serif;
+    letter-spacing: 4px;
+    font-size: 1.10em;
+}
+
+.ape_mount{
+    font-family: "a_ape_mountregular", Arial, Helvetica, sans-serif;
+    letter-spacing: 1px;
+    font-size: 1.10em;
+}
+
+.arigatougozaimsu{
+    font-family: "a_arigatou_gozaimasuregular", Arial, Helvetica, sans-serif;
+    letter-spacing: 2px;
+    font-size: 1.10em;
+}
+
+.edge_of_the_galexy{
+    font-family: "edge_of_the_galaxyregular", Arial, Helvetica, sans-serif;
+    letter-spacing: 3px;
+    font-size: 1.10em;
+}
+
+.annyeong_haseyo{
+    font-family: "a_annyeong_haseyoregular", Arial, Helvetica, sans-serif;
+    letter-spacing: 1px;
+    font-size: 1.10em;
+}
+
+.asian_hiro{
+    font-family: "a_asian_hiroregular", Arial, Helvetica, sans-serif;
+    letter-spacing: 2px;
+    font-size: 1.1em;
+}
+
+.ablasco{
+    font-family: "a_ablascoregular", Arial, Helvetica, sans-serif;
+    letter-spacing: 3px;
+    font-size: 1.1em;
+}
+
+.anterobot{
+    font-family: "a_anterobotregular", Arial, Helvetica, sans-serif;
+    letter-spacing: 3px;
+    font-size: 1.1em;
+}

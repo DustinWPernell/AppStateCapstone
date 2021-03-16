@@ -1,26 +1,35 @@
 <div class="">
-    <h4>Account Preferences</h4>
+    <h3>Account Preferences</h3>
+    <div class="avatar_btn">
+        <a href="/Users/select_avatar">Change Avatar</a>
+    </div>
+
+    <hr>
+
 {% if user_profile_obj.profileView %}
     <input type="checkbox" id="profileViewCB" name="profileViewCB" value="Public Profile" onclick="publicViewCB('profileView')" checked>
-    <label for="profileViewCB">Public Profile</label><br>
 {% else %}
     <input type="checkbox" id="profileViewCB" name="profileViewCB" value="Public Profile" onclick="publicViewCB('profileView')">
-    <label for="profileViewCB">Public Profile</label><br>
 {% endif %}
+    <label for="profileViewCB">Public Profile</label><br>
 
 {% if user_profile_obj.deckView %}
     <input type="checkbox" id="deckViewCB" name="deckViewCB" value="Public Decks" onclick="publicViewCB('deckView')" checked>
-    <label for="profileViewCB">Public Decks</label><br>
 {% else %}
     <input type="checkbox" id="deckViewCB" name="deckViewCB" value="Public Decks" onclick="publicViewCB('deckView')">
-    <label for="profileViewCB">Public Decks</label><br>
 {% endif %}
+    <label for="profileViewCB">Public Decks</label><br>
 
 {% if user_profile_obj.cardView %}
     <input type="checkbox" id="cardViewCB" name="cardViewCB" value="Public Cards" onclick="publicViewCB('cardView')" checked>
-    <label for="profileViewCB">Public Cards</label><br>
 {% else %}
     <input type="checkbox" id="cardViewCB" name="cardViewCB" value="Public Cards" onclick="publicViewCB('cardView')">
-    <label for="profileViewCB">Public Cards</label><br>
 {% endif %}
+    <label for="profileViewCB">Public Cards</label><br>
+
+    <hr>
+    <h4>Font Type</h4>
+    {% include "./fonts.html" %}
+
 </div>
+

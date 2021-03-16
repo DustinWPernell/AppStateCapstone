@@ -6,13 +6,13 @@
     <form action="user_profile" method="post">
         {% csrf_token %}
         {% if clear_wish_search %}
-        <input name="searchWishTerm" type="text" value="{{ search_wish_term }}">
+        <input class="{{ font_family }}" name="searchWishTerm" type="text" value="{{ search_wish_term }}">
         {% else %}
-        <input name="searchWishTerm" placeholder="Search" type="text">
+        <input class="{{ font_family }}" name="searchWishTerm" placeholder="Search" type="text">
         {% endif %}
-        <input name="searchWish" type="submit" value="Search">
+        <input class="{{ font_family }}" name="searchWish" type="submit" value="Search">
         {% if clear_wish_search %}
-        <input name="clearWishSearch" type="submit" value="Clear Search">
+        <input class="{{ font_family }}" name="clearWishSearch" type="submit" value="Clear Search">
         {% endif %}
     </form>
 </div>

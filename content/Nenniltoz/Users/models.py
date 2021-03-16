@@ -70,10 +70,16 @@ class UserProfile(models.Model):
     deckView = models.BooleanField(default=True)
     profileView = models.BooleanField(default=True)
     avatarImg = models.CharField(max_length=200)
+    font_family = models.CharField(max_length=200, default='default_font')
 
     def __int__(self):
         return self.user.id
 
+    @staticmethod
+    def get_font(user_id):
+        user = User.objects.get(id=user_id)
+        up = UserProfile.objects.get(user=user)
+        return up.font_family
 
 class UserCards(models.Model):
     """

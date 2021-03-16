@@ -73,12 +73,12 @@
 .outerCardLegal{
     grid-column: 1 / span 2;
     display: grid;
-    grid-template-columns: 100px auto;
+    grid-template-columns: 140px auto;
 }
 
 .innerCardLegal{
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     column-gap: 5px;
     row-gap: 5px;
 }
@@ -172,10 +172,9 @@
     font-size: 16px;
 }
 
-.setImagesArea{
-    display: grid;
-    grid-template-rows: auto auto;
-    margin-right: 20px;
+.set_images{
+    width: 300px;
+    height: 25px;
 }
 
 .singSetObj{
@@ -197,7 +196,7 @@
 
 .outerCardImage{
     display: grid;
-    grid-template-rows: 20px auto;
+    grid-template-rows: 50px auto;
     column-gap: 20px;
     row-gap: 20px;
     margin-top: 20px;
@@ -209,6 +208,12 @@
 
 .quantityText{
     width: 50px;
+}
+
+.setImagesArea{
+    display: grid;
+    grid-template-rows: 20px auto;
+    z-index: 2;
 }
 
 @media screen and (min-width: 1000px) {

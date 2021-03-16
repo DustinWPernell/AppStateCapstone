@@ -13,10 +13,6 @@ html{
     display: block !important;
 }
 
-.font{
-    font-family: Arial, Helvetica, sans-serif;
-}
-
 .innerBody{
     overflow: hidden;
     padding: 30px;
