@@ -1,0 +1,109 @@
+{% load cardLayout %}
+<div class="outerCardLegal">
+    <div>
+        Legalities:
+    </div>
+    <div class="innerCardLegal">
+{% if legal.standard == "legal" %}
+        <div class="legalTableField">
+{% else %}
+        <div class="notLegalTableField">
+{% endif %}
+            Standard
+        </div>
+{% if legal.future == "legal" %}
+        <div class="legalTableField">
+{% else %}
+        <div class="notLegalTableField">
+{% endif %}
+            Future
+        </div>
+{% if legal.historic == "legal" %}
+        <div class="legalTableField">
+{% else %}
+        <div class="notLegalTableField">
+{% endif %}
+            Historic
+        </div>
+{% if legal.gladiator == "legal" %}
+        <div class="legalTableField">
+{% else %}
+        <div class="notLegalTableField">
+{% endif %}
+            Gladiator
+        </div>
+{% if legal.modern == "legal" %}
+        <div class="legalTableField">
+{% else %}
+        <div class="notLegalTableField">
+{% endif %}
+            Modern
+        </div>
+{% if legal.legacy == "legal" %}
+        <div class="legalTableField">
+{% else %}
+        <div class="notLegalTableField">
+{% endif %}
+            Legacy
+        </div>
+{% if legal.pauper == "legal" %}
+        <div class="legalTableField">
+{% else %}
+        <div class="notLegalTableField">
+{% endif %}
+            Pauper
+        </div>
+{% if legal.vintage == "legal" %}
+        <div class="legalTableField">
+{% else %}
+        <div class="notLegalTableField">
+{% endif %}
+            Vintage
+        </div>
+{% if legal.penny == "legal" %}
+        <div class="legalTableField">
+{% else %}
+        <div class="notLegalTableField">
+{% endif %}
+            Penny
+        </div>
+{% if legal.commander == "legal" %}
+        <div class="legalTableField">
+{% else %}
+        <div class="notLegalTableField">
+{% endif %}
+            Commander
+        </div>
+{% if legal.brawl == "legal" %}
+        <div class="legalTableField">
+{% else %}
+        <div class="notLegalTableField">
+{% endif %}
+            Brawl
+        </div>
+{% if legal.duel == "legal" %}
+        <div class="legalTableField">
+{% else %}
+        <div class="notLegalTableField">
+{% endif %}
+            Duel
+        </div>
+{% if legal.oldSchool == "legal" %}
+        <div class="legalTableField">
+{% else %}
+        <div class="notLegalTableField">
+{% endif %}
+            Old School
+        </div>
+{% if legal.premodern == "legal" %}
+        <div class="legalTableField">
+{% else %}
+        <div class="notLegalTableField">
+{% endif %}
+            Pre-Modern
+        </div>
+    </div>
+</div>
+    <div class="notLegalTableField" style="margin-top: 5px;">
+        * Card is not legal for game styles in red.
+    </div>

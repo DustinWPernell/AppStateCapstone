@@ -1,0 +1,30 @@
+{% load replaceValues %}
+<h4>Decks</h4>
+
+{% if deckShow %}
+<div class="cardFilter">
+    <form action="user_profile" method="post">
+        {% csrf_token %}
+        {% if clear_card_search %}
+        <input name="searchDeckTerm" type="text" value="{{ search_deck_term }}">
+        {% else %}
+        <input name="searchDeckTerm" placeholder="Search" type="text">
+        {% endif %}
+        <input name="searchCard" type="submit" value="Search">
+        {% if clear_card_search %}
+        <input name="clearDeckSearch" type="submit" value="Clear Search">
+        {% endif %}
+    </form>
+</div>
+
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Color</th>
+        <th>Game Type</th>
+        <th>Public</th>
+    </tr>
+</table>
+{% endif %}
+
+<a class="colorText clickableCol" href="{% url 'new_deck'%}">New Deck</a>

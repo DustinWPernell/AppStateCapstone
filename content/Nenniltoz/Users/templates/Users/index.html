@@ -1,20 +1,20 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
-    {% if latest_news_list %}
-        <table class="magicupdate">
-            {% for news in latest_news_list %}
-                <tr>
-                    <td class="imagespace">
-                      <img src="{{ news.imageURL }}" width="200px">
-                    </td>
-                    <td>
-                        {{ news.headline }}
-                    </td>
-                </tr>
-        {% endfor %}
-        </table>
-    {% else %}
-        <p>No news is available.</p>
-    {% endif %}
+{% if latest_news_list %}
+<table class="magicupdate">
+    {% for news in latest_news_list %}
+    <tr>
+        <td class="imagespace">
+            <img src="{{ news.imageURL }}" width="200px">
+        </td>
+        <td>
+            {{ news.headline }}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>No news is available.</p>
+{% endif %}
 {% endblock %}

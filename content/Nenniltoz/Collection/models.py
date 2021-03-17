@@ -77,6 +77,7 @@ class Card(models.Model):
             * setName - Set of the card
             * layout - Layout of the card
             * setOrder - Order in which set occurs
+            * color - Stores color identity of card
     """
     cardID = models.CharField(max_length=200, primary_key=True)
     oracleID = models.CharField(max_length=200)
@@ -85,9 +86,21 @@ class Card(models.Model):
     setName = models.CharField(max_length=100)
     layout = models.CharField(max_length=30)
     setOrder = models.IntegerField()
+    color = models.CharField(max_length=30)
 
     def __str__(self):
         return self.cardID
+
+
+class CardIDList(models.Model):
+    """
+        Stores Unique card named objects
+            * cardID - ID for the card (specific to printing)
+            * name - Name of the card
+    """
+    cardID = models.CharField(max_length=200, primary_key=True)
+    cardName = models.CharField(max_length=200)
+    cardName.null = True
 
 
 class Deck(models.Model):

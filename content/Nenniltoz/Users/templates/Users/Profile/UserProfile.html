@@ -1,0 +1,65 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+{% if messages %}
+{% for message in messages %}
+{% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+<p class="successAlert alert">{{ message }}</p>
+{% else %}
+<p class="errorAlert alert">{{ message }}</p>
+{% endif %}
+{% endfor %}
+{% endif %}
+<div class="ProfileGrid">
+
+    <div id="leftGrid">
+        {% if o_player %}
+            {% if user_profile_obj.profileView %}
+                <div class="AccountDetails">
+                    {% include "./AccountDetails.html" %}
+                </div>
+            {% else %}
+                <div class="row">
+                    <div class="">
+                        <h3>Hidden Profile</h3>
+                    </div>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="tab">
+                <button class="tablinks" id="defaultOpen" onclick="openTab(event, 'profile')">Profile</button>
+                <button class="tablinks" onclick="openTab(event, 'editProfile')">Edit Profile</button>
+            </div>
+            <div class="tabcontent" id="profile">
+                <div class="AccountDetails">
+                    {% include "./AccountDetails.html" %}
+                </div>
+            </div>
+            <div class="tabcontent" id="editProfile">
+                <div class="ChAccountPref">
+                    {% include "./ChAccountPref.html" %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    <div id="rightGrid">
+        {% if user_profile_obj.profileView or not o_player%}
+            <hr class="rightGridHR">
+            <div class="userAvatarDiv">
+                <img class="userAvatarImg" src="{{ user_profile_obj.avatarImg }}">
+            </div>
+            <div class="FriendDetails">
+                {% include "./FriendDetails.html" %}
+            </div>
+            <hr>
+            <div class="FollowerDetails">
+                {% include "./FollowerDetails.html" %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+<script>
+    document.getElementById("defaultOpen").click();
+
+</script>
+{% endblock %}
