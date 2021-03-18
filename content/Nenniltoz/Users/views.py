@@ -156,9 +156,11 @@ def index(request):
 
     if request.user.is_authenticated:
         font_family = UserProfile.get_font(request.user.id)
+        should_translate = UserProfile.get_translate(request.user.id)
     else:
         font_family = 'default_font'
-    context = {'font_family': font_family, 'latest_news_list': latest_news_list, }
+        should_translate = 'notranslate'
+    context = {'font_family': font_family, 'should_translate': should_translate, 'latest_news_list': latest_news_list, }
     return render(request, 'Users/index.html', context)
 
 
@@ -187,7 +189,8 @@ def login_page(request):
             messages.error(request, 'Error wrong username/password')
 
     font_family = 'default_font'
-    context = {'font_family': font_family}
+    should_translate = 'notranslate'
+    context = {'font_family': font_family, 'should_translate': should_translate}
     return render(request, 'Users/login.html', context)
 
 
@@ -205,7 +208,8 @@ def logout_page(request):
 
     auth.logout(request)
     font_family = 'default_font'
-    context = {'font_family': font_family}
+    should_translate = UserProfile.get_translate(request.user.id)
+    context = {'font_family': font_family, 'should_translate': should_translate}
     return render(request, 'Users/logout.html', context)
 
 @login_required
@@ -220,7 +224,8 @@ def new_deck(request):
     """
 
     font_family = UserProfile.get_font(request.user.id)
-    context = {'font_family': font_family}
+    should_translate = UserProfile.get_translate(request.user.id)
+    context = {'font_family': font_family, 'should_translate': should_translate}
     return render(request, 'Users/Profile/newDeck.html', context)
 
 
@@ -279,7 +284,8 @@ def register(request):
         f = UserCreationForm()
 
     font_family = 'default_font'
-    context = {'font_family': font_family, 'form': f}
+    should_translate = UserProfile.get_translate(request.user.id)
+    context = {'font_family': font_family, 'should_translate': should_translate, 'form': f}
     return render(request, 'Users/register.html', context)
 
 
@@ -399,7 +405,8 @@ def select_avatar(request):
 
 
     font_family = UserProfile.get_font(request.user.id)
-    context = {'font_family': font_family, 'pages': cards, 'SearchTerm': search_term, 'clearSearch': clear_search}
+    should_translate = UserProfile.get_translate(request.user.id)
+    context = {'font_family': font_family, 'should_translate': should_translate, 'pages': cards, 'SearchTerm': search_term, 'clearSearch': clear_search}
     return render(request, 'Users/Profile/select_avatar.html', context)
 
 
@@ -658,8 +665,9 @@ def user_profile(request, user_id):
     o_player = not str(request.user.id) == user_id
 
     font_family = UserProfile.get_font(request.user.id)
+    should_translate = UserProfile.get_translate(request.user.id)
     context = {
-        'font_family': font_family,
+        'font_family': font_family, 'should_translate': should_translate,
         'user_profile_obj': user_profile_obj, 'user': user, 'friend_obj': friend_obj, 'pending_obj': pending_obj,
         'follower_obj': follower_obj, 'o_player': o_player,
         'deckPage': deck_page, 'deckPager': decks, 'search_deck_term': search_deck_term,

@@ -3,12 +3,13 @@ var langArray = [];
 $('#set_images option').each(function(){
   var img = $(this).attr("data-thumbnail");
   var font = $(this).attr("data-font");
+  var translate = $(this).attr("data-translate");
   var text = this.innerText;
   var value = $(this).val();
   var item = '<li>'+
                 '<a onclick="setSwitch(' + value + ');">'+
                     '<img src="'+ img +'" alt="" value="' + value + '" />'+
-                    '<span class="'+ font +'">'+ text +'</span>'+
+                    '<span class="'+ font + ' '+ translate +'">'+ text +'</span>'+
                 '</a>'+
              '</li>';
   langArray.push(item);

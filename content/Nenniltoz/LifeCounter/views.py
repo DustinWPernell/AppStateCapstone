@@ -45,7 +45,8 @@ def index(request):
     game_types = GameType.objects.all()
 
     font_family = UserProfile.get_font(request.user.id)
-    context = {'font_family': font_family, 'game_code': game_code, 'game_types': game_types}
+    should_translate = UserProfile.get_translate(request.user.id)
+    context = {'font_family': font_family, 'should_translate': should_translate, 'game_code': game_code, 'game_types': game_types}
     return render(request, "LifeCounter/GameSelector.html", context)
 
 @login_required

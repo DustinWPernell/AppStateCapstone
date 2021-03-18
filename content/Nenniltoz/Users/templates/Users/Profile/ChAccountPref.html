@@ -6,6 +6,13 @@
 
     <hr>
 
+{% if user_profile_obj.translate == '' %}
+    <input type="checkbox" id="translateCB" name="translateCB" value="Translated" onclick="translate_setting('notranslate')" checked>
+{% else %}
+    <input type="checkbox" id="translateCB" name="translateCB" value="Don't Translate" onclick="translate_setting('')">
+{% endif %}
+    <label for="translateCB">Translate Everything</label><br><br>
+
 {% if user_profile_obj.profileView %}
     <input type="checkbox" id="profileViewCB" name="profileViewCB" value="Public Profile" onclick="publicViewCB('profileView')" checked>
 {% else %}
@@ -32,4 +39,3 @@
     {% include "./fonts.html" %}
 
 </div>
-

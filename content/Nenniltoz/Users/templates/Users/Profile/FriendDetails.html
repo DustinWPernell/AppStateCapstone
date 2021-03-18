@@ -15,7 +15,7 @@
     <div>
         <form action="process_friend" method="post">
             {% csrf_token %}
-            <button class="friendLinkBtn clickable colorText {{ font_family }}" name="userRedirect" type="submit">&emsp;
+            <button class="friendLinkBtn clickable colorText {{ font_family }} {{ should_translate }}" name="userRedirect" type="submit">&emsp;
                 {{ new_friends.username }}
             </button>
             <input id="curPendUserRequest" name="curUser" type="hidden" value="{{ user.username }}">
@@ -41,7 +41,7 @@
     <div>
         <form action="remove_friend" method="post">
             {% csrf_token %}
-            <button class="friendLinkBtn clickable colorText {{ font_family }}" name="userRedirect" type="submit">&emsp;
+            <button class="friendLinkBtn clickable colorText {{ font_family }} {{ should_translate }}" name="userRedirect" type="submit">&emsp;
                 {{ friend.username }}
             </button>
             <input name="curUser" type="hidden" value="{{ user.username }}">

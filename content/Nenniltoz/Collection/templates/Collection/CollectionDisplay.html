@@ -35,7 +35,7 @@
     <div class="cardObj">
         <a class="cardDirection" href="/Collection/Card/{{ card_obj.cardID_id }}/">
             <img alt="Avatar" class="cardImg" src="{{ card_obj.imageURL }}">
-            <div class="cardObjText">
+            <div class="cardObjText {{ should_translate }}">
                 {{ card_obj.name }}
             </div>
         </a>

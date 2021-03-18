@@ -21,6 +21,7 @@
 
 </head>
 <body class="{{ font_family }}">
+    <div class="google_translate" id="google_translate_element"></div>
     <div class="bodyContainer">
         <div class="topNav colorNavBackground">
             <a class="topNavItem colorText tNactive clickableCol" href="/Users/" id="tnHome">Home</a>
@@ -74,16 +75,18 @@
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    {% if request.user.is_staff %}
+    <script src="{% static 'js\admin.js' %}"></script>
+    {% endif %}
     <script src="{% static 'js\general.js' %}"></script>
     <script src="{% static 'js\dropdown.js' %}"></script>
     <script src="{% static 'js\card.js' %}"></script>
     <script src="{% static 'js\profile.js' %}"></script>
     <script src="{% static 'js\LifeCounter.js' %}"></script>
-    {% if request.user.is_staff %}
-    <script src="{% static 'js\admin.js' %}"></script>
-    {% endif %}
+
 
 {% block scripts %}
 {% endblock %}
+ <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>

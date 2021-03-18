@@ -38,3 +38,9 @@ html{
 .clickable{
     cursor: pointer;
 }
+
+.google_translate{
+    position: fixed;
+    top: 0;
+    right: 0;
+}

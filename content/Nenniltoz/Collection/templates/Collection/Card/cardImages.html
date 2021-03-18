@@ -6,7 +6,8 @@
                 {% for set_images in set_info %}
                     <option value="'{{ set_images.set_name }}', '{{ set_images.card_image_one }}',
                                     '{{ set_images.card_image_two }}'" class="set_option"
-                            data-thumbnail="{{ set_images.set_image }}" data-font="{{ font_family }}">
+                            data-thumbnail="{{ set_images.set_image }}" data-font="{{ font_family }}"
+                            data-translate="{{ should_translate }}">
                         {{ set_images.set_name }}
                     </option>
                 {% endfor %}

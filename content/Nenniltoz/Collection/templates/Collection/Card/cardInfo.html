@@ -9,7 +9,7 @@
         <div class="singCardValue">
             {% endif %}
             {% for face in faces %}
-            <div class="singCardInValue">
+            <div class="singCardInValue {{ should_translate }}">
                 {{ face.name }}
             </div>
             {% endfor %}
@@ -99,7 +99,7 @@
 {% endfor %}
     </div>
     <span class="singCardAttLbl">Most recent set:</span>
-    <div class="singCardSet">{{ card.setName }}</div>
+    <div class="singCardSet {{ should_translate }}">{{ card.setName }}</div>
 
     <span class="singCardAttLbl">Keywords:</span>
     <div class="singCardKeywords">{{ card.keywords }}</div>
