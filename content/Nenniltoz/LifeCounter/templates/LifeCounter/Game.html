@@ -1,0 +1,37 @@
+{% extends 'base_generic.html' %}
+{% block content %}
+<div class="wrapper">
+    <div class="head">
+        <h3>Game Code: {{ game_code }}</h3>
+    </div>
+    <div class="game_counter">
+        <div class="other_counter">
+{% for player in other_players %}
+            <div class="player_counter">
+                <div class="life_counter">
+                    <label class="life_label">{{ player.life }}</label>
+                </div>
+                <div class="misc_counter">
+
+                </div>
+                <div class="userAvatarDiv">
+                        <img class="game_avatar_img" src="{{ player.avatar_img }}">
+                </div>
+            </div>
+            <hr>
+{% endfor %}
+        </div>
+        <div class="player_counter">
+            <div class="userAvatarDiv">
+                <img class="game_avatar_img" src="{{ current_player.avatar_img }}">
+            </div>
+            <div class="misc_counter">
+
+            </div>
+            <div class="life_counter">
+                <label class="life_label" id="life_total">{{ current_player.life }}</label>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

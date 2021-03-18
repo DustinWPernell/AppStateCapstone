@@ -155,7 +155,14 @@ def index(request):
     logger.debug("Run: index; Params: " + json.dumps(request.GET.dict()))
 
     latest_news_list = News.objects.order_by('-headline')[:5]
-    context = {'latest_news_list': latest_news_list, }
+
+    if request.user.is_authenticated:
+        font_family = UserProfile.get_font(request.user.id)
+        should_translate = UserProfile.get_translate(request.user.id)
+    else:
+        font_family = 'default_font'
+        should_translate = 'notranslate'
+    context = {'font_family': font_family, 'should_translate': should_translate, 'latest_news_list': latest_news_list, }
     return render(request, 'Users/index.html', context)
 
 
@@ -183,7 +190,10 @@ def login_page(request):
         else:
             messages.error(request, 'Error wrong username/password')
 
-    return render(request, 'Users/login.html')
+    font_family = 'default_font'
+    should_translate = 'notranslate'
+    context = {'font_family': font_family, 'should_translate': should_translate}
+    return render(request, 'Users/login.html', context)
 
 
 @login_required
@@ -199,9 +209,12 @@ def logout_page(request):
     logger.debug("Run: logout_page; Params: " + json.dumps(request.GET.dict()))
 
     auth.logout(request)
-    return render(request, 'Users/logout.html')
+    font_family = 'default_font'
+    should_translate = UserProfile.get_translate(request.user.id)
+    context = {'font_family': font_family, 'should_translate': should_translate}
+    return render(request, 'Users/logout.html', context)
 
-
+@login_required
 def new_deck(request):
     """Displays new deck page
 
@@ -211,7 +224,11 @@ def new_deck(request):
 
     :todo: Finish new deck page
     """
-    return render(request, 'Users/Profile/newDeck.html')
+
+    font_family = UserProfile.get_font(request.user.id)
+    should_translate = UserProfile.get_translate(request.user.id)
+    context = {'font_family': font_family, 'should_translate': should_translate}
+    return render(request, 'Users/Profile/newDeck.html', context)
 
 
 @login_required
@@ -263,12 +280,15 @@ def register(request):
             f.save(request)
 
             messages.success(request, 'Account created successfully')
-            return redirect('login')
+            return redirect('login_page')
 
     else:
         f = UserCreationForm()
 
-    return render(request, 'Users/register.html', {'form': f})
+    font_family = 'default_font'
+    should_translate = UserProfile.get_translate(request.user.id)
+    context = {'font_family': font_family, 'should_translate': should_translate, 'form': f}
+    return render(request, 'Users/register.html', context)
 
 
 @login_required
@@ -319,7 +339,7 @@ def remove_friend(request, user_id):
         return redirect('user_profile', user_id=str(friend_obj))
 
 
-def save_avatar(request, user_id):
+def save_avatar(request):
     """Saves new avatar to user
 
     Sets new avatar image to selected URL returned by POST.
@@ -330,13 +350,13 @@ def save_avatar(request, user_id):
     """
 
     avatar = request.POST['newAvatar']
-    user_obj = User.objects.get(id=user_id)
+    user_obj = User.objects.get(id=request.user.id)
 
     custom_user_profile = UserProfile.objects.get(user=user_obj)
     custom_user_profile.avatarImg = avatar
     custom_user_profile.save()
 
-    return redirect('user_profile', user_id=str(user_obj))
+    return redirect('user_profile', user_id=str(request.user.id))
 
 
 @login_required
@@ -385,8 +405,11 @@ def select_avatar(request):
     except EmptyPage:
         cards = paginator.page(paginator.num_pages)
 
-    context = {'pages': cards, 'SearchTerm': search_term, 'clearSearch': clear_search}
-    return render(request, 'Users/select_avatar.html', context)
+
+    font_family = UserProfile.get_font(request.user.id)
+    should_translate = UserProfile.get_translate(request.user.id)
+    context = {'font_family': font_family, 'should_translate': should_translate, 'pages': cards, 'SearchTerm': search_term, 'clearSearch': clear_search}
+    return render(request, 'Users/Profile/select_avatar.html', context)
 
 
 @login_required
@@ -643,8 +666,10 @@ def user_profile(request, user_id):
         wish_cards = wish_paginator.page(wish_paginator.num_pages)
     o_player = not str(request.user.id) == user_id
 
-
+    font_family = UserProfile.get_font(request.user.id)
+    should_translate = UserProfile.get_translate(request.user.id)
     context = {
+        'font_family': font_family, 'should_translate': should_translate,
         'user_profile_obj': user_profile_obj, 'user': user, 'friend_obj': friend_obj, 'pending_obj': pending_obj,
         'follower_obj': follower_obj, 'o_player': o_player,
         'deckPage': deck_page, 'deckPager': decks, 'search_deck_term': search_deck_term,

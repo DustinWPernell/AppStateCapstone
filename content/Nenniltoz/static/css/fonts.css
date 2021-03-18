@@ -1,0 +1,75 @@
+@font-face {
+    font-family: 'dragonflyregular';
+    src: url('../fonts/dragonfly-z9jl-webfont.woff2') format('woff2'),
+         url('../fonts/dragonfly-z9jl-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'a_adistroregular';
+    src: url('../fonts/adistro-yzx68-webfont.woff2') format('woff2'),
+         url('../fonts/adistro-yzx68-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'a_ape_mountregular';
+    src: url('../fonts/apemount-wypm9-webfont.woff2') format('woff2'),
+         url('../fonts/apemount-wypm9-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'a_arigatou_gozaimasuregular';
+    src: url('../fonts/arigatougozaimasu-rp0lw-webfont.woff2') format('woff2'),
+         url('../fonts/arigatougozaimasu-rp0lw-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'edge_of_the_galaxyregular';
+    src: url('../fonts/edgeofthegalaxyregular-ovea6-webfont.woff2') format('woff2'),
+         url('../fonts/edgeofthegalaxyregular-ovea6-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'a_annyeong_haseyoregular';
+    src: url('../fonts/annyeonghaseyo-goklo-webfont.woff2') format('woff2'),
+         url('../fonts/annyeonghaseyo-goklo-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'a_asian_hiroregular';
+    src: url('../fonts/aasianhiro-vmv3l-webfont.woff2') format('woff2'),
+         url('../fonts/aasianhiro-vmv3l-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'a_ablascoregular';
+    src: url('../fonts/ablasco-51apa-webfont.woff2') format('woff2'),
+         url('../fonts/ablasco-51apa-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'a_anterobotregular';
+    src: url('../fonts/anterobot-rp0e3-webfont.woff2') format('woff2'),
+         url('../fonts/anterobot-rp0e3-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}

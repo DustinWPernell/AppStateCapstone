@@ -7,8 +7,10 @@
 <div class="singCardBody" id="card">
     {% include "./Card/cardInfo.html" %}
     {% include "./Card/cardImages.html" %}
+    <div style="grid-column: 1 / span 2;"><hr></div>
     {% include "./Card/cardLegal.html" %}
     {% if has_rules %}
+    <div style="grid-column: 1 / span 2;"><hr></div>
     {% include "./Card/cardRules.html" %}
     {% endif %}
 </div>
