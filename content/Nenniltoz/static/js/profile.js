@@ -7,3 +7,21 @@ function publicViewCB(checkboxObj) {
         }
     })
 }
+
+function font_type(font) {
+    $.ajax({
+        url: "./update_settings",
+        data : { 'setting': 'font_family', 'value': font },
+        success : function(json) {
+        }
+    })
+}
+
+function translate_setting(font) {
+    $.ajax({
+        url: "./update_settings",
+        data : { 'setting': 'translate', 'value': font },
+        success : function(json) {
+        }
+    })
+}

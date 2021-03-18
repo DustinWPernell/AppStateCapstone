@@ -64,16 +64,30 @@ class UserProfile(models.Model):
         Stores user profiles
             * user - Foreign key for linking to a User object
             * default_exposure - Setting for privacy of a profile
+            مناهج الحساب
     """
     user = models.ForeignKey(User, related_name='user_profile', on_delete=models.CASCADE)
     cardView = models.BooleanField(default=False)
     deckView = models.BooleanField(default=True)
     profileView = models.BooleanField(default=True)
     avatarImg = models.CharField(max_length=200)
+    font_family = models.CharField(max_length=200, default='default_font')
+    translate = models.CharField(max_length=200, default='')
 
     def __int__(self):
         return self.user.id
 
+    @staticmethod
+    def get_font(user_id):
+        user = User.objects.get(id=user_id)
+        up = UserProfile.objects.get(user=user)
+        return up.font_family
+
+    @staticmethod
+    def get_translate(user_id):
+        user = User.objects.get(id=user_id)
+        up = UserProfile.objects.get(user=user)
+        return up.translate
 
 class UserCards(models.Model):
     """

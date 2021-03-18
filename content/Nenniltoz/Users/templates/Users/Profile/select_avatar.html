@@ -27,7 +27,7 @@
             <button class="avatarBtn clickable" onclick="return confirm('Select avatar: {{ card_obj.name }}?');"
                     type="submit">
                 <img alt="{{ card_obj.name }}" class="avatarImg" src="{{ card_obj.avatarImg }}">
-                <span class="cardObjText">
+                <span class="cardObjText {{ should_translate }}">
                     {{ card_obj.name }}
                 </span>
             </button>

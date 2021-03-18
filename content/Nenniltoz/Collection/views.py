@@ -7,9 +7,10 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
+from google_trans_new import google_translator
 
 from Collection.models import Card, CardFace, Symbol, CardSets, CardLayout, CardIDList, Rule, Legality
-from Users.models import UserCards
+from Users.models import UserCards, UserProfile
 
 logger = logging.getLogger(__name__)
 
@@ -101,8 +102,11 @@ def card_display(request, card_id):
         if user_card.count() > 0:
             quantity = user_card[0]['quantity']
             card_count = quantity
+    set_info.sort(key=lambda item: item.get("set_name"))
 
-    context = {'card': card_obj, 'faces': face_obj, 'set_info': set_info, 'set_list': card_set_list,
+    font_family = UserProfile.get_font(request.user.id)
+    should_translate = UserProfile.get_translate(request.user.id)
+    context = {'font_family': font_family, 'should_translate': should_translate, 'card': card_obj, 'faces': face_obj, 'set_info': set_info, 'set_list': card_set_list,
                'rulings': rulings_list, 'has_rules': len(rulings_list) > 0, 'legal': legalities,
                'quantity': quantity, 'cardCount': card_count, 'auth': request.user.is_authenticated}
     return render(request, 'Collection/CardDisplay.html', context)
@@ -114,7 +118,6 @@ def collection_display(request):
     Retrieves all cards from database in alphabetical order and displays them based on what 'page' is in request.
 
     @param request:
-
 
     :todo: Loading image for long searches
     """
@@ -134,7 +137,9 @@ def collection_display(request):
             del request.session['selected_mana']
             del request.session['card_id_list']
         else:
-            search_term = request.POST.get('SearchTerm')
+            translator = google_translator()
+            text = request.POST.get('SearchTerm')
+            search_term = translator.translate(text, lang_tgt='en')
             selected_mana = []
             list_of_colors = ['{W}', '{W/U}', '{W/B}', '{R/W}', '{G/W}', '{2/W}', '{W/P}', '{HW}',
                               '{U}', '{U/B}', '{U/R}', '{G/U}', '{2/U}', '{U/P}', '{HU}',
@@ -253,7 +258,9 @@ def collection_display(request):
     except EmptyPage:
         cards = paginator.page(paginator.num_pages)
 
-    context = {'pages': cards, 'SearchTerm': search_term, 'mana_list': mana_list, 'clearSearch': clear_search}
+    font_family = UserProfile.get_font(request.user.id)
+    should_translate = UserProfile.get_translate(request.user.id)
+    context = {'font_family': font_family, 'should_translate': should_translate, 'pages': cards, 'SearchTerm': search_term, 'mana_list': mana_list, 'clearSearch': clear_search}
     return render(request, 'Collection/CollectionDisplay.html', context)
 
 

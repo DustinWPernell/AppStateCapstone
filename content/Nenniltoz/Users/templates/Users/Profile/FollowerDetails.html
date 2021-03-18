@@ -3,7 +3,7 @@
 <div class="followerGrid">
     {% for follower in follower_obj %}
     <div>
-        <a class="friendLinkA clickable colorText" href="/Users/user_profile/{{ follower.id }}/">&emsp;{{ follower.username }}</a>
+        <a class="friendLinkA clickable colorText {{ font_family }} {{ should_translate }}" href="/Users/user_profile/{{ follower.id }}/">&emsp;{{ follower.username }}</a>
     </div>
     {% endfor %}
 </div>
@@ -13,8 +13,8 @@
     <form action="add_follower" method="post">
         {% csrf_token %}
         <input id="curUserRequest" name="curUser" type="hidden" value="{{ user.username }}">
-        <input class="newFollowerRequest" id="newFollowerRequest" name="newFollower" placeholder="Username">
-        <button class="newFollowerButton clickable" type="submit">Follow User</button>
+        <input class="newFollowerRequest {{ font_family }}" id="newFollowerRequest" name="newFollower" placeholder="Username">
+        <button class="newFollowerButton clickable {{ font_family }}" type="submit">Follow User</button>
     </form>
     {% for follower in follower_obj %}
     <div>
@@ -23,7 +23,7 @@
             <input name="curUser" type="hidden" value="{{ user.username }}">
             <input name="newFollower" type="hidden" value="{{ follower.username }}">
             <input name="newFollowerID" type="hidden" value="{{ follower.id }}">
-            <button class="friendLinkBtn clickable colorText" name="userRedirect" type="submit">&emsp;{{ follower.username }}
+            <button class="friendLinkBtn clickable colorText {{ font_family }} {{ should_translate }}" name="userRedirect" type="submit">&emsp;{{ follower.username }}
             </button>
             <button class="friendRejectBtn friendBtn clickable" name="friendRejectBtn" onclick="return confirm('Remove follower: {{ follower.username }}?');"
                     type="submit"></button>

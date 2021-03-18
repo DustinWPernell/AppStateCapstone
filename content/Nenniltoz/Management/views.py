@@ -11,6 +11,7 @@ from django.shortcuts import render
 # Create your views here.
 from Collection.models import Card, CardFace, Legality, IgnoreCards, Symbol, Rule, CardSets, CardIDList
 from Management.models import Settings
+from Users.models import UserProfile
 
 logger = logging.getLogger(__name__)
 api_bulk_data = "https://api.scryfall.com/bulk-data"
@@ -32,7 +33,10 @@ def admin_index(request):
     :todo: None
     """
     logger.debug("Run: admin_index; Params: " + json.dumps(request.GET.dict()))
-    return render(request, 'Management/adminLand.html')
+
+    font_family = UserProfile.get_font(request.user.id)
+    context = {'font_family': font_family}
+    return render(request, 'Management/adminLand.html', context)
 
 
 @staff_member_required
@@ -48,7 +52,9 @@ def api_import(request):
     """
     logger.debug("Run: api_import; Params: " + json.dumps(request.GET.dict()))
     settings_list = Settings.objects
-    context = {'settings_list': settings_list, }
+
+    font_family = UserProfile.get_font(request.user.id)
+    context = {'font_family': font_family, 'settings_list': settings_list, }
     return render(request, 'Management/APIimport.html', context)
 
 

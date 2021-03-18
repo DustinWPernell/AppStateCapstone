@@ -1,15 +1,6 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
-{% if messages %}
-{% for message in messages %}
-{% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
-<p class="successAlert alert">{{ message }}</p>
-{% else %}
-<p class="errorAlert alert">{{ message }}</p>
-{% endif %}
-{% endfor %}
-{% endif %}
 <div class="ProfileGrid">
 
     <div id="leftGrid">
@@ -27,8 +18,8 @@
             {% endif %}
         {% else %}
             <div class="tab">
-                <button class="tablinks" id="defaultOpen" onclick="openTab(event, 'profile')">Profile</button>
-                <button class="tablinks" onclick="openTab(event, 'editProfile')">Edit Profile</button>
+                <button class="tablinks {{ font_family }}" id="defaultOpen" onclick="openTab(event, 'profile')">Profile</button>
+                <button class="tablinks {{ font_family }}" onclick="openTab(event, 'editProfile')">Edit Profile</button>
             </div>
             <div class="tabcontent" id="profile">
                 <div class="AccountDetails">
@@ -58,8 +49,10 @@
         {% endif %}
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
 <script>
     document.getElementById("defaultOpen").click();
-
 </script>
 {% endblock %}

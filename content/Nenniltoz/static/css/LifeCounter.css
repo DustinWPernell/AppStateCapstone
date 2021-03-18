@@ -1,0 +1,30 @@
+.game_counter{
+    display: grid;
+    grid-template-rows: minmax(200px, auto) 200px;
+    grid-gap: 20px;
+}
+
+.other_counter{
+}
+
+.player_counter{
+    display: grid;
+    grid-template-columns: 150px auto 150px;
+    grid-gap: 20px;
+}
+
+.misc_counter{
+}
+
+.life_counter{
+    display: grid;
+    grid-template-rows: 100px 50px;
+}
+
+.life_label{
+    font-size: 100px;
+}
+
+.game_avatar_img{
+    width: 140px;
+}
