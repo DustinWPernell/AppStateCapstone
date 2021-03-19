@@ -46,7 +46,7 @@
                                                      href="/Users/user_profile/{{ request.user.id }}/">Profile</a></li>
                         {% else %}
                         <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol"
-                                                     href="{% url 'collectionAll'%}">Collection</a></li>
+                                                     href="{% url 'card_database'%}">Card Database</a></li>
                         {% endif %}
                         {% if request.user.is_staff %}
                         <li class="navDropDownLI"><p class="topDropNavHeadItem colorText">Admin</p></li>

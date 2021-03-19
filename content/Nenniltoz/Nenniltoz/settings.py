@@ -19,23 +19,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'f==xzo$+#)lxx=(nt@c27con)0%5!di0sug)kb9#fghm5-8!6@'
+#SECRET_KEY = 'f==xzo$+#)lxx=(nt@c27con)0%5!di0sug)kb9#fghm5-8!6@'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'f==xzo$+#)lxx=(nt@c27con)0%5!di0sug)kb9#fghm5-8!6@')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+#DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['nenniltoz.herokuapp.com','thawing-reaches-53587.herokuapp.com','127.0.0.1']
 
 # Application definition
 
 INSTALLED_APPS = [
     'channels',
-    'Collection.apps.CollectionConfig',
-    'LifeCounter.apps.LifeCounterConfig',
-    'Management.apps.ManagementConfig',
-    'Users.apps.UsersConfig',
-    'dal',
-    'dal_select2',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -43,10 +39,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admindocs',
+    'Collection.apps.CollectionConfig',
+    'LifeCounter.apps.LifeCounterConfig',
+    'Management.apps.ManagementConfig',
+    'Users.apps.UsersConfig',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -79,23 +80,10 @@ ASGI_APPLICATION = 'Nenniltoz.asgi.application'
 
 CHANNEL_LAYERS = {
     'default': {
-        ### Method 1: Via redis lab
-        # 'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        # 'CONFIG': {
-        #     "hosts": [
-        #       'redis://h:<password>;@<redis Endpoint>:<port>'
-        #     ],
-        # },
-
-        ### Method 2: Via local Redis
-        # 'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        # 'CONFIG': {
-        #      "hosts": [('127.0.0.1', 6379)],
-        # },
-
-        ### Method 3: Via In-memory channel layer
-        ## Using this method.
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
     },
 }
 
@@ -147,10 +135,16 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
-STATIC_URL = '/static/'
+# The absolute path to the directory where collectstatic will collect static files for deployment.
+STATIC_ROOT = BASE_DIR / 'staticfiles'  #. os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
+
+# The URL to use when referring to static files (where they will be served from)
+STATIC_URL = '/static/'
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Redirect to home URL after login (Default redirects to /accounts/profile/)
 LOGIN_REDIRECT_URL = '/Users'

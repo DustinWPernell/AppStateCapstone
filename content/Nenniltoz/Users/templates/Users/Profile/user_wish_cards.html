@@ -1,0 +1,46 @@
+{% load replaceValues %}
+
+{% if wishShow %}
+    <h4>Card Wish List</h4>
+    <div class="cardFilter">
+        <form action="user_profile" method="post">
+            {% csrf_token %}
+            {% if clear_wish_search %}
+            <input class="{{ font_family }}" name="searchWishTerm" type="text" value="{{ search_wish_term }}">
+            {% else %}
+            <input class="{{ font_family }}" name="searchWishTerm" placeholder="Search" type="text">
+            {% endif %}
+            <input class="{{ font_family }}" name="searchWish" type="submit" value="Search">
+            {% if clear_wish_search %}
+            <input class="{{ font_family }}" name="clearWishSearch" type="submit" value="Clear Search">
+            {% endif %}
+        </form>
+    </div>
+
+    {% include "./wish_pager.html" %}
+    <table class="cardTable" id="cardGrid">
+        <tr>
+            <td>Name</td>
+            <td>Mana Cost</td>
+        </tr>
+        {% for card_obj in cardWishPager %}
+        <tr>
+            <td class="{{ should_translate }}">
+                {{ card_obj.name }}
+            </td>
+            <td>
+                {{ card_obj.mana_cost|replaceMana|safe }}
+            </td>
+            <td>
+                <a class="cardDirection" href="/Collection/Card/{{ card_obj.card_id }}/">
+                    <img alt="Avatar" class="smallCardImg" src="{{ card_obj.avatar_img }}">
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% include "./wish_pager.html" %}
+{% else %}
+    <h4>Cards</h4>
+    <h5>No cards added to wish list. Visit Card Database to add cards.</h5>
+{% endif %}

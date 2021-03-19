@@ -2,16 +2,16 @@
 
 {% block content %}
 {% if auth %}
-{% include "./Card/cardQuantity.html" %}
+{% include "./Card/card_quantity.html" %}
 {% endif %}
 <div class="singCardBody" id="card">
-    {% include "./Card/cardInfo.html" %}
-    {% include "./Card/cardImages.html" %}
+    {% include "./Card/card_info.html" %}
+    {% include "./Card/card_images.html" %}
     <div style="grid-column: 1 / span 2;"><hr></div>
-    {% include "./Card/cardLegal.html" %}
+    {% include "./Card/card_legal.html" %}
     {% if has_rules %}
     <div style="grid-column: 1 / span 2;"><hr></div>
-    {% include "./Card/cardRules.html" %}
+    {% include "./Card/card_rules.html" %}
     {% endif %}
 </div>
 {% endblock %}

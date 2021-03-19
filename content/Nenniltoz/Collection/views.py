@@ -33,13 +33,13 @@ def add_card(request, card_id):
         if card_quantity == 0:
             card_quantity = 1
         UserCards.objects.create(
-            cardID=card_id,
+            card_id=card_id,
             user=user,
             quantity=card_quantity,
         )
     else:
         UserCards.objects.create(
-            cardID=card_id,
+            card_id=card_id,
             user=user,
             quantity=0,
         )
@@ -49,7 +49,7 @@ def add_card(request, card_id):
 def card_display(request, card_id):
     """Display individual cards.
 
-    Retrieves card information from the database based on what 'cardID' is in request. Then displays the card data.
+    Retrieves card information from the database based on what 'card_id' is in request. Then displays the card data.
 
     @param request:
     @param card_id: Card ID for current card
@@ -57,8 +57,8 @@ def card_display(request, card_id):
     :todo: Touch up data display/layout
     """
     logger.debug("Run: card_display; Params: " + json.dumps(request.GET.dict()))
-    card_obj = Card.objects.get(cardID=card_id)
-    face_obj = CardFace.objects.filter(cardID_id=card_id)
+    card_obj = Card.objects.get(card_id=card_id)
+    face_obj = CardFace.objects.filter(card_id=card_id)
 
     set_info = []
     card_sets = CardFace.objects.filter(name=face_obj[0].name)
@@ -70,25 +70,25 @@ def card_display(request, card_id):
 
     card_set_list = []
     for card_set_obj in card_sets:
-        set_card_obj = Card.objects.get(cardID=card_set_obj.cardID_id)
-        face_obj = CardFace.objects.filter(cardID_id=card_set_obj.cardID_id)
-        card_set = CardSets.objects.get(order=card_set_obj.setOrder)
+        set_card_obj = Card.objects.get(card_id=card_set_obj.card_id)
+        face_obj = CardFace.objects.filter(card_id_id=card_set_obj.card_id)
+        card_set = CardSets.objects.get(order=card_set_obj.set_order)
 
         if card_set.name not in card_set_list:
             card_set_list.append(card_set.name)
 
         if set_card_obj.layout in layout_strings:
             set_info.append(
-                {'set_name': card_set.name, 'set_image': card_set.icon_svg_uri, 'card_image_one': face_obj[0].imageURL,
-                 'card_image_two': face_obj[1].imageURL})
+                {'set_name': card_set.name, 'set_image': card_set.icon_svg_uri, 'card_image_one': face_obj[0].image_url,
+                 'card_image_two': face_obj[1].image_url})
         else:
             set_info.append(
-                {'set_name': card_set.name, 'set_image': card_set.icon_svg_uri, 'card_image_one': face_obj[0].imageURL,
+                {'set_name': card_set.name, 'set_image': card_set.icon_svg_uri, 'card_image_one': face_obj[0].image_url,
                  'card_image_two': 'NONE'})
 
-    rulings_list = Rule.objects.filter(oracleID=card_obj.oracleID).order_by('-pub_date')
+    rulings_list = Rule.objects.filter(oracle_id=card_obj.oracle_id).order_by('-pub_date')
 
-    legalities = Legality.objects.get(cardID_id=card_obj.cardID)
+    legalities = Legality.objects.get(card_id=card_obj.card_id)
 
     quantity = 0
     card_count = -1
@@ -96,7 +96,7 @@ def card_display(request, card_id):
     if request.user.is_authenticated:
         user_card = UserCards.objects.values('quantity').filter(
             Q(user=request.user) &
-            Q(cardID=card_id)
+            Q(card_id=card_id)
         )
 
         if user_card.count() > 0:
@@ -104,12 +104,12 @@ def card_display(request, card_id):
             card_count = quantity
     set_info.sort(key=lambda item: item.get("set_name"))
 
-    font_family = UserProfile.get_font(request.user.id)
-    should_translate = UserProfile.get_translate(request.user.id)
+    font_family = UserProfile.get_font(request.user)
+    should_translate = UserProfile.get_translate(request.user)
     context = {'font_family': font_family, 'should_translate': should_translate, 'card': card_obj, 'faces': face_obj, 'set_info': set_info, 'set_list': card_set_list,
                'rulings': rulings_list, 'has_rules': len(rulings_list) > 0, 'legal': legalities,
-               'quantity': quantity, 'cardCount': card_count, 'auth': request.user.is_authenticated}
-    return render(request, 'Collection/CardDisplay.html', context)
+               'quantity': quantity, 'card_count': card_count, 'auth': request.user.is_authenticated}
+    return render(request, 'Collection/card_display.html', context)
 
 
 def collection_display(request):
@@ -126,7 +126,7 @@ def collection_display(request):
     card_id_list_full = CardIDList.objects.all()
     full_card_list_all = []
     for card_list_obj in card_id_list_full:
-        full_card_list_all.append(card_list_obj.cardID)
+        full_card_list_all.append(card_list_obj.card_id)
 
     selected_mana = []
     search_term = 'Search'
@@ -183,17 +183,17 @@ def collection_display(request):
                     if mana_color in ['{C}', '', '{X}', '{Y}', '{Z}', '{0}', '{1/2}', '{1}', '{2}', '{3}', '{4}', '{5}',
                                       '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}', '{14}', '{15}',
                                       '{16}', '{17}', '{18}', '{19}', '{20}', '{100}', '{1000000}', '{P}']:
-                        mana_match = CardFace.objects.values('cardID_id').filter(Q(cardID_id__in=full_card_list_all) &
+                        mana_match = CardFace.objects.values('card_id').filter(Q(card_id__in=full_card_list_all) &
                                                                                  Q(manaCost__contains=mana_color) &
                                                                                  reduce(operator.and_, (
                                                                                      ~Q(manaCost__contains=item) for
                                                                                      item in list_of_colors)))
                     else:
-                        mana_match = CardFace.objects.values('cardID_id').filter(cardID_id__in=full_card_list_all,
+                        mana_match = CardFace.objects.values('card_id').filter(card_id__in=full_card_list_all,
                                                                                  manaCost__contains=mana_color)
                     for match in mana_match:
-                        if match['cardID_id'] not in card_mana_id_list:
-                            card_mana_id_list.append(match['cardID_id'])
+                        if match['card_id'] not in card_mana_id_list:
+                            card_mana_id_list.append(match['card_id'])
             else:
                 card_mana_id_list = []
                 for card_obj in full_card_list_all:
@@ -201,15 +201,15 @@ def collection_display(request):
                         card_mana_id_list.append(card_obj)
 
             card_key_id_list = []
-            key_match = Card.objects.values('cardID').filter(
-                Q(cardID__in=card_mana_id_list) & Q(keywords__icontains=search_term))
+            key_match = Card.objects.values('card_id').filter(
+                Q(card_id__in=card_mana_id_list) & Q(keywords__icontains=search_term))
             for match in key_match:
-                if match['cardID'] not in card_key_id_list:
-                    card_key_id_list.append(match['cardID'])
+                if match['card_id'] not in card_key_id_list:
+                    card_key_id_list.append(match['card_id'])
 
-            filtered_card_list = CardFace.objects.values('cardID_id').filter(
-                Q(cardID_id__in=card_key_id_list)
-                | (Q(cardID_id__in=card_mana_id_list)
+            filtered_card_list = CardFace.objects.values('card_id').filter(
+                Q(card_id__in=card_key_id_list)
+                | (Q(card_id__in=card_mana_id_list)
                    & (Q(name__icontains=search_term)
                       | Q(text__icontains=search_term)
                       | Q(typeLine__icontains=search_term)
@@ -219,14 +219,14 @@ def collection_display(request):
 
             card_id_list = []
             for card_list_obj in filtered_card_list:
-                if card_list_obj['cardID_id'] not in card_id_list:
-                    card_id_list.append(card_list_obj['cardID_id'])
+                if card_list_obj['card_id'] not in card_id_list:
+                    card_id_list.append(card_list_obj['card_id'])
 
             request.session['search'] = True
             request.session['searchTerm'] = search_term
             request.session['selected_mana'] = selected_mana
             request.session['card_id_list'] = card_id_list
-        return redirect('collectionAll')
+        return redirect('card_database')
     else:
         try:
             search_term = request.session['searchTerm']
@@ -241,12 +241,12 @@ def collection_display(request):
     for init_mana in init_mana_list:
         if init_mana.symbol in selected_mana:
             mana_list.append(
-                {'symbol': init_mana.symbol, 'checked': True, 'imageURL': init_mana.imageURL, 'id': init_mana.id})
+                {'symbol': init_mana.symbol, 'checked': True, 'image_url': init_mana.image_url, 'id': init_mana.id})
         else:
             mana_list.append(
-                {'symbol': init_mana.symbol, 'checked': False, 'imageURL': init_mana.imageURL, 'id': init_mana.id})
+                {'symbol': init_mana.symbol, 'checked': False, 'image_url': init_mana.image_url, 'id': init_mana.id})
 
-    card_list = CardFace.objects.filter(Q(cardID_id__in=card_id_list)).order_by('name')
+    card_list = CardFace.objects.filter(Q(card_id__in=card_id_list)).order_by('name')
 
     page = request.GET.get('page', 1)
 
@@ -258,10 +258,10 @@ def collection_display(request):
     except EmptyPage:
         cards = paginator.page(paginator.num_pages)
 
-    font_family = UserProfile.get_font(request.user.id)
-    should_translate = UserProfile.get_translate(request.user.id)
+    font_family = UserProfile.get_font(request.user)
+    should_translate = UserProfile.get_translate(request.user)
     context = {'font_family': font_family, 'should_translate': should_translate, 'pages': cards, 'SearchTerm': search_term, 'mana_list': mana_list, 'clearSearch': clear_search}
-    return render(request, 'Collection/CollectionDisplay.html', context)
+    return render(request, 'Collection/collection_display.html', context)
 
 
 def collection_index(request):
@@ -290,8 +290,8 @@ def update_quantity(request, card_id):
     user = request.user
 
     if 'remove' in request.POST:
-        UserCards.objects.filter(Q(cardID=card_id) & Q(user=user)).delete()
+        UserCards.objects.filter(Q(card_id=card_id) & Q(user=user)).delete()
     else:
         card_quantity = request.POST['quantity']
-        UserCards.objects.filter(Q(cardID=card_id) & Q(user=user)).update(quantity=card_quantity)
+        UserCards.objects.filter(Q(card_id=card_id) & Q(user=user)).update(quantity=card_quantity)
     return redirect('../' + card_id)

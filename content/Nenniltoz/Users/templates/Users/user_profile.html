@@ -5,9 +5,9 @@
 
     <div id="leftGrid">
         {% if o_player %}
-            {% if user_profile_obj.profileView %}
+            {% if user_profile_obj.profile_view %}
                 <div class="AccountDetails">
-                    {% include "./AccountDetails.html" %}
+                    {% include "./Profile/account_details.html" %}
                 </div>
             {% else %}
                 <div class="row">
@@ -23,28 +23,28 @@
             </div>
             <div class="tabcontent" id="profile">
                 <div class="AccountDetails">
-                    {% include "./AccountDetails.html" %}
+                    {% include "./Profile/account_details.html" %}
                 </div>
             </div>
             <div class="tabcontent" id="editProfile">
                 <div class="ChAccountPref">
-                    {% include "./ChAccountPref.html" %}
+                    {% include "./Profile/ch_account_pref.html" %}
                 </div>
             </div>
         {% endif %}
     </div>
     <div id="rightGrid">
-        {% if user_profile_obj.profileView or not o_player%}
+        {% if user_profile_obj.profile_view or not o_player%}
             <hr class="rightGridHR">
             <div class="userAvatarDiv">
-                <img class="userAvatarImg" src="{{ user_profile_obj.avatarImg }}">
+                <img class="userAvatarImg" src="{{ user_profile_obj.avatar_img }}">
             </div>
             <div class="FriendDetails">
-                {% include "./FriendDetails.html" %}
+                {% include "./Profile/friend_details.html" %}
             </div>
             <hr>
             <div class="FollowerDetails">
-                {% include "./FollowerDetails.html" %}
+                {% include "./Profile/follower_details.html" %}
             </div>
         {% endif %}
     </div>

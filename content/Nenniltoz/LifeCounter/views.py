@@ -44,10 +44,10 @@ def index(request):
 
     game_types = GameType.objects.all()
 
-    font_family = UserProfile.get_font(request.user.id)
-    should_translate = UserProfile.get_translate(request.user.id)
+    font_family = UserProfile.get_font(request.user)
+    should_translate = UserProfile.get_translate(request.user)
     context = {'font_family': font_family, 'should_translate': should_translate, 'game_code': game_code, 'game_types': game_types}
-    return render(request, "LifeCounter/GameSelector.html", context)
+    return render(request, "LifeCounter/game_selector.html", context)
 
 @login_required
 def game(request, game_code):
@@ -63,4 +63,4 @@ def game(request, game_code):
         'current_player':current_player,
         'other_players': player_data,
     }
-    return render(request, 'LifeCounter/Game.html', context)
+    return render(request, 'LifeCounter/game.html', context)

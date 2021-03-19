@@ -13,7 +13,7 @@ class CardLayout(models.Model):
     """
     layout = models.CharField(max_length=30)
     sides = models.IntegerField()
-    multiFace = models.IntegerField()
+    multi_face = models.IntegerField()
 
     def __int__(self):
         return self.id
@@ -35,7 +35,7 @@ class IgnoreCards(models.Model):
 class Card(models.Model):
     """
         Stores a card object
-            * cardID - ID for the card (specific to printing)
+            * card_id - ID for the card (specific to printing)
             * oracleID - ID for the card (specific to name)
             * keywords - Keywords that appear on all faces of the card
             * rarity - How rare the card is
@@ -44,62 +44,62 @@ class Card(models.Model):
             * setOrder - Order in which set occurs
             * color - Stores color identity of card
     """
-    cardID = models.CharField(max_length=200, primary_key=True)
-    oracleID = models.CharField(max_length=200)
+    card_id = models.CharField(max_length=200, primary_key=True)
+    oracle_id = models.CharField(max_length=200)
     keywords = models.CharField(max_length=500)
     rarity = models.CharField(max_length=20)
-    setName = models.CharField(max_length=100)
+    set_name = models.CharField(max_length=100)
     layout = models.CharField(max_length=30)
-    setOrder = models.IntegerField()
+    set_order = models.IntegerField()
     color = models.CharField(max_length=30)
 
     def __str__(self):
-        return self.cardID
+        return self.card_id
 
 
 class CardIDList(models.Model):
     """
         Stores Unique card named objects
-            * cardID - ID for the card (specific to printing)
+            * card_id - ID for the card (specific to printing)
             * name - Name of the card
     """
-    cardID = models.CharField(max_length=200, primary_key=True)
-    cardName = models.CharField(max_length=200)
-    cardName.null = True
+    card_id = models.CharField(max_length=200, primary_key=True)
+    card_name = models.CharField(max_length=200)
+    card_name.null = True
 
 
 class CardFace(models.Model):
     """
         Stores card face object (could be many for one card object)
             * name - Name of the card face
-            * imageURL - URL for the card face image
-            * manaCost - Mana cost for the card face
+            * image_url - URL for the card face image
+            * mana_cost - Mana cost for the card face
             * loyalty - Starting loyalty for the card (may be empty)
             * power - Base power for the card (may be empty)
             * toughness - Base toughness for the card (may be empty)
-            * typeLine - The type line for the card (Creature/Enchantment/...)
-            * colorId - The color id of the card
+            * type_line - The type line for the card (Creature/Enchantment/...)
+            * color_id - The color id of the card
             * text - The text displayed in the main area of the card
-            * flavorText - The fun text normally display at the bottom of the card (may be empty)
-            * cardID - ID for the card (specific to printing)
-            * avatarImg - Image URL for profile avatars
-            * setOrder - Order in which set occurs
+            * flavor_text - The fun text normally display at the bottom of the card (may be empty)
+            * card_id - ID for the card (specific to printing)
+            * avatar_img - Image URL for profile avatars
+            * set_order - Order in which set occurs
             * firstFace - Boolean used in displaying cards with multiple faces
     """
     name = models.CharField(max_length=200)
-    imageURL = models.CharField(max_length=200)
-    manaCost = models.CharField(max_length=100)
+    image_url = models.CharField(max_length=200)
+    mana_cost = models.CharField(max_length=100)
     loyalty = models.CharField(max_length=10)
     power = models.CharField(max_length=10)
     toughness = models.CharField(max_length=10)
-    typeLine = models.CharField(max_length=500)
-    colorId = models.CharField(max_length=200)
+    type_line = models.CharField(max_length=500)
+    color_id = models.CharField(max_length=200)
     text = models.CharField(max_length=500)
-    flavorText = models.CharField(max_length=500)
-    cardID = models.ForeignKey(Card, on_delete=models.CASCADE)
-    avatarImg = models.CharField(max_length=200)
-    setOrder = models.IntegerField()
-    firstFace = models.BooleanField()
+    flavor_text = models.CharField(max_length=500)
+    card_id = models.ForeignKey(Card, on_delete=models.CASCADE)
+    avatar_img = models.CharField(max_length=200)
+    set_order = models.IntegerField()
+    first_face = models.BooleanField()
 
     def __int__(self):
         return self.id
@@ -122,7 +122,7 @@ class Legality(models.Model):
             * duel - Game type duel
             * oldSchool - Game type oldSchool
             * premodern - Game type premodern
-            * cardID - ID for the card (specific to printing)
+            * card_id - ID for the card (specific to printing)
     """
     standard = models.CharField(max_length=15)
     future = models.CharField(max_length=15)
@@ -136,12 +136,12 @@ class Legality(models.Model):
     commander = models.CharField(max_length=15)
     brawl = models.CharField(max_length=15)
     duel = models.CharField(max_length=15)
-    oldSchool = models.CharField(max_length=15)
+    old_school = models.CharField(max_length=15)
     premodern = models.CharField(max_length=15)
-    cardID = models.ForeignKey(Card, on_delete=models.CASCADE)
+    card_id = models.ForeignKey(Card, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.cardID
+        return self.card_id
 
 
 class Symbol(models.Model):
@@ -156,11 +156,11 @@ class Symbol(models.Model):
     """
     symbol = models.CharField(max_length=20)
     text = models.CharField(max_length=50)
-    imageURL = models.CharField(max_length=200)
-    isMana = models.CharField(max_length=20)
-    manaCost = models.CharField(max_length=20)
-    manaCost.null = True
-    colorID = models.CharField(max_length=200)
+    image_url = models.CharField(max_length=200)
+    is_mana = models.CharField(max_length=20)
+    mana_cost = models.CharField(max_length=20)
+    mana_cost.null = True
+    color_id = models.CharField(max_length=200)
 
     def __str__(self):
         return self.symbol
@@ -173,12 +173,12 @@ class Rule(models.Model):
             * pub_date - Data the ruling was made
             * comment - The text about the ruling
     """
-    oracleID = models.CharField(max_length=200)
+    oracle_id = models.CharField(max_length=200)
     pub_date = models.CharField(max_length=50)
     comment = models.CharField(max_length=500)
 
     def __str__(self):
-        return self.oracleID
+        return self.oracle_id
 
 
 class CardSets(models.Model):

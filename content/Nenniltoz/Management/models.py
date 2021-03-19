@@ -9,9 +9,9 @@ class Settings(models.Model):
             * lastRuleImport - Date of last rule import
             * lastSymbolImport - Dat of last symbol import
     """
-    lastCardImport = models.CharField(max_length=200)
-    lastRuleImport = models.CharField(max_length=200)
-    lastSymbolImport = models.CharField(max_length=200)
+    last_card_import = models.CharField(max_length=200)
+    last_rule_import = models.CharField(max_length=200)
+    last_symbol_import = models.CharField(max_length=200)
 
     def __str__(self):
         return self.id

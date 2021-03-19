@@ -1,0 +1,46 @@
+{% load replaceValues %}
+
+{% if cardShow %}
+    <h4>Cards</h4>
+    <div class="cardFilter">
+        <form action="user_profile" method="post">
+            {% csrf_token %}
+            {% if clear_card_search %}
+            <input class="{{ font_family }}" name="searchCardTerm" type="text" value="{{ search_card_term }}">
+            {% else %}
+            <input class="{{ font_family }}" name="searchCardTerm" placeholder="Search" type="text">
+            {% endif %}
+            <input class="{{ font_family }}" name="searchCard" type="submit" value="Search">
+            {% if clear_card_search %}
+            <input class="{{ font_family }}" name="clearCardSearch" type="submit" value="Clear Search">
+            {% endif %}
+        </form>
+    </div>
+
+    {% include "./card_pager.html" %}
+    <table class="cardTable" id="cardGrid">
+        <tr>
+            <td>Name</td>
+            <td>Mana Cost</td>
+        </tr>
+        {% for card_obj in cardPager %}
+        <tr>
+            <td class="{{ should_translate }}">
+                {{ card_obj.name }}
+            </td>
+            <td>
+                {{ card_obj.mana_cost|replaceMana|safe }}
+            </td>
+            <td>
+                <a class="cardDirection" href="/Collection/Card/{{ card_obj.card_id }}/">
+                    <img alt="Avatar" class="smallCardImg" src="{{ card_obj.avatar_img }}">
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% include "./card_pager.html" %}
+{% else %}
+    <h4>Cards</h4>
+    <h5>No cards added to account. Visit Card Database to add cards.</h5>
+{% endif %}

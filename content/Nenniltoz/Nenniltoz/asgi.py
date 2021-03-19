@@ -10,14 +10,17 @@ https://docs.djangoproject.com/en/3.1/howto/deployment/asgi/
 import os
 
 import django
+django.setup()
+
 from channels.auth import AuthMiddlewareStack
 from channels.http import AsgiHandler
 from channels.routing import ProtocolTypeRouter, URLRouter
 
 import LifeCounter.routing
 
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Nenniltoz.settings')
-django.setup()
+
 
 application = ProtocolTypeRouter({
   "http": AsgiHandler(),

@@ -33,8 +33,8 @@
 <div class="cardGrid" id="cardGrid">
     {% for card_obj in pages %}
     <div class="cardObj">
-        <a class="cardDirection" href="/Collection/Card/{{ card_obj.cardID_id }}/">
-            <img alt="Avatar" class="cardImg" src="{{ card_obj.imageURL }}">
+        <a class="cardDirection" href="/Collection/Card/{{ card_obj.card_id }}/">
+            <img alt="Avatar" class="cardImg" src="{{ card_obj.image_url }}">
             <div class="cardObjText {{ should_translate }}">
                 {{ card_obj.name }}
             </div>

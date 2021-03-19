@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AnonymousUser
 from django.db import models
 
 
@@ -67,10 +67,10 @@ class UserProfile(models.Model):
             مناهج الحساب
     """
     user = models.ForeignKey(User, related_name='user_profile', on_delete=models.CASCADE)
-    cardView = models.BooleanField(default=False)
-    deckView = models.BooleanField(default=True)
-    profileView = models.BooleanField(default=True)
-    avatarImg = models.CharField(max_length=200)
+    card_view = models.BooleanField(default=False)
+    deck_view = models.BooleanField(default=True)
+    profile_view = models.BooleanField(default=True)
+    avatar_img = models.CharField(max_length=200)
     font_family = models.CharField(max_length=200, default='default_font')
     translate = models.CharField(max_length=200, default='')
 
@@ -78,26 +78,30 @@ class UserProfile(models.Model):
         return self.user.id
 
     @staticmethod
-    def get_font(user_id):
-        user = User.objects.get(id=user_id)
-        up = UserProfile.objects.get(user=user)
-        return up.font_family
+    def get_font(user):
+        if user.is_authenticated:
+            up = UserProfile.objects.get(user=user)
+            return up.font_family
+        else:
+            return 'default_font'
 
     @staticmethod
-    def get_translate(user_id):
-        user = User.objects.get(id=user_id)
-        up = UserProfile.objects.get(user=user)
-        return up.translate
+    def get_translate(user):
+        if user.is_authenticated:
+            up = UserProfile.objects.get(user=user)
+            return up.translate
+        else:
+            return 'notranslate'
 
 class UserCards(models.Model):
     """
         Stores user card relationship
             * user - Foreign key for linking to a User object
-            * cardID - String containing cardID
+            * card_id - String containing card_id
             * quantity - number of cards owned. If 0 on wish list
     """
     user = models.ForeignKey(User, related_name='user_card', on_delete=models.CASCADE)
-    cardID = models.CharField(max_length=200)
+    card_id = models.CharField(max_length=200)
     quantity = models.IntegerField(default=0)
 
 
@@ -108,7 +112,7 @@ class News(models.Model):
             * imageURL - image URL to display on the page
     """
     headline = models.CharField(max_length=200)
-    imageURL = models.CharField(max_length=200)
+    image_url = models.CharField(max_length=200)
 
     def __str__(self):
         return self.headline

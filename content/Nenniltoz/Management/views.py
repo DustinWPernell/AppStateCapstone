@@ -34,9 +34,9 @@ def admin_index(request):
     """
     logger.debug("Run: admin_index; Params: " + json.dumps(request.GET.dict()))
 
-    font_family = UserProfile.get_font(request.user.id)
+    font_family = UserProfile.get_font(request.user)
     context = {'font_family': font_family}
-    return render(request, 'Management/adminLand.html', context)
+    return render(request, 'Management/admin_land.html', context)
 
 
 @staff_member_required
@@ -53,9 +53,9 @@ def api_import(request):
     logger.debug("Run: api_import; Params: " + json.dumps(request.GET.dict()))
     settings_list = Settings.objects
 
-    font_family = UserProfile.get_font(request.user.id)
+    font_family = UserProfile.get_font(request.user)
     context = {'font_family': font_family, 'settings_list': settings_list, }
-    return render(request, 'Management/APIimport.html', context)
+    return render(request, 'Management/api_import.html', context)
 
 
 @staff_member_required

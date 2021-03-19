@@ -46,6 +46,7 @@
             </button>
             <input name="curUser" type="hidden" value="{{ user.username }}">
             <input name="newFriend" type="hidden" value="{{ friend.username }}">
+            <input name="newFriendID" type="hidden" value="{{ friend.id }}">
             <button class="friendRejectBtn friendBtn clickable" name="friendRejectBtn" onclick="return confirm('Remove friend: {{ friend.username }}?');"
                     type="submit"></button>
         </form>

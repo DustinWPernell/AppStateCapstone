@@ -20,7 +20,7 @@ def cardDuelSide(val):
 @register.filter
 def cardMultiFace(val):
     layout = CardLayout.objects.all().filter(
-        Q(multiFace=1)
+        Q(multi_face=1)
     )
     for lay in layout:
         if lay.layout == val:

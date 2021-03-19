@@ -1,0 +1,25 @@
+{% if o_player %}
+<div class="row">
+    <div class="">
+        <h3 class="{{ should_translate }}">{{ user.username }}</h3>
+        {% if user_profile_obj.deck_view %}
+            {% include "./user_decks.html" %}
+        {% endif %}
+        {% if user_profile_obj.card_view %}
+            {% include "./user_cards.html" %}
+        {% endif %}
+        {% if user_profile_obj.card_view %}
+            {% include "./user_wish_cards.html" %}
+        {% endif %}
+    </div>
+</div>
+{% else %}
+<div class="row">
+    <div class="">
+        <h3>Welcome, <span class="{{ should_translate }}">{{ user.username }}</span></h3>
+        {% include "./user_decks.html" %}
+        {% include "./user_cards.html" %}
+        {% include "./user_wish_cards.html" %}
+    </div>
+</div>
+{% endif %}

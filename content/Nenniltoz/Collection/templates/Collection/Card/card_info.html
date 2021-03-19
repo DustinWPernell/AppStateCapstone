@@ -22,7 +22,7 @@
             {% endif %}
             {% for face in faces %}
             <div class="singCardInValue">
-                {{ face.manaCost|replaceMana|safe }}
+                {{ face.mana_cost|replaceMana|safe }}
             </div>
             {% endfor %}
         </div>
@@ -34,7 +34,7 @@
             {% endif %}
             {% for face in faces %}
             <div class="singCardInValue">
-                {{ face.typeLine }}
+                {{ face.type_line }}
             </div>
             {% endfor %}
         </div>
@@ -94,12 +94,12 @@
 {% endif %}
 {% for face in faces %}
         <div class="singCardInValue">
-            {{ face.flavorText }}
+            {{ face.flavor_text }}
         </div>
 {% endfor %}
     </div>
     <span class="singCardAttLbl">Most recent set:</span>
-    <div class="singCardSet {{ should_translate }}">{{ card.setName }}</div>
+    <div class="singCardSet {{ should_translate }}">{{ card.set_name }}</div>
 
     <span class="singCardAttLbl">Keywords:</span>
     <div class="singCardKeywords">{{ card.keywords }}</div>
