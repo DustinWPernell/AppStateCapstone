@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    {% block title %}
-    <title>Nenniltoz</title>
-    {% endblock %}
+    <title>
+        {% block title %}
+            Nenniltoz
+        {% endblock %}
+    </title>
     {% load static %}
     <link href="{% static 'css\fonts.css' %}" rel="stylesheet" type="text/css">
     <link href="{% static 'css\selectFonts.css' %}" rel="stylesheet" type="text/css">
@@ -11,13 +13,11 @@
     <link href="{% static 'css\general.css' %}" rel="stylesheet" type="text/css">
     <link href="{% static 'css\dropdown.css' %}" rel="stylesheet" type="text/css">
     <link href="{% static 'css\nav.css' %}" rel="stylesheet" type="text/css">
-    <link href="{% static 'css\home.css' %}" rel="stylesheet" type="text/css">
     <link href="{% static 'css\loader.css' %}" rel="stylesheet" type="text/css">
-    <link href="{% static 'css\cards.css' %}" rel="stylesheet" type="text/css">
     <link href="{% static 'css\pagination.css' %}" rel="stylesheet" type="text/css">
-    <link href="{% static 'css\profile.css' %}" rel="stylesheet" type="text/css">
-    <link href="{% static 'css\admin.css' %}" rel="stylesheet" type="text/css">
-    <link href="{% static 'css\LifeCounter.css' %}" rel="stylesheet" type="text/css">
+
+    {% block css %}
+    {% endblock %}
 
 </head>
 <body class="{{ font_family }}">
@@ -39,14 +39,14 @@
                         {% endif %}
                         {% if request.user.is_authenticated %}
                         <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol"
-                                                     href="{% url 'collectionAll'%}">Collection</a></li>
+                                                     href="{% url 'card_database'%}">Card Database</a></li>
                         <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol"
                                                      href="/LifeCounter/">Life Counter</a></li>
                         <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol"
                                                      href="/Users/user_profile/{{ request.user.id }}/">Profile</a></li>
                         {% else %}
                         <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol"
-                                                     href="{% url 'collectionAll'%}">Collection</a></li>
+                                                     href="{% url 'card_database'%}">Card Database</a></li>
                         {% endif %}
                         {% if request.user.is_staff %}
                         <li class="navDropDownLI"><p class="topDropNavHeadItem colorText">Admin</p></li>
@@ -59,15 +59,21 @@
         </div>
 
         <div class="innerBody colorText">
-            {% if messages %}
-                {% for message in messages %}
-                    {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
-                        <p class="successAlert alert">{{ message }}</p>
-                    {% else %}
-                        <p class="errorAlert alert">{{ message }}</p>
-                    {% endif %}
-                {% endfor %}
-            {% endif %}
+
+                {% if messages %}
+                    {% for message in messages %}
+                        {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+                            <div class="alert successAlert">
+                                {{ message }}
+                            </div>
+                        {% else %}
+                            <div class="alert errorAlert">
+                                {{ message }}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+
             {% block content %}
             <!-- default content text (typically empty) -->
             {% endblock %}
@@ -75,17 +81,12 @@
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    {% if request.user.is_staff %}
-    <script src="{% static 'js\admin.js' %}"></script>
-    {% endif %}
     <script src="{% static 'js\general.js' %}"></script>
     <script src="{% static 'js\dropdown.js' %}"></script>
-    <script src="{% static 'js\card.js' %}"></script>
-    <script src="{% static 'js\profile.js' %}"></script>
-    <script src="{% static 'js\LifeCounter.js' %}"></script>
 
 
-{% block scripts %}
+{% block custom_scripts %}
+
 {% endblock %}
  <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>

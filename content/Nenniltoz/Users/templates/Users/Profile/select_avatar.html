@@ -1,4 +1,8 @@
 {% extends "base_generic.html" %}
+{% load static %}
+{% block css %}
+    <link href="{% static 'css\profile.css' %}" rel="stylesheet" type="text/css">
+{% endblock %}
 
 {% block content %}
 <div class="cardFilter">
@@ -22,11 +26,11 @@
     <div>
         <form action="save_avatar" method="POST">
             {% csrf_token %}
-            <input name="curUser" type="hidden" value="{{ user.id }}">
-            <input name="newAvatar" type="hidden" value="{{ card_obj.avatarImg }}">
+            <input name="curUser" type="hidden" value="{{ user_profile_obj.user.id }}">
+            <input name="newAvatar" type="hidden" value="{{ card_obj.avatar_img }}">
             <button class="avatarBtn clickable" onclick="return confirm('Select avatar: {{ card_obj.name }}?');"
                     type="submit">
-                <img alt="{{ card_obj.name }}" class="avatarImg" src="{{ card_obj.avatarImg }}">
+                <img alt="{{ card_obj.name }}" class="avatarImg" src="{{ card_obj.avatar_img }}">
                 <span class="cardObjText {{ should_translate }}">
                     {{ card_obj.name }}
                 </span>

@@ -13,6 +13,22 @@ html{
     display: block !important;
 }
 
+.alert{
+    text-align: center;
+    opacity: 70%;
+    height: 30px;
+    margin-bottom: 10px;
+    line-height: 35px;
+}
+
+.successAlert{
+    background: green;
+}
+
+.errorAlert{
+    background: darkred;
+}
+
 .innerBody{
     overflow: hidden;
     padding: 30px;
@@ -43,4 +59,5 @@ html{
     position: fixed;
     top: 0;
     right: 0;
+    z-index: 500;
 }

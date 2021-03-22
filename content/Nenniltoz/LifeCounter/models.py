@@ -104,7 +104,7 @@ class Game(models.Model):
             game=new_game,
             player=user,
             life=new_game.game_type.starting_life,
-            avatar_img=user_profile.avatarImg
+            avatar_img=user_profile.avatar_img
 
         )
 
@@ -172,7 +172,7 @@ class Game(models.Model):
                 game=self,
                 player=user,
                 life=self.game_type.starting_life,
-                avatar_img=user_profile.avatarImg
+                avatar_img=user_profile.avatar_img
             )
             new_player.save()
 

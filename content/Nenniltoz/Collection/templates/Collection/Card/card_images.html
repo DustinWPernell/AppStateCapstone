@@ -1,0 +1,35 @@
+{% load cardLayout %}
+<div class="outerCardImage">
+    <div class="setImagesArea">
+        <div>
+            <select id="set_images" class="set_images">
+                {% for set_images in set_info %}
+                    <option value="'{{ set_images.set_name }}', '{{ set_images.card_image_one }}',
+                                    '{{ set_images.card_image_two }}'" class="set_option"
+                            data-thumbnail="{{ set_images.set_image }}" data-font="{{ font_family }}"
+                            data-translate="{{ should_translate }}">
+                        {{ set_images.set_name }}
+                    </option>
+                {% endfor %}
+            </select>
+            <div class="lang-select">
+                <button class="btn-select" value=""></button>
+                <div class="select_div">
+                    <ul id="select_ul"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="{{ faces.0.legal.card_obj.layout.sides|cardDuelSide }}">
+    <div class="singCardObj">
+            <img alt="{{ faces.0.name }}" class="singCardImg" id="singCardFirstImg"
+                 src="{{ set_info.0.card_image_one }}">
+        </div>
+{% if faces.0.legal.card_obj.layout.sides == 2%}
+        <div class="singCardObj">
+            <img alt="{{ faces.1.name }}" class="singCardImg" id="singCardSecondImg"
+                 src="{{ set_info.1.card_image_two }}">
+        </div>
+{% endif %}
+    </div>
+</div>

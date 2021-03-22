@@ -1,31 +1,20 @@
 from django import template
-from django.db.models import Q
-
-from Collection.models import CardLayout
 
 register = template.Library()
 
 
 @register.filter
 def cardDuelSide(val):
-    layout = CardLayout.objects.all().filter(
-        Q(sides=2)
-    )
-    for lay in layout:
-        if lay.layout == val:
-            return True
-    return False
+    if val == 2:
+        return "singCardImagesMulti"
+    return "singCardImages"
 
 
 @register.filter
 def cardMultiFace(val):
-    layout = CardLayout.objects.all().filter(
-        Q(multiFace=1)
-    )
-    for lay in layout:
-        if lay.layout == val:
-            return True
-    return False
+    if val == 1:
+            return "singCardValueMulti"
+    return "singCardValue"
 
 
 @register.filter

@@ -235,8 +235,8 @@
 
     .singCardBody{
         display: grid;
-        grid-template-columns: 50% 50%;
-        column-gap: 20px;
+        grid-template-columns: 49% 49%;
+        column-gap: 2%;
         row-gap: 20px;
     }
 }

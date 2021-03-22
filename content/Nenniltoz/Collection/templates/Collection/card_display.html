@@ -1,0 +1,25 @@
+{% extends "base_generic.html" %}
+{% load static %}
+{% block css %}
+    <link href="{% static 'css\cards.css' %}" rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% block content %}
+{% if auth %}
+{% include "./Card/card_quantity.html" %}
+{% endif %}
+<div class="singCardBody" id="card">
+    {% include "./Card/card_info.html" %}
+    {% include "./Card/card_images.html" %}
+    <div style="grid-column: 1 / span 2;"><hr></div>
+    {% include "./Card/card_legal.html" %}
+    {% if has_rules %}
+    <div style="grid-column: 1 / span 2;"><hr></div>
+    {% include "./Card/card_rules.html" %}
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block custom_scripts %}
+    <script src="{% static 'js\card.js' %}"></script>
+{% endblock %}

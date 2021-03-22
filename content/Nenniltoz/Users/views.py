@@ -11,7 +11,7 @@ from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
-from Collection.models import CardFace
+from Collection.models import CardFace, CardIDList
 from .forms import CreateUserForm
 from .models import News, UserProfile, Friends, PendingFriends, Followers, UserCards
 
@@ -84,63 +84,6 @@ def add_friend(request, user_id):
     return redirect('user_profile', user_id=str(request.user.id))
 
 
-def build_follower_list(user):
-    """Build followers list.
-
-    Builds a list of followers pulled from the database. Uses user param to filter for specific user.
-
-    @param user: User that is doing the following
-
-    @return: Returns list of users that are being followed by the current user.
-
-    :todo: None
-    """
-    follower_list = Followers.objects.filter(user_one=user)
-    follower_user_list = []
-    for follower in follower_list:
-        follower_user_list.append(follower.user_two)
-
-    return follower_user_list
-
-
-def build_friend_list(user):
-    """Build friends list.
-
-    Builds a list of friend requests pulled from the database. Uses user param to filter for specific user.
-
-    @param user: User that is requesting the list
-
-    @return: Returns list of users that are friends with the current user.
-
-    :todo: None
-    """
-    friend_list = Friends.objects.filter(user_one=user)
-    friend_user_list = []
-    for friend in friend_list:
-        friend_user_list.append(friend.user_two)
-
-    return friend_user_list
-
-
-def build_pending_list(user):
-    """Build pending friends list.
-
-    Builds a list of pending friend requests pulled from the database. Uses user param to filter for specific user.
-
-    @param user: User who is receiving the friend requests
-
-    @return : Returns list of users that have sent request to current user and that have not been rejected.
-
-    :todo: None
-    """
-    pending_list = PendingFriends.objects.filter(user_two=user, rejected=False)
-    pending_user_list = []
-    for pending in pending_list:
-        pending_user_list.append(pending.user_one)
-
-    return pending_user_list
-
-
 def index(request):
     """Display the home page.
 
@@ -150,16 +93,12 @@ def index(request):
 
     :todo: Set up expiration dates for news items
     """
-    logger.debug("Run: index; Params: " + json.dumps(request.GET.dict()))
+    logger.info("Run: index; Params: " + json.dumps(request.GET.dict()))
 
-    latest_news_list = News.objects.order_by('-headline')[:5]
+    latest_news_list = News.get_next_5()
 
-    if request.user.is_authenticated:
-        font_family = UserProfile.get_font(request.user.id)
-        should_translate = UserProfile.get_translate(request.user.id)
-    else:
-        font_family = 'default_font'
-        should_translate = 'notranslate'
+    font_family = UserProfile.get_font(request.user)
+    should_translate = UserProfile.get_translate(request.user)
     context = {'font_family': font_family, 'should_translate': should_translate, 'latest_news_list': latest_news_list, }
     return render(request, 'Users/index.html', context)
 
@@ -173,7 +112,7 @@ def login_page(request):
 
     :todo: Update display/layout
     """
-    logger.debug("Run: login_page; Params: " + json.dumps(request.GET.dict()))
+    logger.info("Run: login_page; Params: " + json.dumps(request.GET.dict()))
 
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -188,8 +127,8 @@ def login_page(request):
         else:
             messages.error(request, 'Error wrong username/password')
 
-    font_family = 'default_font'
-    should_translate = 'notranslate'
+    font_family = UserProfile.get_font(request.user)
+    should_translate = UserProfile.get_translate(request.user)
     context = {'font_family': font_family, 'should_translate': should_translate}
     return render(request, 'Users/login.html', context)
 
@@ -204,11 +143,11 @@ def logout_page(request):
     
     :todo: Update display/layout
     """
-    logger.debug("Run: logout_page; Params: " + json.dumps(request.GET.dict()))
+    logger.info("Run: logout_page; Params: " + json.dumps(request.GET.dict()))
 
     auth.logout(request)
-    font_family = 'default_font'
-    should_translate = UserProfile.get_translate(request.user.id)
+    font_family = UserProfile.get_font(request.user)
+    should_translate = UserProfile.get_translate(request.user)
     context = {'font_family': font_family, 'should_translate': should_translate}
     return render(request, 'Users/logout.html', context)
 
@@ -223,8 +162,8 @@ def new_deck(request):
     :todo: Finish new deck page
     """
 
-    font_family = UserProfile.get_font(request.user.id)
-    should_translate = UserProfile.get_translate(request.user.id)
+    font_family = UserProfile.get_font(request.user)
+    should_translate = UserProfile.get_translate(request.user)
     context = {'font_family': font_family, 'should_translate': should_translate}
     return render(request, 'Users/Profile/newDeck.html', context)
 
@@ -267,7 +206,7 @@ def register(request):
     
     :todo: Update display/layout
     """
-    logger.debug("Run: register; Params: " + json.dumps(request.GET.dict()))
+    logger.info("Run: register; Params: " + json.dumps(request.GET.dict()))
 
     if request.user.is_authenticated:
         return redirect('user_profile', user_id=str(request.user.id))
@@ -283,8 +222,8 @@ def register(request):
     else:
         f = UserCreationForm()
 
-    font_family = 'default_font'
-    should_translate = UserProfile.get_translate(request.user.id)
+    font_family = UserProfile.get_font(request.user)
+    should_translate = UserProfile.get_translate(request.user)
     context = {'font_family': font_family, 'should_translate': should_translate, 'form': f}
     return render(request, 'Users/register.html', context)
 
@@ -300,16 +239,16 @@ def remove_follower(request, user_id):
 
     :todo: None
     """
-    follower = request.POST['newFollower']
+    follower_id = request.POST['newFollowerID']
     user_obj = User.objects.get(id=user_id).id
-    follower_obj = User.objects.get(username=follower).id
+    follower_obj = User.objects.get(id=follower_id)
 
-    if 'userRedirect' not in request.POST:
+    if 'followerRejectBtn' in request.POST:
         Followers.objects.get(user_one=user_obj, user_two=follower_obj).delete()
         messages.error(request, 'Removed follower.')
-        return redirect('user_profile', user_id=str(request.user.id))
+        return redirect('user_profile', user_id=str(user_id))
     else:
-        return redirect('user_profile', user_id=str(follower_obj))
+        return redirect('user_profile', user_id=str(follower_id))
 
 
 @login_required
@@ -323,18 +262,18 @@ def remove_friend(request, user_id):
 
     :todo: None
     """
-    friend = request.POST['newFriend']
-    user_obj = User.objects.get(id=user_id).id
-    friend_obj = User.objects.get(username=friend).id
-    if 'userRedirect' not in request.POST:
+    friend_id = request.POST['newFriendID']
+    user_obj = User.objects.get(id=user_id)
+    friend_obj = User.objects.get(id=friend_id)
+    if 'friendRejectBtn' in request.POST:
         Friends.objects.get(user_one=user_obj, user_two=friend_obj).delete()
         Friends.objects.get(user_one=friend_obj, user_two=user_obj).delete()
 
         messages.error(request, 'Removed friend. Send new request to add as friend.')
 
-        return redirect('user_profile', user_id=str(request.user.id))
+        return redirect('user_profile', user_id=str(user_id))
     else:
-        return redirect('user_profile', user_id=str(friend_obj))
+        return redirect('user_profile', user_id=str(friend_id))
 
 
 def save_avatar(request):
@@ -351,7 +290,7 @@ def save_avatar(request):
     user_obj = User.objects.get(id=request.user.id)
 
     custom_user_profile = UserProfile.objects.get(user=user_obj)
-    custom_user_profile.avatarImg = avatar
+    custom_user_profile.avatar_img = avatar
     custom_user_profile.save()
 
     return redirect('user_profile', user_id=str(request.user.id))
@@ -370,24 +309,22 @@ def select_avatar(request):
     search_term = 'Search'
     if request.method == 'POST':
         if 'clearSearch' in request.POST:
-            del request.session['search']
-            del request.session['avatarSearchTerm']
+            del request.session['avatar_search_term']
+            del request.session['avatar_clear_search']
             card_list = CardFace.objects.all().order_by('name')
             search_term = ''
             clear_search = False
         else:
             search_term = request.POST.get('avatarSearchTerm')
 
-            card_list = CardFace.objects.filter(Q(name__icontains=search_term)).order_by('name')
+            card_list = CardFace.card_face_filter_by_name_term(search_term).order_by('name')
 
-            request.session['search'] = True
-            request.session['avatarSearchTerm'] = search_term
-            clear_search = True
+            request.session['avatar_search_term'] = search_term
+            request.session['avatar_clear_search'] = clear_search = True
     else:
         try:
-            search_term = request.session['avatarSearchTerm']
-
-            card_list = CardFace.objects.filter(Q(name__icontains=search_term)).order_by('name')
+            search_term = request.session['avatar_search_term']
+            card_list = CardFace.card_face_filter_by_name_term(search_term).order_by('name')
             clear_search = True
         except KeyError:
             card_list = CardFace.objects.all().order_by('name')
@@ -404,8 +341,8 @@ def select_avatar(request):
         cards = paginator.page(paginator.num_pages)
 
 
-    font_family = UserProfile.get_font(request.user.id)
-    should_translate = UserProfile.get_translate(request.user.id)
+    font_family = UserProfile.get_font(request.user)
+    should_translate = UserProfile.get_translate(request.user)
     context = {'font_family': font_family, 'should_translate': should_translate, 'pages': cards, 'SearchTerm': search_term, 'clearSearch': clear_search}
     return render(request, 'Users/Profile/select_avatar.html', context)
 
@@ -466,7 +403,7 @@ def update_settings(request, user_id):
 
     :todo: None
     """
-    logger.debug("Run: update_settings; Params: " + json.dumps(request.GET.dict()))
+    logger.info("Run: update_settings; Params: " + json.dumps(request.GET.dict()))
     user_obj = User.objects.get(id=user_id).id
 
     setting = request.GET['setting']
@@ -479,7 +416,7 @@ def update_settings(request, user_id):
     custom_user_profile = UserProfile.objects.get(user=user_obj)
     setattr(custom_user_profile, setting, value)
     custom_user_profile.save()
-
+    messages.success(request, 'Updated Settings.')
     return HttpResponse("Finished")
 
 
@@ -494,12 +431,9 @@ def user_profile(request, user_id):
 
     :todo: None
     """
-    logger.debug("Run: user_profile; Params: " + json.dumps(request.GET.dict()))
-    user = get_object_or_404(User, id=user_id)
-    user_profile_obj = UserProfile.objects.get(user=user)
-    friend_obj = build_friend_list(user)
-    pending_obj = build_pending_list(user)
-    follower_obj = build_follower_list(user)
+    logger.info("Run: user_profile; Params: " + json.dumps(request.GET.dict()))
+    user_profile_obj = UserProfile.get_profile_by_user(user_id)
+    card_id_list_full = CardIDList.objects.values('card_id').all()
 
     try:
         deck_page = request.GET.get('deckPage', -1)
@@ -526,118 +460,91 @@ def user_profile(request, user_id):
         request.session['cardWishPage'] = card_wish_page
 
     if request.method == 'POST':
-        if 'clearDeckSearch' in request.POST:
-            del request.session['searchDeckTerm']
+        if 'user_clear_deck_search' in request.POST:
+            del request.session['user_search_deck_term']
             del request.session['user_decks']
-            request.session['clear_deck_search'] = False
-        elif 'searchDeck' in request.POST:
-            search_term = request.POST.get('searchDeckTerm')
-            filtered_card_list = CardFace.objects.values('cardID_id').filter(
-                Q(name__icontains=search_term)
-                | Q(text__icontains=search_term)
-                | Q(typeLine__icontains=search_term)
-                | Q(flavorText__icontains=search_term)
-            )
+            request.session['user_clear_deck_search'] = False
+        elif 'user_search_deck' in request.POST:
+            search_term = request.POST.get('user_search_deck_term')
+            filtered_card_list = CardFace.objects.card_face_filter_by_name_term(search_term)
 
             card_id_list = []
             for card_list_obj in filtered_card_list:
-                if card_list_obj['cardID_id'] not in card_id_list:
-                    card_id_list.append(card_list_obj['cardID_id'])
+                if card_list_obj['card_id'] not in card_id_list:
+                    card_id_list.append(card_list_obj['card_id'])
 
-            request.session['searchDeckTerm'] = search_term
+            request.session['user_search_deck_term'] = search_term
             request.session['user_decks'] = card_id_list
-            request.session['clear_deck_search'] = True
-        elif 'clearCardSearch' in request.POST:
-            del request.session['searchCardTerm']
+            request.session['user_clear_deck_search'] = True
+        elif 'user_clear_card_search' in request.POST:
+            del request.session['user_search_card_term']
             del request.session['user_cards']
-            request.session['user_card_search'] = False
-        elif 'searchCard' in request.POST:
-            search_term = request.POST.get('searchCardTerm')
-            user_card_obj_list = UserCards.objects.values('cardID').filter(
-                Q(user=user) & ~Q(quantity=0)
-            )
-            filtered_card_list = CardFace.objects.values('cardID_id').filter(
-                Q(cardID_id__in=user_card_obj_list) &
-                (Q(name__icontains=search_term)
-                 | Q(text__icontains=search_term)
-                 | Q(typeLine__icontains=search_term)
-                 | Q(flavorText__icontains=search_term))
-            )
-
+            request.session['user_clear_card_search'] = False
+        elif 'user_search_card' in request.POST:
+            search_term = request.POST.get('user_search_card_term')
+            user_card_obj_list = UserCards.get_user_card(user_profile_obj.user)
+            filtered_card_list = CardFace.card_face_filter_by_card_oracle_term(
+                                                    card_id_list_full, user_card_obj_list, search_term)
             card_id_list = []
             for card_list_obj in filtered_card_list:
-                if card_list_obj['cardID_id'] not in card_id_list:
-                    card_id_list.append(card_list_obj['cardID_id'])
+                if card_list_obj.legal.card_obj.card_id not in card_id_list:
+                    card_id_list.append(card_list_obj.legal.card_obj.card_id)
 
-            request.session['searchCardTerm'] = search_term
+            request.session['user_search_card_term'] = search_term
             request.session['user_cards'] = card_id_list
-            request.session['user_card_search'] = True
-        elif 'clearWishSearch' in request.POST:
-            del request.session['searchWishTerm']
+            request.session['user_clear_card_search'] = True
+        elif 'user_clear_wish_search' in request.POST:
+            del request.session['user_search_wish_term']
             del request.session['user_wish_cards']
-            request.session['clear_wish_search'] = False
-        elif 'searchWish' in request.POST:
-            search_term = request.POST.get('searchWishTerm')
-            user_card_obj_list = UserCards.objects.values('cardID').filter(
-                Q(user=user) & Q(quantity=0)
-            )
-            filtered_card_list = CardFace.objects.values('cardID_id').filter(
-                Q(cardID_id__in=user_card_obj_list) &
-                (Q(name__icontains=search_term)
-                 | Q(text__icontains=search_term)
-                 | Q(typeLine__icontains=search_term)
-                 | Q(flavorText__icontains=search_term))
-            )
-
+            request.session['user_clear_wish_search'] = False
+        elif 'user_search_wish' in request.POST:
+            search_term = request.POST.get('user_search_wish_term')
+            user_card_obj_list = UserCards.get_user_wish_card(user_profile_obj.user)
+            filtered_card_list = CardFace.card_face_filter_by_card_oracle_term(
+                                                    card_id_list_full, user_card_obj_list, search_term)
             card_id_list = []
             for card_list_obj in filtered_card_list:
-                if card_list_obj['cardID_id'] not in card_id_list:
-                    card_id_list.append(card_list_obj['cardID_id'])
+                if card_list_obj.legal.card_obj.card_id not in card_id_list:
+                    card_id_list.append(card_list_obj.legal.card_obj.card_id)
 
-            request.session['searchWishTerm'] = search_term
+            request.session['user_search_wish_term'] = search_term
             request.session['user_wish_cards'] = card_id_list
-            request.session['clear_wish_search'] = True
+            request.session['user_clear_wish_search'] = True
         return redirect('../' + str(user_id))
-
+    
     try:
-        search_deck_term = request.session['searchDeckTerm']
+        search_deck_term = request.session['user_search_deck_term']
         # user_deck_obj_list = request.session['user_decks']
-        # user_decks = CardFace.objects.filter(Q(id__in=user_deck_obj_list)).order_by('name')
-        clear_deck_search = request.session['clear_deck_search']
+        # user_decks = CardFace.objects.filter(Q(id__in=user_deck_obj_list)).order_by('name'))
+        user_clear_deck_search = request.session['user_clear_deck_search']
     except KeyError:
         # user_deck_obj_list = []
         user_decks = []
         search_deck_term = "Search"
-        clear_deck_search = False
-        request.session['clear_deck_search'] = False
+        user_clear_deck_search = False
+        request.session['user_clear_deck_search'] = False
 
     try:
-        search_card_term = request.session['searchCardTerm']
+        search_card_term = request.session['user_search_card_term']
         user_card_obj_list = request.session['user_cards']
-        clear_card_search = request.session['user_card_search']
-        user_cards = CardFace.objects.filter(Q(cardID_id__in=user_card_obj_list)).order_by('name')
+        user_cards = CardFace.card_face_by_card(user_card_obj_list)
+        user_clear_card_search = request.session['user_clear_card_search']
     except KeyError:
-        user_card_obj_list = UserCards.objects.values('cardID').filter(
-            Q(user=user) & ~Q(quantity=0)
-        )
-        user_cards = CardFace.objects.filter(Q(cardID_id__in=user_card_obj_list)).order_by('name')
+        user_card_obj_list = UserCards.get_user_card(user_profile_obj.user)
+        user_cards = CardFace.card_face_by_card_and_oracle(card_id_list_full, user_card_obj_list)
         search_card_term = "Search"
-        clear_card_search = False
-        request.session['user_card_search'] = False
+        user_clear_card_search = request.session['user_clear_card_search'] = False
 
     try:
-        search_wish_term = request.session['searchWishTerm']
+        search_wish_term = request.session['user_search_wish_term']
         user_wish_card_obj_list = request.session['user_wish_cards']
-        user_wish_cards = CardFace.objects.filter(Q(cardID_id__in=user_wish_card_obj_list)).order_by('name')
-        clear_wish_search = request.session['clear_wish_search']
+        user_wish_cards = CardFace.card_face_by_card(user_wish_card_obj_list)
+        user_clear_wish_search = request.session['user_clear_wish_search']
     except KeyError:
-        user_wish_obj_list = UserCards.objects.values('cardID').filter(
-            Q(user=user) & Q(quantity=0)
-        )
-        user_wish_cards = CardFace.objects.filter(Q(cardID_id__in=user_wish_obj_list)).order_by('name')
+        user_wish_obj_list = UserCards.get_user_wish_card(user_profile_obj.user)
+        user_wish_cards = CardFace.card_face_by_card_and_oracle(card_id_list_full, user_wish_obj_list)
         search_wish_term = "Search"
-        clear_wish_search = False
-        request.session['clear_wish_search'] = False
+        user_clear_wish_search = request.session['user_clear_wish_search'] = False
 
     deck_paginator = Paginator(user_decks, 10)
     try:
@@ -664,17 +571,24 @@ def user_profile(request, user_id):
         wish_cards = wish_paginator.page(wish_paginator.num_pages)
     o_player = not str(request.user.id) == user_id
 
-    font_family = UserProfile.get_font(request.user.id)
-    should_translate = UserProfile.get_translate(request.user.id)
+    friend_obj = user_profile_obj.get_user_friends()
+    pending_obj = user_profile_obj.get_user_pending()
+    follower_obj = user_profile_obj.get_user_followers()
+
+    font_family = UserProfile.get_font(request.user)
+    should_translate = UserProfile.get_translate(request.user)
     context = {
         'font_family': font_family, 'should_translate': should_translate,
-        'user_profile_obj': user_profile_obj, 'user': user, 'friend_obj': friend_obj, 'pending_obj': pending_obj,
-        'follower_obj': follower_obj, 'o_player': o_player,
+        'user_profile_obj': user_profile_obj,
+        'has_friend': len(friend_obj) > 0,'friend_obj': friend_obj,
+        'has_pending': len(pending_obj) > 0, 'pending_obj': pending_obj,
+        'has_follower': len(follower_obj) > 0, 'follower_obj': follower_obj,
+        'o_player': o_player,
         'deckPage': deck_page, 'deckPager': decks, 'search_deck_term': search_deck_term,
-        'clear_deck_search': clear_deck_search, 'deckShow': deck_paginator.count > 0,
+        'clear_deck_search': user_clear_deck_search, 'deckShow': (deck_paginator.count > 0 or user_clear_deck_search),
         'cardPage': card_page, 'cardPager': cards, 'search_card_term': search_card_term,
-        'clear_card_search': clear_card_search, 'cardShow': card_paginator.count > 0,
+        'clear_card_search': user_clear_card_search, 'cardShow': (card_paginator.count > 0 or user_clear_card_search),
         'cardWishPage': card_wish_page, 'cardWishPager': wish_cards, 'search_wish_term': search_wish_term,
-        'clear_wish_search': clear_wish_search, 'wishShow': wish_paginator.count > 0,
+        'clear_wish_search': user_clear_wish_search, 'wishShow': (wish_paginator.count > 0 or user_clear_wish_search),
     }
-    return render(request, 'Users/Profile/UserProfile.html', context)
+    return render(request, 'Users/user_profile.html', context)

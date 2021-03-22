@@ -10,4 +10,5 @@ urlpatterns = [
     path('ruleUpdate', views.rule_update, name='ruleUpdate'),
     path('symbolUpdate', views.symbol_update, name='symbolUpdate'),
     path('setUpdate', views.set_update, name='setUpdate'),
+    path('oracleUpdate', views.oracle_update, name='oracleUpdate'),
 ]
