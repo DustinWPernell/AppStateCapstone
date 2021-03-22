@@ -22,10 +22,14 @@ function RetrieveAPI(type){
         url: "../Management/retrieveAPI",
         data : {request: request_data},
         success : function(json) {
-            printToList("Finished calling API");
+            printToList("Added API To Queue");
             if(type == "card"){
+                CardImport();
+            } else if(type == "oracle"){
+                OracleImport();
+            }else if(type == "set"){
                 SetImport();
-            } else if(type == "rule"){
+            }else if(type == "rule"){
                 RuleImport();
             } else if(type == "symbol"){
                 SymbolImport();
@@ -34,6 +38,20 @@ function RetrieveAPI(type){
     })
 }
 
+function OracleImport(){
+    printToList("Running Oracle import");
+    var request_data = "Oracle";
+    $.ajax({
+        url: "../Management/oracleUpdate",
+        data : {request: request_data},
+        success : function(json) {
+            printToList("Added Oracle To Queue");
+            showLoad();
+        }
+    })
+}
+
+
 function SetImport(){
     printToList("Running set import");
     var request_data = "Sets";
@@ -41,46 +59,46 @@ function SetImport(){
         url: "../Management/setUpdate",
         data : {request: request_data},
         success : function(json) {
-            printToList("Finished Set import");
-            CardImport();
+            printToList("Added Set To Queue");
+            showLoad();
         }
     })
 }
 
 function CardImport(){
-    printToList("Running card import");
+    printToList("Running Card import");
     var request_data = "Cards";
     $.ajax({
         url: "../Management/cardUpdate",
         data : {request: request_data},
         success : function(json) {
-            printToList("Finished card import");
+            printToList("Added Card To Queue");
             showLoad();
         }
     })
 }
 
 function RuleImport(){
-    printToList("Running rule import");
+    printToList("Running Rule import");
     var request_data = "Rules";
     $.ajax({
         url: "../Management/ruleUpdate",
         data : {request: request_data},
         success : function(json) {
-            printToList("Finished rule import");
+            printToList("Added Rule To Queue");
             showLoad();
         }
     })
 }
 
 function SymbolImport(){
-    printToList("Running symbol import");
+    printToList("Running Symbol import");
     var request_data = "Symbols";
     $.ajax({
         url: "../Management/symbolUpdate",
         data : {request: request_data},
         success : function(json) {
-            printToList("Finished symbol import");
+            printToList("Added Symbol To Queue");
             showLoad();
         }
     })

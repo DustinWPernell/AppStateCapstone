@@ -1,4 +1,9 @@
 {% extends 'base_generic.html' %}
+
+{% block css %}
+    <link href="{% static 'css\LifeCounter.css' %}" rel="stylesheet" type="text/css">
+{% endblock %}
+
 {% block content %}
 <div class="wrapper">
     <h1>Join a Game</h1>
@@ -22,3 +27,7 @@
     </form>
 </div>
 {% endblock content %}
+
+{% block custom_scripts %}
+    <script src="{% static 'js\LifeCounter.js' %}"></script>
+{% endblock %}

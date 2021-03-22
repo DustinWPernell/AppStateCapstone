@@ -1,4 +1,8 @@
 {% extends "base_generic.html" %}
+{% load static %}
+{% block css %}
+    <link href="{% static 'css\profile.css' %}" rel="stylesheet" type="text/css">
+{% endblock %}
 
 {% block content %}
 <div class="ProfileGrid">
@@ -51,8 +55,7 @@
 </div>
 {% endblock %}
 
-{% block scripts %}
-<script>
-    document.getElementById("defaultOpen").click();
-</script>
+{% block custom_scripts %}
+    <script src="{% static 'js\profile.js' %}"></script>
+    <script>document.getElementById("defaultOpen").click();</script>
 {% endblock %}

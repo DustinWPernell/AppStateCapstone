@@ -1,1 +1,2 @@
-web: daphne Nenniltoz.asgi:application --port $PORT --bind 0.0.0.0 -v2
+web: gunicorn -w 4 -k uvicorn.workers.UvicornH11Worker Nenniltoz.asgi:application
+worker: python worker.py

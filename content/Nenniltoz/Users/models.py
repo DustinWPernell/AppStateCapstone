@@ -1,8 +1,12 @@
+from channels.db import database_sync_to_async
 from django.contrib.auth.models import User, AnonymousUser
 from django.db import models
 
 
 # Create your models here.
+from django.db.models import Q
+
+
 class Preference:
     """
         Stores choices for settings
@@ -76,6 +80,33 @@ class UserProfile(models.Model):
 
     def __int__(self):
         return self.user.id
+    def get_user_friends(this):
+        friend_list = Friends.objects.filter(user_one=this.user)
+        friend_user_list = []
+        for friend in friend_list:
+            friend_user_list.append(friend.user_two)
+
+        return friend_user_list
+
+    def get_user_pending(this):
+        pending_list = PendingFriends.objects.filter(user_two=this.user, rejected=False)
+        pending_user_list = []
+        for pending in pending_list:
+            pending_user_list.append(pending.user_one)
+
+        return pending_user_list
+
+    def get_user_followers(this):
+        follower_list = Followers.objects.filter(user_one=this.user)
+        follower_user_list = []
+        for follower in follower_list:
+            follower_user_list.append(follower.user_two)
+
+        return follower_user_list
+
+    @staticmethod
+    def get_profile_by_user(user_id):
+        return UserProfile.objects.select_related().get(user__id=user_id)
 
     @staticmethod
     def get_font(user):
@@ -93,6 +124,7 @@ class UserProfile(models.Model):
         else:
             return 'notranslate'
 
+
 class UserCards(models.Model):
     """
         Stores user card relationship
@@ -101,8 +133,29 @@ class UserCards(models.Model):
             * quantity - number of cards owned. If 0 on wish list
     """
     user = models.ForeignKey(User, related_name='user_card', on_delete=models.CASCADE)
-    card_id = models.CharField(max_length=200)
+    oracle_id = models.CharField(max_length=200)
     quantity = models.IntegerField(default=0)
+
+    @staticmethod
+    def get_user_card(user):
+        return UserCards.objects.values('oracle_id').filter(
+        Q(user=user) &
+        ~Q(quantity=0)
+    )
+
+    @staticmethod
+    def get_user_wish_card(user):
+        return UserCards.objects.values('oracle_id').filter(
+            Q(user=user) &
+            Q(quantity=0)
+        )
+
+    @staticmethod
+    def get_user_card_by_oracle(oracle_id, user):
+        return UserCards.objects.filter(
+            Q(oracle_id=oracle_id) &
+            Q(user=user)
+        )
 
 
 class News(models.Model):
@@ -116,3 +169,7 @@ class News(models.Model):
 
     def __str__(self):
         return self.headline
+
+    @staticmethod
+    def get_next_5():
+        return News.objects.order_by('-headline')[:5]

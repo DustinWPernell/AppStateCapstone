@@ -8,6 +8,7 @@ https://docs.djangoproject.com/en/3.1/howto/deployment/asgi/
 """
 
 import os
+os.environ['DJANGO_SETTINGS_MODULE'] = 'Nenniltoz.settings'
 
 import django
 django.setup()

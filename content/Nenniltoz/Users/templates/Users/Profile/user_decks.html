@@ -6,13 +6,13 @@
     <form action="user_profile" method="post">
         {% csrf_token %}
         {% if clear_card_search %}
-        <input class="{{ font_family }}" name="searchDeckTerm" type="text" value="{{ search_deck_term }}">
+        <input class="{{ font_family }}" name="user_search_deck_term" type="text" value="{{ search_deck_term }}">
         {% else %}
-        <input class="{{ font_family }}" name="searchDeckTerm" placeholder="Search" type="text">
+        <input class="{{ font_family }}" name="user_search_deck_term" placeholder="Search" type="text">
         {% endif %}
-        <input class="{{ font_family }}" name="searchCard" type="submit" value="Search">
+        <input class="{{ font_family }}" name="user_search_deck" type="submit" value="Search">
         {% if clear_card_search %}
-        <input class="{{ font_family }}" name="clearDeckSearch" type="submit" value="Clear Search">
+        <input class="{{ font_family }}" name="user_clear_deck_search" type="submit" value="Clear Search">
         {% endif %}
     </form>
 </div>
@@ -28,3 +28,5 @@
 {% endif %}
 
 <a class="colorText clickableCol" href="{% url 'new_deck'%}">New Deck</a>
+
+<hr>

@@ -4,102 +4,46 @@
         Legalities:
     </div>
     <div class="innerCardLegal">
-{% if legal.standard == "legal" %}
-        <div class="legalTableField">
-{% else %}
-        <div class="notLegalTableField {{ should_translate }}">
-{% endif %}
+        <div class="{{faces.0.legal.standard}} {{ should_translate }}">
             Standard
         </div>
-{% if legal.future == "legal" %}
-        <div class="legalTableField">
-{% else %}
-        <div class="notLegalTableField {{ should_translate }}">
-{% endif %}
+        <div class="{{faces.0.legal.future}} {{ should_translate }}">
             Future
         </div>
-{% if legal.historic == "legal" %}
-        <div class="legalTableField">
-{% else %}
-        <div class="notLegalTableField {{ should_translate }}">
-{% endif %}
+        <div class="{{faces.0.legal.historic}} {{ should_translate }}">
             Historic
         </div>
-{% if legal.gladiator == "legal" %}
-        <div class="legalTableField">
-{% else %}
-        <div class="notLegalTableField {{ should_translate }}">
-{% endif %}
+        <div class="{{faces.0.legal.gladiator}} {{ should_translate }}">
             Gladiator
         </div>
-{% if legal.modern == "legal" %}
-        <div class="legalTableField">
-{% else %}
-        <div class="notLegalTableField {{ should_translate }}">
-{% endif %}
+        <div class="{{faces.0.legal.modern}} {{ should_translate }}">
             Modern
         </div>
-{% if legal.legacy == "legal" %}
-        <div class="legalTableField">
-{% else %}
-        <div class="notLegalTableField {{ should_translate }}">
-{% endif %}
+        <div class="{{faces.0.legal.legacy}} {{ should_translate }}">
             Legacy
         </div>
-{% if legal.pauper == "legal" %}
-        <div class="legalTableField">
-{% else %}
-        <div class="notLegalTableField {{ should_translate }}">
-{% endif %}
+        <div class="{{faces.0.legal.pauper}} {{ should_translate }}">
             Pauper
         </div>
-{% if legal.vintage == "legal" %}
-        <div class="legalTableField">
-{% else %}
-        <div class="notLegalTableField {{ should_translate }}">
-{% endif %}
+        <div class="{{faces.0.legal.vintage}} {{ should_translate }}">
             Vintage
         </div>
-{% if legal.penny == "legal" %}
-        <div class="legalTableField">
-{% else %}
-        <div class="notLegalTableField {{ should_translate }}">
-{% endif %}
+        <div class="{{faces.0.legal.penny}} {{ should_translate }}">
             Penny
         </div>
-{% if legal.commander == "legal" %}
-        <div class="legalTableField">
-{% else %}
-        <div class="notLegalTableField {{ should_translate }}">
-{% endif %}
+        <div class="((faces.0.legal.commander)) {{ should_translate }}">
             Commander
         </div>
-{% if legal.brawl == "legal" %}
-        <div class="legalTableField">
-{% else %}
-        <div class="notLegalTableField {{ should_translate }}">
-{% endif %}
+        <div class="{{faces.0.legal.brawl}} {{ should_translate }}">
             Brawl
         </div>
-{% if legal.duel == "legal" %}
-        <div class="legalTableField">
-{% else %}
-        <div class="notLegalTableField {{ should_translate }}">
-{% endif %}
+        <div class="{{faces.0.legal.duel}} {{ should_translate }}">
             Duel
         </div>
-{% if legal.old_school == "legal" %}
-        <div class="legalTableField">
-{% else %}
-        <div class="notLegalTableField {{ should_translate }}">
-{% endif %}
+        <div class="{{faces.0.legal.old_school}} {{ should_translate }}">
             Old School
         </div>
-{% if legal.premodern == "legal" %}
-        <div class="legalTableField">
-{% else %}
-        <div class="notLegalTableField {{ should_translate }}">
-{% endif %}
+        <div class="{{faces.0.legal.premodern}} {{ should_translate }}">
             Pre-Modern
         </div>
     </div>

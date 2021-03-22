@@ -8,7 +8,7 @@
     {% endfor %}
 </div>
 {% else %}
-{% if pending_obj.length > 0 %}
+{% if has_pending %}
 <h4>Pending Friend Requests:</h4>
 <div class="friendGrid">
     {% for new_friends in pending_obj %}
@@ -18,7 +18,7 @@
             <button class="friendLinkBtn clickable colorText {{ font_family }} {{ should_translate }}" name="userRedirect" type="submit">&emsp;
                 {{ new_friends.username }}
             </button>
-            <input id="curPendUserRequest" name="curUser" type="hidden" value="{{ user.username }}">
+            <input id="curPendUserRequest" name="curUser" type="hidden" value="{{ user_profile_obj.user.username }}">
             <input id="newPendFriendRequest" name="newFriend" type="hidden" value="{{ new_friends.username }}">
             <button class="friendAcceptBtn friendBtn clickable" name="pendAcceptBtn" onclick="return confirm('Accept friend request from {{ new_friends.username }}?');"
                     type="submit"></button>
@@ -33,7 +33,7 @@
 <div class="friendGrid">
     <form action="send_friend_request" method="post">
         {% csrf_token %}
-        <input id="curUserRequest" name="curUser" type="hidden" value="{{ user.username }}">
+        <input id="curUserRequest" name="curUser" type="hidden" value="{{ user_profile_obj.user.username }}">
         <input class="newFriendRequest  {{ font_family }}" id="newFriendRequest" name="newFriend" placeholder="Username">
         <button class="newFriendButton clickable {{ font_family }}" type="submit">Add Friend</button>
     </form>
@@ -44,7 +44,7 @@
             <button class="friendLinkBtn clickable colorText {{ font_family }} {{ should_translate }}" name="userRedirect" type="submit">&emsp;
                 {{ friend.username }}
             </button>
-            <input name="curUser" type="hidden" value="{{ user.username }}">
+            <input name="curUser" type="hidden" value="{{ user_profile_obj.user.username }}">
             <input name="newFriend" type="hidden" value="{{ friend.username }}">
             <input name="newFriendID" type="hidden" value="{{ friend.id }}">
             <button class="friendRejectBtn friendBtn clickable" name="friendRejectBtn" onclick="return confirm('Remove friend: {{ friend.username }}?');"

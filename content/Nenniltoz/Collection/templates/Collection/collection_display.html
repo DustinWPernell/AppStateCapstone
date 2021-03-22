@@ -1,8 +1,12 @@
 {% extends "base_generic.html" %}
+{% load static %}
+{% block css %}
+    <link href="{% static 'css\cards.css' %}" rel="stylesheet" type="text/css">
+{% endblock %}
 
 {% block content %}
 <div class="cardFilter">
-    <form action="collectionAll" method="post">
+    <form action="card_database" method="post">
         {% csrf_token %}
         {% if clearSearch %}
         <input class="{{ font_family }}" name="SearchTerm" value="{{ SearchTerm }}">
@@ -22,7 +26,7 @@
           {% else %}
             <input name="mana-{{ mana.id }}" type="checkbox" value="{{ mama.id }}">
           {% endif %}
-          <img class='mamaSearchSymbols' src='{{ mana.imageURL }}'/>
+          <img class='mamaSearchSymbols' src='{{ mana.image_url }}'/>
         </span>
             {% endfor %}
         </div>
@@ -33,7 +37,7 @@
 <div class="cardGrid" id="cardGrid">
     {% for card_obj in pages %}
     <div class="cardObj">
-        <a class="cardDirection" href="/Collection/Card/{{ card_obj.card_id }}/">
+        <a class="cardDirection" href="/Collection/Card/{{ card_obj.legal.card_obj.oracle_id }}/">
             <img alt="Avatar" class="cardImg" src="{{ card_obj.image_url }}">
             <div class="cardObjText {{ should_translate }}">
                 {{ card_obj.name }}
@@ -44,4 +48,8 @@
 </div>
 {% include "./pager.html" %}
 
+{% endblock %}
+
+{% block custom_scripts %}
+    <script src="{% static 'js\card.js' %}"></script>
 {% endblock %}

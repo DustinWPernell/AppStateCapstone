@@ -20,23 +20,15 @@
             </div>
         </div>
     </div>
-{% if card.layout|cardDuelSide %}
-    <div class="singCardImagesMulti">
-{% else %}
-    {% if card.layout|cardLandscapeFace %}
-    <div class="singCardImages">
-    {% else %}
-    <div class="singCardImages">
-    {% endif %}
-{% endif %}
-        <div class="singCardObj">
+<div class="{{ faces.0.legal.card_obj.layout.sides|cardDuelSide }}">
+    <div class="singCardObj">
             <img alt="{{ faces.0.name }}" class="singCardImg" id="singCardFirstImg"
-                 src="{{ faces.0.image_url }}">
+                 src="{{ set_info.0.card_image_one }}">
         </div>
-{% if card.layout|cardDuelSide %}
+{% if faces.0.legal.card_obj.layout.sides == 2%}
         <div class="singCardObj">
             <img alt="{{ faces.1.name }}" class="singCardImg" id="singCardSecondImg"
-                 src="{{ faces.1.image_url }}">
+                 src="{{ set_info.1.card_image_two }}">
         </div>
 {% endif %}
     </div>

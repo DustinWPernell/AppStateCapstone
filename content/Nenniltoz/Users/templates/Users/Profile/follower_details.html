@@ -12,7 +12,7 @@
 <div class="followerGrid">
     <form action="add_follower" method="post">
         {% csrf_token %}
-        <input id="curUserRequest" name="curUser" type="hidden" value="{{ user.username }}">
+        <input id="curUserRequest" name="curUser" type="hidden" value="{{ user_profile_obj.user.username }}">
         <input class="newFollowerRequest {{ font_family }}" id="newFollowerRequest" name="newFollower" placeholder="Username">
         <button class="newFollowerButton clickable {{ font_family }}" type="submit">Follow User</button>
     </form>
@@ -20,7 +20,7 @@
     <div>
         <form action="remove_follower" method="post">
             {% csrf_token %}
-            <input name="curUser" type="hidden" value="{{ user.username }}">
+            <input name="curUser" type="hidden" value="{{ user_profile_obj.user.username }}">
             <input name="newFollower" type="hidden" value="{{ follower.username }}">
             <input name="newFollowerID" type="hidden" value="{{ follower.id }}">
             <button class="friendLinkBtn clickable colorText {{ font_family }} {{ should_translate }}" name="userRedirect" type="submit">&emsp;{{ follower.username }}

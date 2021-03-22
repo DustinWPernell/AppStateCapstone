@@ -6,13 +6,13 @@
         <form action="user_profile" method="post">
             {% csrf_token %}
             {% if clear_wish_search %}
-            <input class="{{ font_family }}" name="searchWishTerm" type="text" value="{{ search_wish_term }}">
+            <input class="{{ font_family }}" name="user_search_wish_term" type="text" value="{{ search_wish_term }}">
             {% else %}
-            <input class="{{ font_family }}" name="searchWishTerm" placeholder="Search" type="text">
+            <input class="{{ font_family }}" name="user_search_wish_term" placeholder="Search" type="text">
             {% endif %}
-            <input class="{{ font_family }}" name="searchWish" type="submit" value="Search">
+            <input class="{{ font_family }}" name="user_search_wish" type="submit" value="Search">
             {% if clear_wish_search %}
-            <input class="{{ font_family }}" name="clearWishSearch" type="submit" value="Clear Search">
+            <input class="{{ font_family }}" name="user_clear_wish_search" type="submit" value="Clear Search">
             {% endif %}
         </form>
     </div>
@@ -32,7 +32,7 @@
                 {{ card_obj.mana_cost|replaceMana|safe }}
             </td>
             <td>
-                <a class="cardDirection" href="/Collection/Card/{{ card_obj.card_id }}/">
+                <a class="cardDirection" href="/Collection/Card/{{ card_obj.legal.card_obj.oracle_id }}/">
                     <img alt="Avatar" class="smallCardImg" src="{{ card_obj.avatar_img }}">
                 </a>
             </td>
@@ -41,6 +41,10 @@
     </table>
     {% include "./wish_pager.html" %}
 {% else %}
-    <h4>Cards</h4>
-    <h5>No cards added to wish list. Visit Card Database to add cards.</h5>
+    <h4>Card Wish List</h4>
+    {% if o_player %}
+        <h5>No cards added to wish list.</h5>
+    {% else %}
+        <h5>No cards added to wish list. Visit Card Database to add cards.</h5>
+    {% endif %}
 {% endif %}

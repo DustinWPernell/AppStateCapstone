@@ -1,9 +1,47 @@
+import operator
 from datetime import datetime
+from functools import reduce
 
 from django.db import models
 
 
 # Create your models here.
+from django.db.models import Q
+
+class IgnoreCards(models.Model):
+    """
+        Stores cards that should be ignored during import
+            * type - Type of field that should be searched (name/set)
+            * value - Value that should be looked for
+    """
+    type = models.CharField(max_length=20)
+    value = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.value
+
+
+class CardIDList(models.Model):
+    """
+        Stores Unique card named objects
+            * card_id - ID for the card (specific to printing)
+            * name - Name of the card
+    """
+    card_id = models.CharField(max_length=200)
+    oracle_id = models.CharField(max_length=200)
+    card_name = models.CharField(max_length=200)
+    card_name.null = True
+
+    @staticmethod
+    def get_card_ids():
+        return CardIDList.objects.all()
+
+    @staticmethod
+    def get_card_by_oracle(oracle_id):
+        return CardIDList.objects.get(oracle_id=oracle_id)
+            #.get(oracle_id=oracle_id)
+
+
 class CardLayout(models.Model):
     """
         Stores different kinds of layouts for card
@@ -19,17 +57,25 @@ class CardLayout(models.Model):
         return self.id
 
 
-class IgnoreCards(models.Model):
+class CardSets(models.Model):
     """
-        Stores cards that should be ignored during import
-            * type - Type of field that should be searched (name/set)
-            * value - Value that should be looked for
+        Stores rule objects
+            * set_id - ID for the set
+            * code - Short string to identify set
+            * name - Full name of set
+            * released_at - Data the set was released
+            * icon_svg_uri - Set icon
+            * order - Order in which the set will appear (newest first)
     """
-    type = models.CharField(max_length=20)
-    value = models.CharField(max_length=200)
+    set_id = models.CharField(max_length=200, primary_key=True)
+    code = models.CharField(max_length=5)
+    name = models.CharField(max_length=100)
+    released_at = models.DateField(default=datetime.now)
+    icon_svg_uri = models.CharField(max_length=200)
+    order = models.IntegerField()
 
     def __str__(self):
-        return self.value
+        return self.name
 
 
 class Card(models.Model):
@@ -44,28 +90,59 @@ class Card(models.Model):
             * setOrder - Order in which set occurs
             * color - Stores color identity of card
     """
-    card_id = models.CharField(max_length=200, primary_key=True)
+    card_id = models.CharField(max_length=200)
     oracle_id = models.CharField(max_length=200)
     keywords = models.CharField(max_length=500)
     rarity = models.CharField(max_length=20)
     set_name = models.CharField(max_length=100)
-    layout = models.CharField(max_length=30)
-    set_order = models.IntegerField()
+    layout = models.ForeignKey(CardLayout, on_delete=models.DO_NOTHING, related_name='card_layout')
     color = models.CharField(max_length=30)
+    set_obj = models.ForeignKey(CardSets, on_delete=models.DO_NOTHING, related_name='card_set')
+
 
     def __str__(self):
         return self.card_id
 
 
-class CardIDList(models.Model):
+
+
+class Legality(models.Model):
     """
-        Stores Unique card named objects
+        Stores legality for specific card
+            * standard - Game type standard
+            * future - Game type future
+            * historic - Game type historic
+            * gladiator - Game type gladiator
+            * modern - Game type modern
+            * legacy - Game type legacy
+            * pauper - Game type pauper
+            * vintage - Game type vintage
+            * penny - Game type penny
+            * commander - Game type commander
+            * brawl - Game type brawl
+            * duel - Game type duel
+            * oldSchool - Game type oldSchool
+            * premodern - Game type premodern
             * card_id - ID for the card (specific to printing)
-            * name - Name of the card
     """
-    card_id = models.CharField(max_length=200, primary_key=True)
-    card_name = models.CharField(max_length=200)
-    card_name.null = True
+    standard = models.CharField(max_length=30)
+    future = models.CharField(max_length=30)
+    historic = models.CharField(max_length=30)
+    gladiator = models.CharField(max_length=30)
+    modern = models.CharField(max_length=30)
+    legacy = models.CharField(max_length=30)
+    pauper = models.CharField(max_length=30)
+    vintage = models.CharField(max_length=30)
+    penny = models.CharField(max_length=30)
+    commander = models.CharField(max_length=30)
+    brawl = models.CharField(max_length=30)
+    duel = models.CharField(max_length=30)
+    old_school = models.CharField(max_length=30)
+    premodern = models.CharField(max_length=30)
+    card_obj = models.ForeignKey(Card, on_delete=models.CASCADE, related_name='legal_card')
+
+    def __int__(self):
+        return self.id
 
 
 class CardFace(models.Model):
@@ -96,52 +173,141 @@ class CardFace(models.Model):
     color_id = models.CharField(max_length=200)
     text = models.CharField(max_length=500)
     flavor_text = models.CharField(max_length=500)
-    card_id = models.ForeignKey(Card, on_delete=models.CASCADE)
     avatar_img = models.CharField(max_length=200)
-    set_order = models.IntegerField()
     first_face = models.BooleanField()
+    legal = models.ForeignKey(Legality, on_delete=models.CASCADE, related_name='face_legal')
+
 
     def __int__(self):
         return self.id
 
+    @staticmethod
+    def get_face_by_card(card_id):
+        return CardFace.objects.select_related().filter(
+            Q(legal__card_obj__card_id=card_id)
+        ).order_by('name')
 
-class Legality(models.Model):
-    """
-        Stores legality for specific card
-            * standard - Game type standard
-            * future - Game type future
-            * historic - Game type historic
-            * gladiator - Game type gladiator
-            * modern - Game type modern
-            * legacy - Game type legacy
-            * pauper - Game type pauper
-            * vintage - Game type vintage
-            * penny - Game type penny
-            * commander - Game type commander
-            * brawl - Game type brawl
-            * duel - Game type duel
-            * oldSchool - Game type oldSchool
-            * premodern - Game type premodern
-            * card_id - ID for the card (specific to printing)
-    """
-    standard = models.CharField(max_length=15)
-    future = models.CharField(max_length=15)
-    historic = models.CharField(max_length=15)
-    gladiator = models.CharField(max_length=15)
-    modern = models.CharField(max_length=15)
-    legacy = models.CharField(max_length=15)
-    pauper = models.CharField(max_length=15)
-    vintage = models.CharField(max_length=15)
-    penny = models.CharField(max_length=15)
-    commander = models.CharField(max_length=15)
-    brawl = models.CharField(max_length=15)
-    duel = models.CharField(max_length=15)
-    old_school = models.CharField(max_length=15)
-    premodern = models.CharField(max_length=15)
-    card_id = models.ForeignKey(Card, on_delete=models.CASCADE)
+    @staticmethod
+    def get_face_list_by_card(card_id_list):
+        return CardFace.objects.select_related().filter(
+            Q(legal__card_obj__card_id__in=card_id_list)
+        ).order_by('name')
 
-    def __str__(self):
-        return self.card_id
+    @staticmethod
+    def card_face_by_card_and_oracle(card_id, oracle_id):
+        return CardFace.objects.select_related().filter(
+            Q(legal__card_obj__card_id__in=card_id) &
+            Q(legal__card_obj__oracle_id__in=oracle_id)
+        ).order_by('name')
+
+    @staticmethod
+    def card_face_by_card(card_id):
+        return CardFace.objects.select_related().filter(
+            Q(legal__card_obj__card_id__in=card_id)
+        ).order_by('name')
+
+    @staticmethod
+    def card_face_filter_by_card_oracle_term(card_id, oracle_id, term):
+        return CardFace.objects.select_related().filter(
+            Q(legal__card_obj__card_id__in=card_id) &
+            Q(legal__card_obj__oracle_id__in=oracle_id) &(
+                    Q(name__icontains=term) |
+                    Q(text__icontains=term) |
+                    Q(type_line__icontains=term) |
+                    Q(flavor_text__icontains=term) |
+                    Q(legal__card_obj__keywords__icontains=term)
+            )
+        ).order_by('name')
+
+    @staticmethod
+    def card_face_filter_by_card_color_term_colorless(card_ids, mana_color, term):
+        list_of_colors = ['{W}', '{W/U}', '{W/B}', '{R/W}', '{G/W}', '{2/W}', '{W/P}', '{HW}',
+                          '{U}', '{U/B}', '{U/R}', '{G/U}', '{2/U}', '{U/P}', '{HU}',
+                          '{B}', '{B/R}', '{B/G}', '{2/B}', '{B/P}', '{HB}',
+                          '{R}', '{R/G}', '{2/R}', '{R/P}', '{HR}',
+                          '{G}', '{2/G}', '{G/P}', '{HG}']
+        return CardFace.objects.select_related().filter(
+            Q(legal__card_obj__card_id__in=card_ids) & (
+                    reduce(
+                        operator.or_, (
+                            Q(mana_cost__contains=item) for item in mana_color
+                        )
+                    ) &
+                    reduce(
+                        operator.and_,(
+                            ~Q(mana_cost__contains=item) for item in list_of_colors
+                        )
+                    )
+            ) & (
+                    Q(name__icontains=term) |
+                    Q(text__icontains=term) |
+                    Q(type_line__icontains=term) |
+                    Q(flavor_text__icontains=term)|
+                    Q(legal__card_obj__keywords__icontains=term)
+            )
+        ).order_by('name')
+
+    @staticmethod
+    def card_face_filter_by_card_color_term(card_ids, mana_color, term):
+        return CardFace.objects.select_related().filter(
+            Q(legal__card_obj__card_id__in=card_ids) &
+            reduce(
+                operator.or_, (
+                    Q(mana_cost__contains=item) for item in mana_color
+                )
+            ) & (
+                    Q(name__icontains=term) |
+                    Q(text__icontains=term) |
+                    Q(type_line__icontains=term) |
+                    Q(flavor_text__icontains=term) |
+                    Q(legal__card_obj__keywords__icontains=term)
+            )
+        ).order_by('name')
+
+    @staticmethod
+    def card_face_filter_by_card_term(card_ids, term):
+        return CardFace.objects.select_related().filter(
+            Q(legal__card_obj__card_id__in=card_ids) & (
+                    Q(name__icontains=term) |
+                    Q(text__icontains=term) |
+                    Q(type_line__icontains=term) |
+                    Q(flavor_text__icontains=term) |
+                    Q(legal__card_obj__keywords__icontains=term)
+            )
+        ).order_by('name')
+
+    @staticmethod
+    def card_face_filter_by_name_term(term):
+        return CardFace.objects.select_related().filter(
+            Q(name__icontains=term)
+        ).order_by('name')
+
+    @staticmethod
+    def get_card_sets(oracle_id):
+        set_info = []
+        face_list = CardFace.objects.select_related().filter(
+            Q(legal__card_obj__oracle_id=oracle_id)
+        ).order_by('legal__card_obj__set_obj__name')
+
+        card_set_list = []
+        for card_set_obj in face_list:
+
+            if card_set_obj.legal.card_obj.set_obj.name not in card_set_list:
+                card_set_list.append(card_set_obj.legal.card_obj.set_obj.name)
+                if card_set_obj.legal.card_obj.layout.sides == 2:
+                    set_info.append(
+                        {'set_name': card_set_obj.legal.card_obj.set_obj.name,
+                         'set_image': card_set_obj.legal.card_obj.set_obj.icon_svg_uri,
+                         'card_image_one': card_set_obj.image_url,
+                         'card_image_two': card_set_obj.legal.face_legal.all()[1].image_url})
+                else:
+                    set_info.append(
+                        {'set_name': card_set_obj.legal.card_obj.set_obj.name,
+                         'set_image': card_set_obj.legal.card_obj.set_obj.icon_svg_uri,
+                         'card_image_one': card_set_obj.image_url,
+                         'card_image_two': 'NONE'})
+
+        return set_info
 
 
 class Symbol(models.Model):
@@ -165,6 +331,42 @@ class Symbol(models.Model):
     def __str__(self):
         return self.symbol
 
+    @staticmethod
+    def get_base_symbols():
+        return Symbol.objects.filter(symbol__in=['{W}', '{U}', '{B}', '{R}', '{G}', '{C}', '{S}'])
+
+    @staticmethod
+    def get_colorless():
+        return Symbol.objects.filter(
+            symbol__in=['', '{X}', '{Y}', '{Z}', '{0}', '{1/2}', '{1}', '{2}', '{3}', '{4}', '{5}',
+                        '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}', '{14}', '{15}',
+                        '{16}', '{17}', '{18}', '{19}', '{20}', '{100}', '{1000000}', '{P}'])
+
+    @staticmethod
+    def get_green():
+        return Symbol.objects.filter(
+                            symbol__in=['{B/G}', '{R/G}', '{G/W}', '{G/U}', '{2/G}', '{G/P}', '{HG}'])
+
+    @staticmethod
+    def get_red():
+        return Symbol.objects.filter(
+                            symbol__in=['{B/R}', '{U/R}', '{R/G}', '{R/W}', '{2/R}', '{R/P}', '{HR}'])
+
+    @staticmethod
+    def get_black():
+        return Symbol.objects.filter(
+                            symbol__in=['{W/B}', '{B/R}', '{B/G}', '{U/B}', '{2/B}', '{B/P}', '{HB}'])
+
+    @staticmethod
+    def get_blue():
+        return Symbol.objects.filter(
+                            symbol__in=['{W/U}', '{U/B}', '{U/R}', '{G/U}', '{2/U}', '{U/P}', '{HU}'])
+
+    @staticmethod
+    def get_white():
+        return Symbol.objects.filter(
+                            symbol__in=['{W/U}', '{W/B}', '{R/W}', '{G/W}', '{2/W}', '{W/P}', '{HW}'])
+
 
 class Rule(models.Model):
     """
@@ -179,24 +381,3 @@ class Rule(models.Model):
 
     def __str__(self):
         return self.oracle_id
-
-
-class CardSets(models.Model):
-    """
-        Stores rule objects
-            * set_id - ID for the set
-            * code - Short string to identify set
-            * name - Full name of set
-            * released_at - Data the set was released
-            * icon_svg_uri - Set icon
-            * order - Order in which the set will appear (newest first)
-    """
-    set_id = models.CharField(max_length=200, primary_key=True)
-    code = models.CharField(max_length=5)
-    name = models.CharField(max_length=100)
-    released_at = models.DateField(default=datetime.now)
-    icon_svg_uri = models.CharField(max_length=200)
-    order = models.IntegerField()
-
-    def __str__(self):
-        return self.name
