@@ -1,20 +1,60 @@
 {% extends "base_generic.html" %}
+{% load replaceValues %}
 
 {% block content %}
-{% include "./pager.html" %}
-  <div id="deckGrid" class="deckGrid">
-    {% for deck in pages %}
-      <div class="deckObj">
-        <a class="deckDirection" href="./deck?deckID={{ deck.deckID }}">
-          <img class="deckImg" src="{{ deck.imageURL }}" alt="Avatar">
-          <div class="deckObjText">
-            {{ deck.name }}
-            {{ deck.type }}
-          </div>
-        </a>
-      </div>
-    {% endfor %}
-  </div>
+<div class="deckFilter">
+  <!-- Forms either post or get. Get stores data in the url. Post stores data behind the scenes.
+   Action is the method that will be called during submitting. CSRF token helps against attacks and protects data.-->
+    <form action="deck_list" method="post">
+        {% csrf_token %}
+      <!-- Determines if clear search is used. -->
+        {% if clearSearch %}
+        <input class="{{ font_family }}" name="SearchTerm" value="{{ SearchTerm }}">
+        {% else %}
+        <input class="{{ font_family }}" name="SearchTerm" placeholder="Search">
+        {% endif %}
+        <input class="{{ font_family }}" type="submit" value="Search">
+        {% if clearSearch %}
+        <input class="{{ font_family }}" name="clearSearch" type="submit" value="Clear Search">
+        {% endif %}
+        <a class="advFilterA clickable colorText" onclick="advFilterFunc();">Advanced Search</a>
+        <div class="deckAdvFilter" id="advFilter">
+            {% for mana in mana_list %}
+            <span class='manaSearchObj'>
+          {% if mana.checked %}
+            <input checked="checked" name="mana-{{ mana.id }}" type="checkbox" value="{{ mama.id }}">
+          {% else %}
+            <input name="mana-{{ mana.id }}" type="checkbox" value="{{ mama.id }}">
+          {% endif %}
+          <img class='mamaSearchSymbols' src='{{ mana.imageURL }}'/>
+        </span>
+            {% endfor %}
+        </div>
+    </form>
+</div>
 
+<!-- Pager is used by the paginator to generate paging options -->
 {% include "./pager.html" %}
+<div class="deckGrid" id="deckGrid">
+    <!-- Loops through deck objects in pages -->
+    {% for deck_obj in pages %}
+    <div class="deckObj">
+      <!-- This is the display for a deck. It will show the name, colors associated, game type, and name of the creator of the deck.
+       If the deck is PreCon-->
+      <div>{{ deck_obj.name }}</div>
+      <!-- replaceMana is a template tag used for replacing mana text with it respective symbol. -->
+      <div>{{ deck_obj.colorId|replaceMana|safe }}</div>
+      <div>{{ deck_obj.deckType }}</div>
+      <div>
+        {% if deck_obj.isPreCon %}
+        Pre-Constructed Deck
+        {% else %}
+        Created by: {{deck_obj.createdBy.username}}
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+</div>
+{% include "./pager.html" %}
+
 {% endblock %}

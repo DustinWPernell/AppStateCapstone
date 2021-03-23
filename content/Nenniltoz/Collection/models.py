@@ -114,7 +114,12 @@ class Deck(models.Model):
     deckType = models.CharField(max_length=10, choices=GameTypes.gameType_Choices, default='historic')
     commander = models.ForeignKey(Card, related_name='commander_deck', on_delete=models.CASCADE)
     commander.null = True
-    cards = models.ForeignKey(Card, related_name='card_deck', on_delete=models.CASCADE)
+
+
+class DeckCards(models.Model):
+    deck = models.ForeignKey(Deck, related_name='deck_cards', on_delete=models.CASCADE)
+    cardID = models.CharField(max_length=200)
+    quantity = models.IntegerField(default=0)
 
 
 class CardFace(models.Model):
