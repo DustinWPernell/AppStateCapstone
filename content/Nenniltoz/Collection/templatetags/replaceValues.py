@@ -28,3 +28,10 @@ def replaceTextMana(val):
         val = val.replace(sym.symbol,
                           "<img class=\"smallSingCardSymbol\" src=\"" + sym.image_url + "\" alt=\"" + sym.symbol + "\">")
     return val
+
+
+@register.filter
+def remove_bracket(val):
+    val = val.replace("{", '<span style="color: lightgreen">')
+    val = val.replace("}", '</span>')
+    return val

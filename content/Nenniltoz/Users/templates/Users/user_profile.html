@@ -7,7 +7,7 @@
 {% block content %}
 <div class="ProfileGrid">
 
-    <div id="leftGrid">
+    <div class="leftGrid">
         {% if o_player %}
             {% if user_profile_obj.profile_view %}
                 <div class="AccountDetails">
@@ -37,7 +37,7 @@
             </div>
         {% endif %}
     </div>
-    <div id="rightGrid">
+    <div class="rightGrid">
         {% if user_profile_obj.profile_view or not o_player%}
             <hr class="rightGridHR">
             <div class="userAvatarDiv">

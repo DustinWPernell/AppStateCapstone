@@ -220,6 +220,20 @@ class CardFace(models.Model):
         ).order_by('name')
 
     @staticmethod
+    def card_face_filter_by_card_oracle_term_notes(card_id, oracle_id, notes_terms, term):
+        return CardFace.objects.select_related().filter(
+            Q(legal__card_obj__card_id__in=card_id) &
+            Q(legal__card_obj__oracle_id__in=oracle_id) &(
+                    Q(name__icontains=term) |
+                    Q(text__icontains=term) |
+                    Q(type_line__icontains=term) |
+                    Q(flavor_text__icontains=term) |
+                    Q(legal__card_obj__keywords__icontains=term) |
+                    Q(legal__card_obj__oracle_id__in=notes_terms)
+            )
+        ).order_by('name')
+
+    @staticmethod
     def card_face_filter_by_card_color_term_colorless(card_ids, mana_color, term):
         list_of_colors = ['{W}', '{W/U}', '{W/B}', '{R/W}', '{G/W}', '{2/W}', '{W/P}', '{HW}',
                           '{U}', '{U/B}', '{U/R}', '{G/U}', '{2/U}', '{U/P}', '{HU}',
