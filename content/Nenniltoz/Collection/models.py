@@ -3,9 +3,46 @@ from datetime import datetime
 from functools import reduce
 
 from django.db import models
+from django.contrib.auth.models import User
 
 
 # Create your models here.
+from Users.models import UserProfile
+
+
+class GameTypes:
+    Standard = 'standard'
+    Future = 'future'
+    Historic = 'historic'
+    Gladiator = 'gladiator'
+    Modern = 'modern'
+    Legacy = 'legacy'
+    Pauper = 'pauper'
+    Vintage = 'vintage'
+    Penny = 'penny'
+    Commander = 'commander'
+    Brawl = 'brawl'
+    Duel = 'duel'
+    OldSchool = 'oldschool'
+    Premodern = 'premodern'
+
+    gameType_Choices = (
+        (Standard, 'standard'),
+        (Future, 'future'),
+        (Historic, 'historic'),
+        (Gladiator, 'gladiator'),
+        (Modern, 'modern'),
+        (Legacy, 'legacy'),
+        (Pauper, 'pauper'),
+        (Vintage, 'vintage'),
+        (Penny, 'penny'),
+        (Commander, 'commander'),
+        (Brawl, 'brawl'),
+        (Duel, 'duel'),
+        (OldSchool, 'oldschool'),
+        (Premodern, 'premodern'),
+    )
+
 from django.db.models import Q
 
 class IgnoreCards(models.Model):
@@ -102,8 +139,6 @@ class Card(models.Model):
 
     def __str__(self):
         return self.card_id
-
-
 
 
 class Legality(models.Model):
@@ -322,6 +357,37 @@ class CardFace(models.Model):
                          'card_image_two': 'NONE'})
 
         return set_info
+
+
+class Deck(models.Model):
+    name = models.CharField(max_length=200)
+    colorId = models.CharField(max_length=20)
+    createdBy = models.ForeignKey(UserProfile, related_name='user_deck', on_delete=models.SET_NULL)
+    createdBy.null = True
+    isPreCon = models.BooleanField()
+    isPrivate = models.BooleanField()
+    imageURL = models.CharField(max_length=200)
+    deckType = models.CharField(max_length=10, choices=GameTypes.gameType_Choices, default='historic')
+    commander = models.ForeignKey(Card, related_name='commander_deck', on_delete=models.CASCADE)
+    commander.null = True
+
+
+class DeckCards(models.Model):
+    deck = models.ForeignKey(Deck, related_name='deck_cards', on_delete=models.CASCADE)
+    card = models.ForeignKey(CardFace, related_name='face_cards', on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=0)
+
+    @staticmethod
+    # This method returns all cards and pieces associated with those cards within a deck.
+    def deck_card_by_deck_user(deck_id, user_id):
+        # This grabs everything associated with the deck of cards. Cards, the deck itself, sets of cards.
+        return DeckCards.objects.select_related().filter(
+            # Retrieves the deck where it is not private or if it's created by the current user.
+            Q(deck_id=deck_id) & (
+                Q(deck_isPrivate=False) |
+                Q(deck_createdBy_user_id=user_id)
+            )
+        )
 
 
 class Symbol(models.Model):

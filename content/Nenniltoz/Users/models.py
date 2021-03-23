@@ -1,6 +1,9 @@
 from channels.db import database_sync_to_async
 from django.contrib.auth.models import User, AnonymousUser
 from django.db import models
+from datetime import datetime
+
+from django.urls import reverse
 
 
 # Create your models here.
@@ -185,6 +188,7 @@ class News(models.Model):
             * imageURL - image URL to display on the page
     """
     headline = models.CharField(max_length=200)
+    eventDate = models.DateField(default=datetime.now)
     image_url = models.CharField(max_length=200)
 
     def __str__(self):
