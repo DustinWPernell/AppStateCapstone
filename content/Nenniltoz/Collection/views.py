@@ -264,19 +264,19 @@ def deck_list(request):
                 # If colorless is selected, do not show colored decks that are also colorless.
                 if has_colorless:
                     filtered_deck_list = Deck.deck_filter_by_color_term_colorless(
-                        selected_mana, search_term
+                        request.user, selected_mana, search_term
                     )
                 else:
                     filtered_deck_list = Deck.deck_filter_by_color_term(
-                        selected_mana, search_term
+                        request.user, selected_mana, search_term
                     )
                 # Pulls the id's of the matched mana list and ensures it isn't already searched.
                 for deck_list_obj in filtered_deck_list:
                     if deck_list_obj.legal.card_obj.card_id not in deck_id_list:
                         deck_id_list.append(deck_list_obj.id)
             else:
-                filtered_deck_list = CardFace.card_face_filter_by_card_term(
-                    search_term
+                filtered_deck_list = CardFace.deck_filter_by_term(
+                    request.user, search_term
                 )
                 # Pulls the id's of the matched mana list and ensures it isn't already searched.
                 for deck_list_obj in filtered_deck_list:
@@ -296,9 +296,9 @@ def deck_list(request):
             selected_mana = request.session['deck_selected_mana']
             deck_id_list = request.session['deck_id_list']
             clear_search = True
-            deck_list_obj = Deck.objects.filter(Q(id__in=deck_id_list)).order_by('name')
+            deck_list_obj = Deck.get_deck_by_deck_list(deck_id_list)
         except KeyError:
-            deck_list_obj = Deck.objects.filter(isPrivate=False).order_by('name')
+            deck_list_obj = Deck.deck_filter_by_term(request.user, '')
             clear_search = False
 
     mana_list = []

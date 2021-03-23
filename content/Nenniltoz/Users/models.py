@@ -1,10 +1,6 @@
-from channels.db import database_sync_to_async
-from django.contrib.auth.models import User, AnonymousUser
+from django.contrib.auth.models import User
 from django.db import models
 from datetime import datetime
-
-from django.urls import reverse
-
 
 # Create your models here.
 from django.db.models import Q
@@ -85,24 +81,25 @@ class UserProfile(models.Model):
 
     def __int__(self):
         return self.user.id
-    def get_user_friends(this):
-        friend_list = Friends.objects.filter(user_one=this.user)
+
+    def get_user_friends(self):
+        friend_list = Friends.objects.filter(user_one=self.user)
         friend_user_list = []
         for friend in friend_list:
             friend_user_list.append(friend.user_two)
 
         return friend_user_list
 
-    def get_user_pending(this):
-        pending_list = PendingFriends.objects.filter(user_two=this.user, rejected=False)
+    def get_user_pending(self):
+        pending_list = PendingFriends.objects.filter(user_two=self.user, rejected=False)
         pending_user_list = []
         for pending in pending_list:
             pending_user_list.append(pending.user_one)
 
         return pending_user_list
 
-    def get_user_followers(this):
-        follower_list = Followers.objects.filter(user_one=this.user)
+    def get_user_followers(self):
+        follower_list = Followers.objects.filter(user_one=self.user)
         follower_user_list = []
         for follower in follower_list:
             follower_user_list.append(follower.user_two)

@@ -7,11 +7,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.db.models import Q
 from django.http import HttpResponse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 
-from Collection.models import CardFace, CardIDList
+from Collection.models import CardFace
 from .forms import CreateUserForm
 from .models import News, UserProfile, Friends, PendingFriends, Followers, UserCards
 
@@ -400,8 +399,6 @@ def update_settings(request, user_id):
 
     @param request:
     @param user_id: Current user ID
-    @param setting: Setting to be changed
-    @param value: Value to be set
 
     :todo: None
     """

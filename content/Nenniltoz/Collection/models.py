@@ -372,7 +372,7 @@ class Deck(models.Model):
     commander.null = True
 
     @staticmethod
-    def deck_filter_by_color_term_colorless(mana, term):
+    def deck_filter_by_color_term_colorless(user, mana, term):
         # Retrieve all decks that are not private and colorId contains the selected colors,
         # or name contains the search term
         list_of_colors = ['{W}', '{W/U}', '{W/B}', '{R/W}', '{G/W}', '{2/W}', '{W/P}', '{HW}',
@@ -380,8 +380,11 @@ class Deck(models.Model):
                           '{B}', '{B/R}', '{B/G}', '{2/B}', '{B/P}', '{HB}',
                           '{R}', '{R/G}', '{2/R}', '{R/P}', '{HR}',
                           '{G}', '{2/G}', '{G/P}', '{HG}']
-        return Deck.objects.values('id').filter(
-            Q(isPrivate=False) &
+        return Deck.objects.select_related().filter(
+            (
+                    Q(deck_isPrivate=False) |
+                    Q(deck_createdBy_user=user)
+            ) &
             Q(name__icontains=term) & (
                     reduce(
                         operator.or_, (
@@ -394,14 +397,17 @@ class Deck(models.Model):
                         )
                     )
             )
-        )
+        ).order_by('name')
 
     @staticmethod
-    def deck_filter_by_color_term(mana, term):
+    def deck_filter_by_color_term(user, mana, term):
         # Retrieve all decks that are not private and colorId contains the selected colors,
         # or name contains the search term
-        return Deck.objects.values('id').filter(
-            Q(isPrivate=False)&
+        return Deck.objects.select_related().filter(
+            (
+                    Q(deck_isPrivate=False) |
+                    Q(deck_createdBy_user_id=user)
+            ) &
             reduce(
                 operator.or_, (
                     Q(mana_cost__contains=item) for item in mana
@@ -409,8 +415,25 @@ class Deck(models.Model):
             ) &
             Q(colorId__contains=mana) &
             Q(name__icontains=term)
-        )
+        ).order_by('name')
 
+    @staticmethod
+    def deck_filter_by_term(user, term):
+        # Retrieve all decks that are not private and colorId contains the selected colors,
+        # or name contains the search term
+        return Deck.objects.select_related().filter(
+            (
+                    Q(deck_isPrivate=False) |
+                    Q(deck_createdBy_user_id=user)
+            ) &
+            Q(name__icontains=term)
+        ).order_by('name')
+
+    @staticmethod
+    def get_deck_by_deck_list(deck_ids):
+        return Deck.objects.select_related().filter(
+            Q(id__in=deck_ids)
+        ).order_by('name')
 
 class DeckCards(models.Model):
     deck = models.ForeignKey(Deck, related_name='deck_cards', on_delete=models.CASCADE)
