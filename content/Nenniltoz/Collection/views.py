@@ -8,7 +8,7 @@ from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
-from Collection.models import Card, CardFace, Symbol, CardIDList, Rule, Legality, Deck
+from Collection.models import Card, CardFace, Symbol, CardIDList, Rule, Legality, Deck, DeckCards
 from Users.models import UserCards, UserProfile
 
 logger = logging.getLogger(__name__)
@@ -356,13 +356,24 @@ def deck_list(request):
     return render(request, 'Collection/CollectionDisplay.html', context)
 
 
-def deck_display(request):
-    logger.debug("Run: card_display; Params: " + json.dumps(request.GET.dict()))
-    deck = request.GET.get('deckID')
-    deck_obj = Deck.objects.filter(id=deck)
+def deck_display(request, deck_id):
+    # Helps with debugging if you cant find the issue.
+    logger.info("Run: deck_display; Params: " + json.dumps(request.GET.dict()))
+    try:
+        # Gets the deck using the deck id passed to it.
+        deck = DeckCards.deck_card_by_deck_user(deck_id, request.user.id)
+        font_family = UserProfile.get_font(request.user)
+        should_translate = UserProfile.get_translate(request.user)
+        context = {'font_family': font_family, 'should_translate': should_translate,
+                   'auth': request.user.is_authenticated, 'deck': deck}
+        return render(request, 'Collection/card_display.html', context)
 
-    context = {'deck': deck_obj}
-    return render(request, 'Collection/DeckDisplay.html', context)
+    except DeckCards.DoesNotExist:
+        message = "Deck ID incorrect.\nPlease check ID."
+        font_family = UserProfile.get_font(request.user)
+        should_translate = UserProfile.get_translate(request.user)
+        context = {'font_family': font_family, 'should_translate': should_translate, 'message': message}
+        return render(request, 'error.html', context)
 
 
 def collection_index(request):
