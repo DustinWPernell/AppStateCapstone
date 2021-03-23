@@ -1,49 +1,18 @@
 import json
 import logging
 
-from asgiref.sync import sync_to_async
 from django.contrib import messages
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
-from Collection.models import Card, CardFace, Symbol, CardIDList, Rule, Legality
+from Collection.models import CardFace, Symbol, CardIDList, Rule
 from Users.models import UserCards, UserProfile
 
 logger = logging.getLogger(__name__)
 
 
 # Create your views here.
-def add_card(request, oracle_id):
-    """Add cards to user collection
-
-    Adds a card to either the users collection or wish list
-
-    @param request:
-    @param oracle_id: Card ID for current card
-
-    :todo: None
-    """
-    user = request.user
-
-    if 'addCards' in request.POST:
-        card_quantity = int(request.POST['quantity'])
-        if card_quantity == 0:
-            card_quantity = 1
-        messages.success(request, 'Added ' + str(card_quantity) + ' card(s) to your collection.')
-    else:
-        card_quantity = 0
-        messages.success(request, 'Added card to wish list.')
-
-    UserCards.objects.create(
-        oracle_id=oracle_id,
-        user=user,
-        quantity=card_quantity,
-    )
-    return redirect('../' + oracle_id)
-
-
 def card_display(request, oracle_id):
     """Display individual cards.
 
@@ -65,21 +34,32 @@ def card_display(request, oracle_id):
 
         rulings_list = Rule.objects.filter(oracle_id=oracle_id).order_by('-pub_date')
 
-        quantity = 0
-        card_count = -1
-
-        if request.user.is_authenticated:
-            user_card = UserCards.get_user_card_by_oracle(oracle_id, request.user).values('quantity')
-            if user_card.count() > 0:
-                quantity = user_card[0]['quantity']
-                card_count = quantity
-
         font_family = UserProfile.get_font(request.user)
         should_translate = UserProfile.get_translate(request.user)
-        context = {'font_family': font_family, 'should_translate': should_translate, 'card': card_faces,
-                   'faces': card_faces, 'set_info': card_set_list,
-                   'rulings': rulings_list, 'has_rules': len(rulings_list) > 0,
-                   'quantity': quantity, 'card_count': card_count, 'auth': request.user.is_authenticated}
+        if request.user.is_authenticated:
+            try:
+                user_card = UserCards.get_user_card_by_oracle(oracle_id, request.user)
+                notes = user_card.notes
+                has_notes = notes != ""
+                context = {'font_family': font_family, 'should_translate': should_translate, 'card': card_faces,
+                           'faces': card_faces, 'set_info': card_set_list,
+                           'has_card': True, 'user_card': user_card, 'has_notes': has_notes,
+                           'rulings': rulings_list, 'has_rules': len(rulings_list) > 0,
+                           'auth': request.user.is_authenticated}
+            except UserCards.DoesNotExist:
+                context = {'font_family': font_family, 'should_translate': should_translate, 'card': card_faces,
+                           'faces': card_faces, 'set_info': card_set_list,
+                           'has_card': False,
+                           'rulings': rulings_list, 'has_rules': len(rulings_list) > 0,
+                           'auth': request.user.is_authenticated}
+
+
+        else:
+            context = {'font_family': font_family, 'should_translate': should_translate, 'card': card_faces,
+                       'faces': card_faces, 'set_info': card_set_list,
+                       'rulings': rulings_list, 'has_rules': len(rulings_list) > 0,
+                       'auth': request.user.is_authenticated}
+
         return render(request, 'Collection/card_display.html', context)
 
     except CardIDList.DoesNotExist:
@@ -146,8 +126,8 @@ def collection_display(request):
             if len(selected_mana) > 0:
                 card_id_list = []
                 colorless = ['{C}', '', '{X}', '{Y}', '{Z}', '{0}', '{1/2}', '{1}', '{2}', '{3}', '{4}', '{5}',
-                                  '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}', '{14}', '{15}',
-                                  '{16}', '{17}', '{18}', '{19}', '{20}', '{100}', '{1000000}', '{P}']
+                             '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}', '{14}', '{15}',
+                             '{16}', '{17}', '{18}', '{19}', '{20}', '{100}', '{1000000}', '{P}']
 
                 has_colorless = any(item in selected_mana for item in colorless)
                 if has_colorless:
@@ -228,7 +208,7 @@ def collection_index(request):
     return HttpResponse("Hello World From Collections")
 
 
-def update_quantity(request, oracle_id):
+def update_user_card_data(request, oracle_id):
     """Updates quantity of card.
 
     Updates the number of cards owned by user based on POST data
@@ -238,13 +218,71 @@ def update_quantity(request, oracle_id):
 
     :todo: None
     """
-    user = request.user
+    if 'addCards' in request.POST:
+        card_quantity = int(request.POST['quantity'])
+        user_card_id = request.POST['user_card_id']
+        card_notes = request.POST['notes']
+        if card_quantity == 0:
+            card_quantity = 1
+        if user_card_id == '':
+            UserCards.objects.create(
+                card = CardFace.get_face_by_card(CardIDList.get_card_by_oracle(oracle_id).card_id)[0],
+                user = request.user,
+                oracle_id = oracle_id,
+                wish = False,
+                quantity = card_quantity,
+                notes = card_notes
+            )
+        else:
+            user_card = UserCards.objects.get(id=int(user_card_id))
+            user_card.wish = False
+            user_card.quantity = card_quantity
+            user_card.notes = card_notes
+            user_card.save()
 
-    if 'remove' in request.POST:
-        UserCards.get_user_card_by_oracle(oracle_id, user).delete()
+        messages.success(request, 'Added ' + str(card_quantity) + ' card(s) to your collection.')
+    elif 'wishCards' in request.POST:
+        card_quantity = int(request.POST['quantity'])
+        user_card_id = request.POST['user_card_id']
+        card_notes = request.POST['notes']
+        if card_quantity == 0:
+            card_quantity = 1
+        if user_card_id == '':
+            UserCards.objects.create(
+                card = CardFace.get_face_by_card(CardIDList.get_card_by_oracle(oracle_id).card_id)[0],
+                user = request.user,
+                oracle_id = oracle_id,
+                wish = True,
+                quantity = card_quantity,
+                notes = card_notes
+            )
+        else:
+            user_card = UserCards.objects.get(id=int(user_card_id))
+            user_card.wish = True
+            user_card.quantity = card_quantity
+            user_card.notes = card_notes
+            user_card.save()
+
+        messages.success(request, 'Added card to wish list.')
+    elif 'remove' in request.POST:
+        user_card = UserCards.get_user_card_by_oracle(oracle_id, request.user)
+        user_card.quantity = 0
+        user_card.wish = False
+        user_card.save()
+
         messages.error(request, 'Removed card(s) from collection.')
-    else:
+    elif 'update' in request.POST:
         card_quantity = request.POST['quantity']
-        UserCards.get_user_card_by_oracle(oracle_id, user).update(quantity=card_quantity)
+        user_card = UserCards.get_user_card_by_oracle(oracle_id, request.user)
+        user_card.quantity = card_quantity
+        user_card.save()
+
         messages.success(request, 'Updated quantity of cards.')
+    elif 'notes_button' in request.POST:
+        card_notes = request.POST['notes']
+        user_card = UserCards.get_user_card_by_oracle(oracle_id, request.user)
+        user_card.notes = card_notes
+        user_card.save()
+
+        messages.success(request, 'Updated notes for cards.')
     return redirect('../' + oracle_id)

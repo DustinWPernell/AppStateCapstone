@@ -4,6 +4,10 @@ html{
     margin: 0;
 }
 
+.body{
+    min-width: 1120px;
+}
+
 .bodyContainer{
     margin: 50px 50px 50px 50px;
     overflow: hidden;

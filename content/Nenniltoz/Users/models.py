@@ -6,6 +6,8 @@ from django.db import models
 # Create your models here.
 from django.db.models import Q
 
+from Collection.models import CardFace
+
 
 class Preference:
     """
@@ -133,27 +135,45 @@ class UserCards(models.Model):
             * quantity - number of cards owned. If 0 on wish list
     """
     user = models.ForeignKey(User, related_name='user_card', on_delete=models.CASCADE)
+    card = models.ForeignKey(CardFace, related_name='card_obj', on_delete=models.CASCADE)
     oracle_id = models.CharField(max_length=200)
     quantity = models.IntegerField(default=0)
+    wish = models.BooleanField(default=False)
+    notes = models.CharField(max_length=1000, default="")
 
     @staticmethod
-    def get_user_card(user):
-        return UserCards.objects.values('oracle_id').filter(
-        Q(user=user) &
-        ~Q(quantity=0)
-    )
-
-    @staticmethod
-    def get_user_wish_card(user):
+    def get_user_card(user, wish):
         return UserCards.objects.values('oracle_id').filter(
             Q(user=user) &
-            Q(quantity=0)
+            Q(wish=wish)
         )
 
     @staticmethod
+    def get_user_card_term(user, term, wish):
+        return UserCards.objects.select_related().filter(
+            Q(user=user) &
+            Q(wish=wish) & (
+                (
+                    Q(card__name__icontains=term) |
+                    Q(card__text__icontains=term) |
+                    Q(card__type_line__icontains=term) |
+                    Q(card__flavor_text__icontains=term) |
+                    Q(card__legal__card_obj__keywords__icontains=term)
+                ) | Q(notes__icontains='{'+term+'}')
+            )
+        ).order_by('card__name')
+
+    @staticmethod
     def get_user_card_by_oracle(oracle_id, user):
-        return UserCards.objects.filter(
+        return UserCards.objects.get(
             Q(oracle_id=oracle_id) &
+            Q(user=user)
+        )
+
+    @staticmethod
+    def get_user_card_by_oracle_list(oracle_ids, user):
+        return UserCards.objects.select_related().filter(
+            Q(oracle_id__in=oracle_ids) &
             Q(user=user)
         )
 

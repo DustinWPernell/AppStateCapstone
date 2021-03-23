@@ -90,6 +90,10 @@
     color: red;
 }
 
+.bannedTableField{
+    color: yellow;
+}
+
 .outerCardRules{
     grid-column: 1 / span 2;
 }
@@ -145,7 +149,7 @@
 
 .singCardHead{
     display: grid;
-    grid-template-columns: 100px auto;
+    grid-template-columns: 150px auto;
     column-gap: 2%;
     row-gap: 20px;
     grid-auto-rows: minmax(min-content, max-content);
@@ -202,12 +206,25 @@
     margin-top: 20px;
 }
 
-.cardQuantity{
-    margin-bottom:10px;
+cardQuantity{
+    margin-bottom: 20px;
+}
+
+.quantity_top{
+    vertical: top;
+}
+
+.quantity_bottom{
+    font-size: 13px;
 }
 
 .quantityText{
     width: 50px;
+}
+
+.notes_text{
+    grid-column: 2;
+    grid-row: 1 / span 2;
 }
 
 .setImagesArea{
@@ -216,7 +233,21 @@
     z-index: 2;
 }
 
+.notes_area{
+    min-height: 5em;
+	max-height: 50vh;
+	width: 100%;
+}
+
 @media screen and (min-width: 1000px) {
+    .cardQuantity{
+        margin-bottom:20px;
+        display: grid;
+        grid-template-rows: auto auto;
+        grid-template-columns: minmax(auto, 500px) auto;
+        row-gap: 10px;
+    }
+
     .singCardImagesMulti div {
         float: right;
     }

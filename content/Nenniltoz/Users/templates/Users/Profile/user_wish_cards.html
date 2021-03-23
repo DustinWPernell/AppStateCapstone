@@ -20,20 +20,29 @@
     {% include "./wish_pager.html" %}
     <table class="cardTable" id="cardGrid">
         <tr>
-            <td>Name</td>
-            <td>Mana Cost</td>
+            <td style="width: 20%;">Name</td>
+            <td style="width: 20%;">Quantity</td>
+            <td style="width: 20%;">Mana Cost</td>
+            <td style="width: 20%;">Notes</td>
+            <td style="width: 20%;"></td>
         </tr>
         {% for card_obj in cardWishPager %}
         <tr>
             <td class="{{ should_translate }}">
-                {{ card_obj.name }}
+                {{ card_obj.card.name }}
             </td>
             <td>
-                {{ card_obj.mana_cost|replaceMana|safe }}
+                {{ card_obj.quantity }}
             </td>
             <td>
-                <a class="cardDirection" href="/Collection/Card/{{ card_obj.legal.card_obj.oracle_id }}/">
-                    <img alt="Avatar" class="smallCardImg" src="{{ card_obj.avatar_img }}">
+                {{ card_obj.card.mana_cost|replaceMana|safe }}
+            </td>
+            <td>
+                {{ card_obj.notes|remove_bracket|safe }}
+            </td>
+            <td>
+                <a class="cardDirection" href="/Collection/Card/{{ card_obj.card.legal.card_obj.oracle_id }}/">
+                    <img alt="Avatar" class="smallCardImg" src="{{ card_obj.card.avatar_img }}">
                 </a>
             </td>
         </tr>

@@ -433,7 +433,6 @@ def user_profile(request, user_id):
     """
     logger.info("Run: user_profile; Params: " + json.dumps(request.GET.dict()))
     user_profile_obj = UserProfile.get_profile_by_user(user_id)
-    card_id_list_full = CardIDList.objects.values('card_id').all()
 
     try:
         deck_page = request.GET.get('deckPage', -1)
@@ -464,6 +463,7 @@ def user_profile(request, user_id):
             del request.session['user_search_deck_term']
             del request.session['user_decks']
             request.session['user_clear_deck_search'] = False
+
         elif 'user_search_deck' in request.POST:
             search_term = request.POST.get('user_search_deck_term')
             filtered_card_list = CardFace.objects.card_face_filter_by_name_term(search_term)
@@ -476,40 +476,41 @@ def user_profile(request, user_id):
             request.session['user_search_deck_term'] = search_term
             request.session['user_decks'] = card_id_list
             request.session['user_clear_deck_search'] = True
+
         elif 'user_clear_card_search' in request.POST:
             del request.session['user_search_card_term']
             del request.session['user_cards']
             request.session['user_clear_card_search'] = False
+
         elif 'user_search_card' in request.POST:
             search_term = request.POST.get('user_search_card_term')
-            user_card_obj_list = UserCards.get_user_card(user_profile_obj.user)
-            filtered_card_list = CardFace.card_face_filter_by_card_oracle_term(
-                                                    card_id_list_full, user_card_obj_list, search_term)
+            user_card_obj_term = UserCards.get_user_card_term(user_profile_obj.user, search_term, False)
             card_id_list = []
-            for card_list_obj in filtered_card_list:
-                if card_list_obj.legal.card_obj.card_id not in card_id_list:
-                    card_id_list.append(card_list_obj.legal.card_obj.card_id)
+            for card_list_obj in user_card_obj_term:
+                if card_list_obj.card.legal.card_obj.card_id not in card_id_list:
+                    card_id_list.append(card_list_obj.card.legal.card_obj.oracle_id)
 
             request.session['user_search_card_term'] = search_term
             request.session['user_cards'] = card_id_list
             request.session['user_clear_card_search'] = True
+
         elif 'user_clear_wish_search' in request.POST:
             del request.session['user_search_wish_term']
             del request.session['user_wish_cards']
             request.session['user_clear_wish_search'] = False
+
         elif 'user_search_wish' in request.POST:
             search_term = request.POST.get('user_search_wish_term')
-            user_card_obj_list = UserCards.get_user_wish_card(user_profile_obj.user)
-            filtered_card_list = CardFace.card_face_filter_by_card_oracle_term(
-                                                    card_id_list_full, user_card_obj_list, search_term)
+            user_card_obj_term = UserCards.get_user_card_term(user_profile_obj.user, search_term, True)
             card_id_list = []
-            for card_list_obj in filtered_card_list:
-                if card_list_obj.legal.card_obj.card_id not in card_id_list:
-                    card_id_list.append(card_list_obj.legal.card_obj.card_id)
+            for card_list_obj in user_card_obj_term:
+                if card_list_obj.card.legal.card_obj.card_id not in card_id_list:
+                    card_id_list.append(card_list_obj.card.legal.card_obj.oracle_id)
 
             request.session['user_search_wish_term'] = search_term
             request.session['user_wish_cards'] = card_id_list
             request.session['user_clear_wish_search'] = True
+
         return redirect('../' + str(user_id) + '?deckPage=' + str(deck_page) + '&cardPage=' +
                         str(card_page) + '&cardWishPage=' + str(card_wish_page))
     
@@ -528,22 +529,20 @@ def user_profile(request, user_id):
     try:
         search_card_term = request.session['user_search_card_term']
         user_card_obj_list = request.session['user_cards']
-        user_cards = CardFace.card_face_by_card(user_card_obj_list)
+        user_cards = UserCards.get_user_card_by_oracle_list(user_card_obj_list, user_profile_obj.user)
         user_clear_card_search = request.session['user_clear_card_search']
     except KeyError:
-        user_card_obj_list = UserCards.get_user_card(user_profile_obj.user)
-        user_cards = CardFace.card_face_by_card_and_oracle(card_id_list_full, user_card_obj_list)
+        user_cards = UserCards.get_user_card_term(user_profile_obj.user, "" , False)
         search_card_term = "Search"
         user_clear_card_search = request.session['user_clear_card_search'] = False
 
     try:
         search_wish_term = request.session['user_search_wish_term']
         user_wish_card_obj_list = request.session['user_wish_cards']
-        user_wish_cards = CardFace.card_face_by_card(user_wish_card_obj_list)
+        user_wish_cards = UserCards.get_user_card_by_oracle_list(user_wish_card_obj_list, user_profile_obj.user)
         user_clear_wish_search = request.session['user_clear_wish_search']
     except KeyError:
-        user_wish_obj_list = UserCards.get_user_wish_card(user_profile_obj.user)
-        user_wish_cards = CardFace.card_face_by_card_and_oracle(card_id_list_full, user_wish_obj_list)
+        user_wish_cards = UserCards.get_user_card_term(user_profile_obj.user, "" , True)
         search_wish_term = "Search"
         user_clear_wish_search = request.session['user_clear_wish_search'] = False
 
@@ -555,7 +554,7 @@ def user_profile(request, user_id):
     except EmptyPage:
         decks = deck_paginator.page(deck_paginator.num_pages)
 
-    card_paginator = Paginator(user_cards, 10)
+    card_paginator = Paginator(user_cards, 5)
     try:
         cards = card_paginator.page(card_page)
     except PageNotAnInteger:
@@ -563,7 +562,7 @@ def user_profile(request, user_id):
     except EmptyPage:
         cards = card_paginator.page(card_paginator.num_pages)
 
-    wish_paginator = Paginator(user_wish_cards, 10)
+    wish_paginator = Paginator(user_wish_cards, 5)
     try:
         wish_cards = wish_paginator.page(card_wish_page)
     except PageNotAnInteger:
