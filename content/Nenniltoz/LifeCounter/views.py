@@ -1,3 +1,4 @@
+from asgiref.sync import sync_to_async
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
@@ -20,7 +21,7 @@ def index(request):
 
     :todo: None
     """
-    game_code=""
+    game_code = ""
     if request.method == "POST":
         game_code = request.POST.get("game_code")
         if 'join_game' in request.POST:
@@ -28,7 +29,7 @@ def index(request):
             if game == None:
                 messages.error(request, 'Game code invalid.')
             else:
-                game.set_game_player_stats(request.user.id, {})
+                Game.set_game_player_stats(request.user.id, {})
 
                 return redirect(
                     'game/' + game_code
@@ -39,28 +40,28 @@ def index(request):
             game_type = request.POST.get("game_type")
             game = Game.create_new(request.user, game_type)
             return redirect(
-                'game/' + game.game_code
+                'game/' + Game.game_code
             )
 
     game_types = GameType.objects.all()
 
-    font_family = UserProfile.get_font(request.user.id)
-    should_translate = UserProfile.get_translate(request.user.id)
+    font_family = UserProfile.get_font(request.user)
+    should_translate = UserProfile.get_translate(request.user)
     context = {'font_family': font_family, 'should_translate': should_translate, 'game_code': game_code, 'game_types': game_types}
-    return render(request, "LifeCounter/GameSelector.html", context)
+    return render(request, "LifeCounter/game_selector.html", context)
 
 @login_required
 def game(request, game_code):
     game = Game.get_by_code(game_code)
 
-    player_data = game.get_all_game_players_but_indicated(request.user)
-    current_player = game.get_game_player_stats(request.user)
+    player_data = Game.get_all_game_players_but_indicated(request.user)
+    current_player = Game.get_game_player_stats(request.user)
 
-    font_family = UserProfile.get_font(request.user.id)
+    font_family = UserProfile.get_font(request.user)
     context = {
         'font_family': font_family,
         'game_code': game_code,
         'current_player':current_player,
         'other_players': player_data,
     }
-    return render(request, 'LifeCounter/Game.html', context)
+    return render(request, 'LifeCounter/game.html', context)

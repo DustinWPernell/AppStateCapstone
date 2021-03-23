@@ -5,6 +5,7 @@ $('#set_images option').each(function(){
   var font = $(this).attr("data-font");
   var translate = $(this).attr("data-translate");
   var text = this.innerText;
+  
   var value = $(this).val();
   var item = '<li>'+
                 '<a onclick="setSwitch(' + value + ');">'+

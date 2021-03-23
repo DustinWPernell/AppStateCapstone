@@ -4,9 +4,9 @@ from . import views
 
 urlpatterns = [
     path('', views.collection_index, name='index'),
-    path('collectionAll', views.collection_display, name='collectionAll'),
-    path('Card/<card_id>/', views.card_display, name='Card'),
-    path('Card/<card_id>/add_card', views.add_card, name='add_card'),
-    path('Card/<card_id>/update_quantity', views.update_quantity, name='update_quantity'),
+    path('card_database', views.collection_display, name='card_database'),
+    path('Card/<oracle_id>/', views.card_display, name='Card'),
+    path('Card/<oracle_id>/add_card', views.add_card, name='add_card'),
+    path('Card/<oracle_id>/update_quantity', views.update_quantity, name='update_quantity'),
     path('deck_list', views.deck_list, name='deck_list')
 ]

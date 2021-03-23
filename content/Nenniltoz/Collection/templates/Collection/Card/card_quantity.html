@@ -1,0 +1,24 @@
+<div class="cardQuantity">
+    {% if card_count > 0 %}
+    <form action="update_quantity" method="post">
+        {% csrf_token %}
+        <input class="quantityText {{ font_family }}" name="quantity" onkeypress='numValidate(event)' type="text" value="{{ quantity }}">
+        <input type="hidden" name="oracle_id" value="{{ faces.0.legal.card_obj.oracle_id }}">
+        <button class="clickable {{ font_family }}" name="update" type="submit">Update quantity</button>
+        <button class="clickable {{ font_family }}" name="remove" type="submit">Remove card(s)</button>
+    </form>
+    {% elif card_count == 0 %}
+    <form action="update_quantity" method="post">
+        {% csrf_token %}
+        <button class="clickable {{ font_family }}" name="remove" type="submit">Remove wish list</button>
+    </form>
+    {% else %}
+    <form action="add_card" method="post">
+        {% csrf_token %}
+        <input class="quantityText {{ font_family }}" name="quantity" onkeypress='numValidate(event)' type="text" value="{{ quantity }}">
+        <input type="hidden" name="oracle_id" value="{{ faces.0.legal.card_obj.oracle_id }}">
+        <button class="clickable {{ font_family }}" name="addCards" type="submit">Add card(s)</button>
+        <button class="clickable {{ font_family }}" name="wishCards" type="submit">Add to wish list</button>
+    </form>
+    {% endif %}
+</div>
