@@ -220,11 +220,6 @@ def deck_list(request):
             text = request.POST.get('SearchTerm')
             search_term = text
             selected_mana = []
-            list_of_colors = ['{W}', '{W/U}', '{W/B}', '{R/W}', '{G/W}', '{2/W}', '{W/P}', '{HW}',
-                              '{U}', '{U/B}', '{U/R}', '{G/U}', '{2/U}', '{U/P}', '{HU}',
-                              '{B}', '{B/R}', '{B/G}', '{2/B}', '{B/P}', '{HB}',
-                              '{R}', '{R/G}', '{2/R}', '{R/P}', '{HR}',
-                              '{G}', '{2/G}', '{G/P}', '{HG}']
             for selected in init_mana_list:
                 # Compiles a list of all selected mana color symbols
                 mana_ele = request.POST.get("mana-" + str(selected.id))
@@ -257,36 +252,37 @@ def deck_list(request):
                         if am.symbol not in selected_mana:
                             selected_mana.append(am.symbol)
             if len(selected_mana) > 0:
-                # If any many color is selected, loop through selected list and filter by cards containing those colors
-                for mana_color in selected_mana:
-                    # Retrieve all decks that are not private and colorId contains the selected color,
-                    # or name contains the search term, display the deck.
+                # If any many color is selected, loop through selected list and filter by decks containing those colors
+                deck_id_list = []
+                colorless = ['{C}', '', '{X}', '{Y}', '{Z}', '{0}', '{1/2}', '{1}', '{2}', '{3}', '{4}', '{5}',
+                             '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}', '{14}', '{15}',
+                             '{16}', '{17}', '{18}', '{19}', '{20}', '{100}', '{1000000}', '{P}']
 
-                    # If colorless is selected, do not show colored cards that also cost colorless mana.
-                    if mana_color in ['{C}', '', '{X}', '{Y}', '{Z}', '{0}', '{1/2}', '{1}', '{2}', '{3}', '{4}', '{5}',
-                                      '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}', '{14}', '{15}',
-                                      '{16}', '{17}', '{18}', '{19}', '{20}', '{100}', '{1000000}', '{P}']:
-                        mana_match = Deck.objects.values('id').filter(Q(isPrivate=False) &
-                                                                                 Q(name__icontains=search_term) &
-                                                                                 Q(colorId__contains=mana_color) &
-                                                                                 reduce(operator.and_, (
-                                                                                     ~Q(colorId__contains=item) for
-                                                                                     item in list_of_colors)))
-                    else:
-                        mana_match = Deck.objects.values('id').filter(Q(isPrivate=False) &
-                                                                                 Q(colorId__contains=mana_color) &
-                                                                                 Q(name__icontains=search_term))
-                    # Pulls the id's of the matched mana list and ensures it isn't already searched.
-                    for match in mana_match:
-                        if match['id'] not in deck_id_list:
-                            deck_id_list.append(match['id'])
-            else:
-                mana_match = Deck.objects.values('id').filter(Q(isPrivate=False) &
-                                                              Q(name__icontains=search_term))
+                # Retrieve all decks that are not private and colorId contains the selected colors,
+                # or name contains the search term, display the deck.
+                has_colorless = any(item in selected_mana for item in colorless)
+                # If colorless is selected, do not show colored decks that are also colorless.
+                if has_colorless:
+                    filtered_deck_list = Deck.deck_filter_by_color_term_colorless(
+                        selected_mana, search_term
+                    )
+                else:
+                    filtered_deck_list = Deck.deck_filter_by_color_term(
+                        selected_mana, search_term
+                    )
                 # Pulls the id's of the matched mana list and ensures it isn't already searched.
-                for match in mana_match:
-                    if match['id'] not in deck_id_list:
-                        deck_id_list.append(match['id'])
+                for deck_list_obj in filtered_deck_list:
+                    if deck_list_obj.legal.card_obj.card_id not in deck_id_list:
+                        deck_id_list.append(deck_list_obj.id)
+            else:
+                filtered_deck_list = CardFace.card_face_filter_by_card_term(
+                    search_term
+                )
+                # Pulls the id's of the matched mana list and ensures it isn't already searched.
+                for deck_list_obj in filtered_deck_list:
+                    if deck_list_obj.legal.card_obj.card_id not in deck_id_list:
+                        deck_id_list.append(deck_list_obj.id)
+
 
             # Stores search parameters for quicker reloads
             request.session['deck_search'] = True
