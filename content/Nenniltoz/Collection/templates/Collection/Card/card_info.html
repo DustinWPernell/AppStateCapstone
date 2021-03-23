@@ -74,8 +74,8 @@
         {% endfor %}
     </div>
     <span class="singCardAttLbl">Most recent set:</span>
-    <div class="singCardSet {{ should_translate }}">{{ card.set_name }}</div>
+    <div class="singCardSet {{ should_translate }}">{{ faces.0.legal.card_obj.set_name }}</div>
 
     <span class="singCardAttLbl">Keywords:</span>
-    <div class="singCardKeywords">{{ card.keywords }}</div>
+    <div class="singCardKeywords">{{ faces.0.legal.card_obj.keywords }}</div>
 </div>
