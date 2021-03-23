@@ -510,8 +510,8 @@ def user_profile(request, user_id):
             request.session['user_search_wish_term'] = search_term
             request.session['user_wish_cards'] = card_id_list
             request.session['user_clear_wish_search'] = True
-        return redirect('../' + str(user_id) + '?deckPage=' + deck_page + '&cardPage=' +
-                        card_page + '&cardWishPage=' + card_wish_page)
+        return redirect('../' + str(user_id) + '?deckPage=' + str(deck_page) + '&cardPage=' +
+                        str(card_page) + '&cardWishPage=' + str(card_wish_page))
     
     try:
         search_deck_term = request.session['user_search_deck_term']
