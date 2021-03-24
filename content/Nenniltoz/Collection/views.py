@@ -338,10 +338,12 @@ def deck_display(request, deck_id):
     try:
         # Gets the deck using the deck id passed to it.
         deck = DeckCards.deck_card_by_deck_user(deck_id, request.user.id)
+        user_profile = UserProfile.get_profile_by_user(deck[0].deck.user_id)
         font_family = UserProfile.get_font(request.user)
         should_translate = UserProfile.get_translate(request.user)
         context = {'font_family': font_family, 'should_translate': should_translate,
-                   'auth': request.user.is_authenticated, 'deck': deck}
+                   'auth': request.user.is_authenticated, 'deck_cards': deck,
+                   'user_profile': user_profile}
         return render(request, 'Collection/card_display.html', context)
 
     except DeckCards.DoesNotExist:

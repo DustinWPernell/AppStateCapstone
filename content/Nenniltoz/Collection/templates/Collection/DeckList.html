@@ -1,6 +1,9 @@
 {% extends "base_generic.html" %}
 {% load replaceValues %}
-
+{% block css %}
+ <!-- The block CSS places internal html into corresponding location in base generic (which is the base html page) -->
+    <link href="{% static 'css\decks.css' %}" rel="stylesheet" type="text/css">
+{% endblock %}
 {% block content %}
 <div class="deckFilter">
   <!-- Forms either post or get. Get stores data in the url. Post stores data behind the scenes.
