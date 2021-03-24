@@ -2,46 +2,10 @@ import operator
 from datetime import datetime
 from functools import reduce
 
-from django.db import models
-# Create your models here.
-
-
-
-class GameTypes:
-    Standard = 'standard'
-    Future = 'future'
-    Historic = 'historic'
-    Gladiator = 'gladiator'
-    Modern = 'modern'
-    Legacy = 'legacy'
-    Pauper = 'pauper'
-    Vintage = 'vintage'
-    Penny = 'penny'
-    Commander = 'commander'
-    Brawl = 'brawl'
-    Duel = 'duel'
-    OldSchool = 'oldschool'
-    Premodern = 'premodern'
-
-    gameType_Choices = (
-        (Standard, 'standard'),
-        (Future, 'future'),
-        (Historic, 'historic'),
-        (Gladiator, 'gladiator'),
-        (Modern, 'modern'),
-        (Legacy, 'legacy'),
-        (Pauper, 'pauper'),
-        (Vintage, 'vintage'),
-        (Penny, 'penny'),
-        (Commander, 'commander'),
-        (Brawl, 'brawl'),
-        (Duel, 'duel'),
-        (OldSchool, 'oldschool'),
-        (Premodern, 'premodern'),
-    )
-
 from django.db.models import Q
 
+from django.db import models
+# Create your models here.
 class IgnoreCards(models.Model):
     """
         Stores cards that should be ignored during import
@@ -356,6 +320,12 @@ class CardFace(models.Model):
         return set_info
 
 
+class DeckType(models.Model):
+    name = models.CharField(max_length=50)
+    desc = models.CharField(max_length=50)
+
+
+
 class Deck(models.Model):
     name = models.CharField(max_length=200)
     colorId = models.CharField(max_length=20)
@@ -364,8 +334,9 @@ class Deck(models.Model):
     isPreCon = models.BooleanField()
     isPrivate = models.BooleanField()
     imageURL = models.CharField(max_length=200)
-    deckType = models.CharField(max_length=10, choices=GameTypes.gameType_Choices, default='historic')
-    commander = models.ForeignKey(Card, related_name='commander_deck', on_delete=models.CASCADE)
+    description = models.CharField(max_length=1000)
+    deck_type = models.ForeignKey(DeckType, related_name='type_deck', on_delete=models.CASCADE)
+    commander = models.ForeignKey(CardFace, related_name='commander_deck', on_delete=models.DO_NOTHING)
     commander.null = True
 
     @staticmethod
@@ -431,6 +402,7 @@ class Deck(models.Model):
         return Deck.objects.select_related().filter(
             Q(id__in=deck_ids)
         ).order_by('name')
+
 
 class DeckCards(models.Model):
     deck = models.ForeignKey(Deck, related_name='deck_cards', on_delete=models.CASCADE)
