@@ -323,17 +323,21 @@ class CardFace(models.Model):
 class DeckType(models.Model):
     name = models.CharField(max_length=50)
     desc = models.CharField(max_length=50)
-
+    min_deck_size = models.IntegerField(default=60)
+    max_deck_size = models.IntegerField(default=0)  # 0 for none
+    side_board_size = models.IntegerField(default=15)
+    card_copy_limit = models.IntegerField(default=4)
+    has_commander = models.BooleanField(default=False)
 
 
 class Deck(models.Model):
     name = models.CharField(max_length=200)
-    colorId = models.CharField(max_length=20)
-    createdBy = models.CharField(max_length=20)
-    createdBy.null = True
-    isPreCon = models.BooleanField()
-    isPrivate = models.BooleanField()
-    imageURL = models.CharField(max_length=200)
+    color_id = models.CharField(max_length=20)
+    created_by = models.CharField(max_length=20)
+    created_by.null = True
+    is_pre_con = models.BooleanField()
+    is_private = models.BooleanField()
+    image_url = models.CharField(max_length=200)
     description = models.CharField(max_length=1000)
     deck_type = models.ForeignKey(DeckType, related_name='type_deck', on_delete=models.CASCADE)
     commander = models.ForeignKey(CardFace, related_name='commander_deck', on_delete=models.DO_NOTHING)

@@ -306,10 +306,10 @@ def deck_list(request):
         # Goes through the mana symbols and checks to see what is selected. If selected, it checks it. If not, it doesn't.
         if init_mana.symbol in selected_mana:
             mana_list.append(
-                {'symbol': init_mana.symbol, 'checked': True, 'imageURL': init_mana.imageURL, 'id': init_mana.id})
+                {'symbol': init_mana.symbol, 'checked': True, 'imageURL': init_mana.image_url, 'id': init_mana.id})
         else:
             mana_list.append(
-                {'symbol': init_mana.symbol, 'checked': False, 'imageURL': init_mana.imageURL, 'id': init_mana.id})
+                {'symbol': init_mana.symbol, 'checked': False, 'imageURL': init_mana.image_url, 'id': init_mana.id})
 
     page = request.GET.get('page', 1)
 
@@ -381,10 +381,11 @@ def update_user_card_data(request, oracle_id):
         card_quantity = int(request.POST['quantity'])
         user_card_id = request.POST['user_card_id']
         card_notes = request.POST['notes']
-        if card_quantity == 0:
+        if card_quantity <= 0:
             card_quantity = 1
         if user_card_id == '':
             UserCards.objects.create(
+                id = str(request.user.id)+':'+ str(oracle_id),
                 card = CardFace.get_face_by_card(CardIDList.get_card_by_oracle(oracle_id).card_id)[0],
                 user = request.user,
                 oracle_id = oracle_id,
@@ -393,7 +394,7 @@ def update_user_card_data(request, oracle_id):
                 notes = card_notes
             )
         else:
-            user_card = UserCards.objects.get(id=int(user_card_id))
+            user_card = UserCards.objects.get(id=str(user_card_id))
             user_card.wish = False
             user_card.quantity = card_quantity
             user_card.notes = card_notes
@@ -404,10 +405,11 @@ def update_user_card_data(request, oracle_id):
         card_quantity = int(request.POST['quantity'])
         user_card_id = request.POST['user_card_id']
         card_notes = request.POST['notes']
-        if card_quantity == 0:
+        if card_quantity <= 0:
             card_quantity = 1
         if user_card_id == '':
             UserCards.objects.create(
+                id=str(request.user.id) + ':' + str(oracle_id),
                 card = CardFace.get_face_by_card(CardIDList.get_card_by_oracle(oracle_id).card_id)[0],
                 user = request.user,
                 oracle_id = oracle_id,
@@ -416,7 +418,7 @@ def update_user_card_data(request, oracle_id):
                 notes = card_notes
             )
         else:
-            user_card = UserCards.objects.get(id=int(user_card_id))
+            user_card = UserCards.objects.get(id=str(user_card_id))
             user_card.wish = True
             user_card.quantity = card_quantity
             user_card.notes = card_notes
@@ -424,22 +426,25 @@ def update_user_card_data(request, oracle_id):
 
         messages.success(request, 'Added card to wish list.')
     elif 'remove' in request.POST:
-        user_card = UserCards.get_user_card_by_oracle(oracle_id, request.user)
+        user_card_id = request.POST['user_card_id']
+        user_card = UserCards.objects.get(id=str(user_card_id))
         user_card.quantity = 0
         user_card.wish = False
         user_card.save()
 
         messages.error(request, 'Removed card(s) from collection.')
     elif 'update' in request.POST:
+        user_card_id = request.POST['user_card_id']
         card_quantity = request.POST['quantity']
-        user_card = UserCards.get_user_card_by_oracle(oracle_id, request.user)
+        user_card = UserCards.objects.get(id=str(user_card_id))
         user_card.quantity = card_quantity
         user_card.save()
 
         messages.success(request, 'Updated quantity of cards.')
     elif 'notes_button' in request.POST:
+        user_card_id = request.POST['user_card_id']
         card_notes = request.POST['notes']
-        user_card = UserCards.get_user_card_by_oracle(oracle_id, request.user)
+        user_card = UserCards.objects.get(id=str(user_card_id))
         user_card.notes = card_notes
         user_card.save()
 

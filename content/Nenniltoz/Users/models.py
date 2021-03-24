@@ -132,6 +132,7 @@ class UserCards(models.Model):
             * card_id - String containing card_id
             * quantity - number of cards owned. If 0 on wish list
     """
+    id = models.CharField(max_length=200, primary_key=True)
     user = models.ForeignKey(User, related_name='user_card', on_delete=models.CASCADE)
     card = models.ForeignKey(CardFace, related_name='card_obj', on_delete=models.CASCADE)
     oracle_id = models.CharField(max_length=200)
@@ -150,7 +151,8 @@ class UserCards(models.Model):
     def get_user_card_term(user, term, wish):
         return UserCards.objects.select_related().filter(
             Q(user=user) &
-            Q(wish=wish) & (
+            Q(wish=wish) &
+            Q(quantity__gt=0) & (
                 (
                     Q(card__name__icontains=term) |
                     Q(card__text__icontains=term) |
