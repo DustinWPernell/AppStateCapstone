@@ -4,7 +4,6 @@
         <div class="quantity_top">
             <input type="hidden" name="oracle_id" value="{{ faces.0.legal.card_obj.oracle_id }}">
             <input type="hidden" name="user_card_id" value="{{ user_card.id }}">
-            {% if not user_card.wish %}
             {% if has_card %}
             <label for="quantity">Number of cards:</label>
             <input class="quantityText {{ font_family }}" id="quantity" name="quantity"
@@ -13,7 +12,6 @@
             <label for="quantity2">Number of cards:</label>
             <input class="quantityText {{ font_family }}" id="quantity2" name="quantity"
                    onkeypress='numValidate(event)' type="text" value="0">
-            {% endif %}
             {% endif %}
         </div>
         <div class="notes_text" >
