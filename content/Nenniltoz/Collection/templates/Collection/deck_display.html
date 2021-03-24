@@ -10,16 +10,13 @@
 <div class="DeckBody" id="deck">
     <!-- Include takes the html in the file and pastes it into the file.  -->
     {% include "./Deck/deck_info.html" %}
-    {% include "./Card/card_images.html" %}
+    {% include "./Deck/commander.html" %}
     <div style="grid-column: 1 / span 2;"><hr></div>
-    {% include "./Card/card_legal.html" %}
-    {% if has_rules %}
+    {% include "./Deck/cards.html" %}
     <div style="grid-column: 1 / span 2;"><hr></div>
-    {% include "./Card/card_rules.html" %}
-    {% endif %}
 </div>
 {% endblock %}
 
 {% block custom_scripts %}
-    <script src="{% static 'js\card.js' %}"></script>
+    <!-- <script src="{% static 'js\deck.js' %}"></script> -->
 {% endblock %}
