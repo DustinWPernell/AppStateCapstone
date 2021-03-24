@@ -2,12 +2,10 @@ from django.contrib.auth.models import User
 from django.db import models
 from datetime import datetime
 
-# Create your models here.
 from django.db.models import Q
 
 from Collection.models import CardFace
-
-
+# Create your models here.
 class Preference:
     """
         Stores choices for settings

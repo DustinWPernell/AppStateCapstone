@@ -3,11 +3,8 @@ from datetime import datetime
 from functools import reduce
 
 from django.db import models
-from django.contrib.auth.models import User
-
-
 # Create your models here.
-from Users.models import UserProfile
+
 
 
 class GameTypes:
@@ -362,7 +359,7 @@ class CardFace(models.Model):
 class Deck(models.Model):
     name = models.CharField(max_length=200)
     colorId = models.CharField(max_length=20)
-    createdBy = models.ForeignKey(UserProfile, related_name='user_deck', on_delete=models.SET_NULL)
+    createdBy = models.CharField(max_length=20)
     createdBy.null = True
     isPreCon = models.BooleanField()
     isPrivate = models.BooleanField()
@@ -382,8 +379,8 @@ class Deck(models.Model):
                           '{G}', '{2/G}', '{G/P}', '{HG}']
         return Deck.objects.select_related().filter(
             (
-                    Q(deck_isPrivate=False) |
-                    Q(deck_createdBy_user=user)
+                    Q(deck__isPrivate=False) |
+                    Q(deck__createdBy=user.id)
             ) &
             Q(name__icontains=term) & (
                     reduce(
@@ -405,8 +402,8 @@ class Deck(models.Model):
         # or name contains the search term
         return Deck.objects.select_related().filter(
             (
-                    Q(deck_isPrivate=False) |
-                    Q(deck_createdBy_user_id=user)
+                    Q(deck__isPrivate=False) |
+                    Q(deck__createdBy=user.id)
             ) &
             reduce(
                 operator.or_, (
@@ -423,8 +420,8 @@ class Deck(models.Model):
         # or name contains the search term
         return Deck.objects.select_related().filter(
             (
-                    Q(deck_isPrivate=False) |
-                    Q(deck_createdBy_user_id=user)
+                    Q(deck__isPrivate=False) |
+                    Q(deck__createdBy=user.id)
             ) &
             Q(name__icontains=term)
         ).order_by('name')
@@ -447,8 +444,8 @@ class DeckCards(models.Model):
         return DeckCards.objects.select_related().filter(
             # Retrieves the deck where it is not private or if it's created by the current user.
             Q(deck_id=deck_id) & (
-                Q(deck_isPrivate=False) |
-                Q(deck_createdBy_user_id=user_id)
+                Q(deck__isPrivate=False) |
+                Q(deck__createdBy=user_id)
             )
         )
 
