@@ -324,12 +324,12 @@ def deck_list(request):
         # If you enter a number that's too high, you be taken to the last page.
         deck = paginator.page(paginator.num_pages)
 
-    font_family = UserProfile.get_font(request.user.id)
-    should_translate = UserProfile.get_translate(request.user.id)
+    font_family = UserProfile.get_font(request.user)
+    should_translate = UserProfile.get_translate(request.user)
     # Left is variable name, right is variable data.
     context = {'font_family': font_family, 'should_translate': should_translate, 'pages': deck,
                'SearchTerm': search_term, 'mana_list': mana_list, 'clearSearch': clear_search}
-    return render(request, 'Collection/CollectionDisplay.html', context)
+    return render(request, 'Collection/Deck/deck_list.html', context)
 
 
 def deck_display(request, deck_id):

@@ -3,13 +3,13 @@
     <div class="">
         <h3 class="{{ should_translate }}">{{ user_profile_obj.user.username }}</h3>
         {% if user_profile_obj.deck_view %}
-            {% include "./user_decks.html" %}
+            {% include "./ProfileDecks/user_decks.html" %}
         {% endif %}
         {% if user_profile_obj.card_view %}
-            {% include "./user_cards.html" %}
+            {% include "./ProfileCards/user_cards.html" %}
         {% endif %}
         {% if user_profile_obj.card_view %}
-            {% include "./user_wish_cards.html" %}
+            {% include "./ProfileCards/user_wish_cards.html" %}
         {% endif %}
     </div>
 </div>
@@ -17,9 +17,9 @@
 <div class="row">
     <div class="">
         <h3>Welcome, <span class="{{ should_translate }}">{{ user_profile_obj.user.username }}</span></h3>
-        {% include "./user_decks.html" %}
-        {% include "./user_cards.html" %}
-        {% include "./user_wish_cards.html" %}
+        {% include "./ProfileDecks/user_decks.html" %}
+        {% include "./ProfileCards/user_cards.html" %}
+        {% include "./ProfileCards/user_wish_cards.html" %}
     </div>
 </div>
 {% endif %}

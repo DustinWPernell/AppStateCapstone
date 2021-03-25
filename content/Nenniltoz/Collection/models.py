@@ -354,8 +354,8 @@ class Deck(models.Model):
                           '{G}', '{2/G}', '{G/P}', '{HG}']
         return Deck.objects.select_related().filter(
             (
-                    Q(deck__isPrivate=False) |
-                    Q(deck__createdBy=user.id)
+                    Q(is_private=False) |
+                    Q(created_by=user.id)
             ) &
             Q(name__icontains=term) & (
                     reduce(
@@ -377,8 +377,8 @@ class Deck(models.Model):
         # or name contains the search term
         return Deck.objects.select_related().filter(
             (
-                    Q(deck__isPrivate=False) |
-                    Q(deck__createdBy=user.id)
+                    Q(is_private=False) |
+                    Q(created_by=user.id)
             ) &
             reduce(
                 operator.or_, (
@@ -395,8 +395,8 @@ class Deck(models.Model):
         # or name contains the search term
         return Deck.objects.select_related().filter(
             (
-                    Q(deck__isPrivate=False) |
-                    Q(deck__createdBy=user.id)
+                    Q(is_private=False) |
+                    Q(created_by=user.id)
             ) &
             Q(name__icontains=term)
         ).order_by('name')
@@ -412,6 +412,7 @@ class DeckCards(models.Model):
     deck = models.ForeignKey(Deck, related_name='deck_cards', on_delete=models.CASCADE)
     card = models.ForeignKey(CardFace, related_name='face_cards', on_delete=models.CASCADE)
     quantity = models.IntegerField(default=0)
+    sideboard = models.BooleanField(default=False)
 
     @staticmethod
     # This method returns all cards and pieces associated with those cards within a deck.
@@ -419,9 +420,9 @@ class DeckCards(models.Model):
         # This grabs everything associated with the deck of cards. Cards, the deck itself, sets of cards.
         return DeckCards.objects.select_related().filter(
             # Retrieves the deck where it is not private or if it's created by the current user.
-            Q(deck_id=deck_id) & (
-                Q(deck__isPrivate=False) |
-                Q(deck__createdBy=user_id)
+            Q(deck__id=deck_id) & (
+                Q(deck__is_private=False) |
+                Q(deck__created_by=user_id)
             )
         )
 
