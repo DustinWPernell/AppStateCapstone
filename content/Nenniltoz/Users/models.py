@@ -74,8 +74,10 @@ class UserProfile(models.Model):
     deck_view = models.BooleanField(default=True)
     profile_view = models.BooleanField(default=True)
     avatar_img = models.CharField(max_length=200)
+    avatar_img.null = True
     font_family = models.CharField(max_length=200, default='default_font')
-    translate = models.CharField(max_length=200, default='')
+    translate = models.CharField(max_length=200, default='notranslate')
+    translate.null = True
 
     def __int__(self):
         return self.user.id
