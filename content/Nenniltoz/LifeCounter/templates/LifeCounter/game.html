@@ -1,7 +1,7 @@
 {% extends 'base_generic.html' %}
 
 {% block css %}
-    <link href="{% static 'css\LifeCounter.css' %}" rel="stylesheet" type="text/css">
+<link href="{% static 'css\LifeCounter.css' %}" rel="stylesheet" type="text/css">
 {% endblock %}
 
 {% block content %}
@@ -11,7 +11,7 @@
     </div>
     <div class="game_counter">
         <div class="other_counter">
-{% for player in other_players %}
+            {% for player in other_players %}
             <div class="player_counter">
                 <div class="life_counter">
                     <label class="life_label">{{ player.life }}</label>
@@ -20,11 +20,11 @@
 
                 </div>
                 <div class="userAvatarDiv">
-                        <img class="game_avatar_img" src="{{ player.avatar_img }}">
+                    <img class="game_avatar_img" src="{{ player.avatar_img }}">
                 </div>
             </div>
             <hr>
-{% endfor %}
+            {% endfor %}
         </div>
         <div class="player_counter">
             <div class="userAvatarDiv">
@@ -42,5 +42,5 @@
 {% endblock content %}
 
 {% block custom_scripts %}
-    <script src="{% static 'js\LifeCounter.js' %}"></script>
+<script src="{% static 'js\LifeCounter.js' %}"></script>
 {% endblock %}

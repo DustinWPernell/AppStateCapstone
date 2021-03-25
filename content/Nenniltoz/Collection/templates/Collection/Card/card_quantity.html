@@ -2,8 +2,8 @@
     {% csrf_token %}
     <div class="cardQuantity">
         <div class="quantity_top">
-            <input type="hidden" name="oracle_id" value="{{ faces.0.legal.card_obj.oracle_id }}">
-            <input type="hidden" name="user_card_id" value="{{ user_card.id }}">
+            <input name="oracle_id" type="hidden" value="{{ faces.0.legal.card_obj.oracle_id }}">
+            <input name="user_card_id" type="hidden" value="{{ user_card.id }}">
             {% if has_card %}
             <label for="quantity">Number of cards:</label>
             <input class="quantityText {{ font_family }}" id="quantity" name="quantity"
@@ -14,30 +14,30 @@
                    onkeypress='numValidate(event)' type="text" value="0">
             {% endif %}
         </div>
-        <div class="notes_text" >
+        <div class="notes_text">
             {% if has_notes %}
-            <textarea class="notes_area" name="notes"
-                      placeholder="Notes" cols="40"
+            <textarea class="notes_area" cols="40"
+                      name="notes" placeholder="Notes"
                       rows="1">{{ user_card.notes }}</textarea>
             {% else %}
-            <textarea class="notes_area" name="notes"
-                      placeholder="Notes" cols="40"
+            <textarea class="notes_area" cols="40"
+                      name="notes" placeholder="Notes"
                       rows="1"></textarea>
             {% endif %}
             <div>* Use { } for searchable notes. Example:{Trample}</div>
         </div>
         <div class="quantity_bottom">
-        {% if user_card.wish %}
-        <button class="clickable {{ font_family }}" name="remove" type="submit">Remove wish list</button>
-        <button class="clickable {{ font_family }}" name="notes_button" type="submit">Update Notes</button>
-        {% elif user_card.quantity > 0 %}
-        <button class="clickable {{ font_family }}" name="update" type="submit">Update quantity</button>
-        <button class="clickable {{ font_family }}" name="remove" type="submit">Remove card(s)</button>
-        <button class="clickable {{ font_family }}" name="notes_button" type="submit">Update Notes</button>
-        {% else %}
-        <button class="clickable {{ font_family }}" name="addCards" type="submit">Add card(s)</button>
-        <button class="clickable {{ font_family }}" name="wishCards" type="submit">Add to wish list</button>
-        {% endif %}
+            {% if user_card.wish %}
+            <button class="clickable {{ font_family }}" name="remove" type="submit">Remove wish list</button>
+            <button class="clickable {{ font_family }}" name="notes_button" type="submit">Update Notes</button>
+            {% elif user_card.quantity > 0 %}
+            <button class="clickable {{ font_family }}" name="update" type="submit">Update quantity</button>
+            <button class="clickable {{ font_family }}" name="remove" type="submit">Remove card(s)</button>
+            <button class="clickable {{ font_family }}" name="notes_button" type="submit">Update Notes</button>
+            {% else %}
+            <button class="clickable {{ font_family }}" name="addCards" type="submit">Add card(s)</button>
+            <button class="clickable {{ font_family }}" name="wishCards" type="submit">Add to wish list</button>
+            {% endif %}
         </div>
     </div>
 </form>

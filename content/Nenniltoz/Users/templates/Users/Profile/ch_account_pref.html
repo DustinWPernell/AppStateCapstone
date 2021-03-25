@@ -6,32 +6,37 @@
 
     <hr>
 
-{% if user_profile_obj.translate == '' %}
-    <input type="checkbox" id="translateCB" name="translateCB" value="Translated" onclick="translate_setting('notranslate')" checked>
-{% else %}
-    <input type="checkbox" id="translateCB" name="translateCB" value="Don't Translate" onclick="translate_setting('')">
-{% endif %}
+    {% if user_profile_obj.translate == '' %}
+    <input checked id="translateCB" name="translateCB" onclick="translate_setting('notranslate')"
+           type="checkbox" value="Translated">
+    {% else %}
+    <input id="translateCB" name="translateCB" onclick="translate_setting('')" type="checkbox" value="Don't Translate">
+    {% endif %}
     <label for="translateCB">Translate Everything</label><br><br>
 
-{% if user_profile_obj.profile_view %}
-    <input type="checkbox" id="profileViewCB" name="profileViewCB" value="Public Profile" onclick="publicViewCB('profileView')" checked>
-{% else %}
-    <input type="checkbox" id="profileViewCB" name="profileViewCB" value="Public Profile" onclick="publicViewCB('profileView')">
-{% endif %}
+    {% if user_profile_obj.profile_view %}
+    <input checked id="profileViewCB" name="profileViewCB" onclick="publicViewCB('profileView')"
+           type="checkbox" value="Public Profile">
+    {% else %}
+    <input id="profileViewCB" name="profileViewCB" onclick="publicViewCB('profileView')" type="checkbox"
+           value="Public Profile">
+    {% endif %}
     <label for="profileViewCB">Public Profile</label><br>
 
-{% if user_profile_obj.deck_view %}
-    <input type="checkbox" id="deckViewCB" name="deckViewCB" value="Public Decks" onclick="publicViewCB('deckView')" checked>
-{% else %}
-    <input type="checkbox" id="deckViewCB" name="deckViewCB" value="Public Decks" onclick="publicViewCB('deckView')">
-{% endif %}
+    {% if user_profile_obj.deck_view %}
+    <input checked id="deckViewCB" name="deckViewCB" onclick="publicViewCB('deckView')" type="checkbox"
+           value="Public Decks">
+    {% else %}
+    <input id="deckViewCB" name="deckViewCB" onclick="publicViewCB('deckView')" type="checkbox" value="Public Decks">
+    {% endif %}
     <label for="deckViewCB">Public Decks</label><br>
 
-{% if user_profile_obj.card_view %}
-    <input type="checkbox" id="cardViewCB" name="cardViewCB" value="Public Cards" onclick="publicViewCB('cardView')" checked>
-{% else %}
-    <input type="checkbox" id="cardViewCB" name="cardViewCB" value="Public Cards" onclick="publicViewCB('cardView')">
-{% endif %}
+    {% if user_profile_obj.card_view %}
+    <input checked id="cardViewCB" name="cardViewCB" onclick="publicViewCB('cardView')" type="checkbox"
+           value="Public Cards">
+    {% else %}
+    <input id="cardViewCB" name="cardViewCB" onclick="publicViewCB('cardView')" type="checkbox" value="Public Cards">
+    {% endif %}
     <label for="cardViewCB">Public Cards</label><br>
 
     <hr>

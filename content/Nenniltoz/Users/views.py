@@ -16,6 +16,7 @@ from .models import News, UserProfile, Friends, PendingFriends, Followers, UserC
 
 logger = logging.getLogger(__name__)
 
+
 @login_required
 def add_card_deck(request, user_id):
     card_list = []
@@ -89,7 +90,7 @@ def add_friend(request, user_id):
 
 def index(request):
     latest_news_list = News.objects.order_by('eventDate', 'headline')[:5]
-    context = { 'latest_news_list': latest_news_list, }
+    context = {'latest_news_list': latest_news_list, }
     """Display the home page.
 
     Retrieves the most recent news articles from the database and displays them on the page
@@ -156,9 +157,9 @@ def logout_page(request):
     context = {'font_family': font_family, 'should_translate': should_translate}
     return render(request, 'Users/logout.html', context)
 
+
 @login_required
 def modify_deck(request, user_id):
-
     """Displays new deck page
 
     Redirects to new deck page
@@ -170,7 +171,7 @@ def modify_deck(request, user_id):
 
     user_profile_obj = UserProfile.get_profile_by_user(user_id)
 
-#region Page numbers
+    # region Page numbers
 
     try:
         card_page = request.GET.get('user_card_page', -1)
@@ -196,7 +197,7 @@ def modify_deck(request, user_id):
         wish_card_page = request.GET.get('wish_card_page', 1)
         request.session['wish_card_page'] = wish_card_page
 
-#endregion
+    # endregion
 
     if request.method == 'POST':
         deck_name = request.session['deck_name'] = request.POST.get('deck_name')
@@ -272,17 +273,16 @@ def modify_deck(request, user_id):
             else:
                 commander_obj = None
 
-
             Deck.objects.create(
-                deck_name = deck_name,
-                deck_type = deck_type_obj,
-                is_private = is_private == 'True',
-                image_url = image_url,
-                description = description,
-                commander = commander_obj,
-                color_id = "",
-                created_by = request.user.id,
-                is_pre_con = request.user.username == "Preconstructed"
+                deck_name=deck_name,
+                deck_type=deck_type_obj,
+                is_private=is_private == 'True',
+                image_url=image_url,
+                description=description,
+                commander=commander_obj,
+                color_id="",
+                created_by=request.user.id,
+                is_pre_con=request.user.username == "Preconstructed"
             )
 
 
@@ -311,12 +311,11 @@ def modify_deck(request, user_id):
             deck_obj.commander = commander_obj
             deck_obj.save()
 
-
-
         return redirect('../' + str(user_id) + '?user_card_page=' +
-                        str(card_page) + '&all_card_page=' + str(all_card_page) + '&wish_card_page=' + str(wish_card_page))
+                        str(card_page) + '&all_card_page=' + str(all_card_page) + '&wish_card_page=' + str(
+            wish_card_page))
 
-#region Cards from sessions
+    # region Cards from sessions
 
     try:
         search_card_term = request.session['user_search_card_term']
@@ -324,7 +323,7 @@ def modify_deck(request, user_id):
         user_cards = UserCards.get_user_card_by_oracle_list(user_card_obj_list, user_profile_obj.user)
         user_clear_card_search = request.session['user_clear_card_search']
     except KeyError:
-        user_cards = UserCards.get_user_card_term(user_profile_obj.user, "" , False)
+        user_cards = UserCards.get_user_card_term(user_profile_obj.user, "", False)
         search_card_term = "Search"
         user_clear_card_search = request.session['user_clear_card_search'] = False
 
@@ -334,7 +333,7 @@ def modify_deck(request, user_id):
         user_all_cards = UserCards.get_user_card_by_oracle_list(user_all_card_obj_list, user_profile_obj.user)
         user_clear_all_search = request.session['user_clear_all_search']
     except KeyError:
-        user_all_cards = UserCards.get_user_card_term(user_profile_obj.user, "" , True)
+        user_all_cards = UserCards.get_user_card_term(user_profile_obj.user, "", True)
         search_all_term = "Search"
         user_clear_all_search = request.session['user_clear_all_search'] = False
 
@@ -344,13 +343,13 @@ def modify_deck(request, user_id):
         user_wish_cards = UserCards.get_user_card_by_oracle_list(user_wish_card_obj_list, user_profile_obj.user)
         user_clear_wish_search = request.session['user_clear_wish_search']
     except KeyError:
-        user_wish_cards = UserCards.get_user_card_term(user_profile_obj.user, "" , True)
+        user_wish_cards = UserCards.get_user_card_term(user_profile_obj.user, "", True)
         search_wish_term = "Search"
         user_clear_wish_search = request.session['user_clear_wish_search'] = False
 
-#endregion
+    # endregion
 
-#region Paginators
+    # region Paginators
 
     card_paginator = Paginator(user_cards, 20)
     try:
@@ -376,7 +375,7 @@ def modify_deck(request, user_id):
     except EmptyPage:
         wish_cards = wish_paginator.page(wish_paginator.num_pages)
 
-#endregion
+    # endregion
 
     font_family = UserProfile.get_font(request.user)
     should_translate = UserProfile.get_translate(request.user)
@@ -384,7 +383,8 @@ def modify_deck(request, user_id):
         'font_family': font_family, 'should_translate': should_translate,
         'user_cards': user_cards, 'all_cards': all_cards, 'wish_cards': wish_cards,
         'search_card_term': search_card_term, 'search_all_term': search_all_term, 'search_wish_term': search_wish_term,
-        'user_clear_card_search': user_clear_card_search, 'user_clear_all_search': user_clear_all_search, 'user_clear_wish_search': user_clear_wish_search,
+        'user_clear_card_search': user_clear_card_search, 'user_clear_all_search': user_clear_all_search,
+        'user_clear_wish_search': user_clear_wish_search,
     }
     return render(request, 'User/Profile/ProfileDecks/modify_deck.html', context)
 
@@ -561,10 +561,10 @@ def select_avatar(request):
     except EmptyPage:
         cards = paginator.page(paginator.num_pages)
 
-
     font_family = UserProfile.get_font(request.user)
     should_translate = UserProfile.get_translate(request.user)
-    context = {'font_family': font_family, 'should_translate': should_translate, 'pages': cards, 'SearchTerm': search_term, 'clearSearch': clear_search}
+    context = {'font_family': font_family, 'should_translate': should_translate, 'pages': cards,
+               'SearchTerm': search_term, 'clearSearch': clear_search}
     return render(request, 'Users/Profile/select_avatar.html', context)
 
 
@@ -653,7 +653,7 @@ def user_profile(request, user_id):
     logger.info("Run: user_profile; Params: " + json.dumps(request.GET.dict()))
     user_profile_obj = UserProfile.get_profile_by_user(user_id)
 
-#region Page numbers
+    # region Page numbers
 
     try:
         deck_page = request.GET.get('deckPage', -1)
@@ -679,7 +679,7 @@ def user_profile(request, user_id):
         card_wish_page = request.GET.get('cardWishPage', 1)
         request.session['cardWishPage'] = card_wish_page
 
-#endregion
+    # endregion
 
     if request.method == 'POST':
         if 'user_clear_deck_search' in request.POST:
@@ -737,7 +737,7 @@ def user_profile(request, user_id):
         return redirect('../' + str(user_id) + '?deckPage=' + str(deck_page) + '&cardPage=' +
                         str(card_page) + '&cardWishPage=' + str(card_wish_page))
 
-#region Cards from session
+    # region Cards from session
 
     try:
         search_deck_term = request.session['user_search_deck_term']
@@ -757,7 +757,7 @@ def user_profile(request, user_id):
         user_cards = UserCards.get_user_card_by_oracle_list(user_card_obj_list, user_profile_obj.user)
         user_clear_card_search = request.session['user_clear_card_search']
     except KeyError:
-        user_cards = UserCards.get_user_card_term(user_profile_obj.user, "" , False)
+        user_cards = UserCards.get_user_card_term(user_profile_obj.user, "", False)
         search_card_term = "Search"
         user_clear_card_search = request.session['user_clear_card_search'] = False
 
@@ -767,13 +767,13 @@ def user_profile(request, user_id):
         user_wish_cards = UserCards.get_user_card_by_oracle_list(user_wish_card_obj_list, user_profile_obj.user)
         user_clear_wish_search = request.session['user_clear_wish_search']
     except KeyError:
-        user_wish_cards = UserCards.get_user_card_term(user_profile_obj.user, "" , True)
+        user_wish_cards = UserCards.get_user_card_term(user_profile_obj.user, "", True)
         search_wish_term = "Search"
         user_clear_wish_search = request.session['user_clear_wish_search'] = False
 
-#endregion
+    # endregion
 
-#region Paginators
+    # region Paginators
 
     deck_paginator = Paginator(user_decks, 10)
     try:
@@ -800,7 +800,7 @@ def user_profile(request, user_id):
         wish_cards = wish_paginator.page(wish_paginator.num_pages)
     o_player = not str(request.user.id) == user_id
 
-#endregion
+    # endregion
 
     friend_obj = user_profile_obj.get_user_friends()
     pending_obj = user_profile_obj.get_user_pending()
@@ -811,7 +811,7 @@ def user_profile(request, user_id):
     context = {
         'font_family': font_family, 'should_translate': should_translate,
         'user_profile_obj': user_profile_obj,
-        'has_friend': len(friend_obj) > 0,'friend_obj': friend_obj,
+        'has_friend': len(friend_obj) > 0, 'friend_obj': friend_obj,
         'has_pending': len(pending_obj) > 0, 'pending_obj': pending_obj,
         'has_follower': len(follower_obj) > 0, 'follower_obj': follower_obj,
         'o_player': o_player,

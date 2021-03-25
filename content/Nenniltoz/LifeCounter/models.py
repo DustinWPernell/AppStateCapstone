@@ -1,10 +1,8 @@
 import hashlib
+from datetime import datetime
 
 from django.contrib.auth.models import User
 from django.db import models
-import json
-from datetime import datetime
-
 # Create your models here.
 from django.db.models import Q
 
@@ -30,16 +28,15 @@ class GameType(models.Model):
     )
 
     type = models.CharField(choices=GAME_TYPES,
-                              max_length=25,
-                              default='Standard')
-    num_players = models.IntegerField(default=2) # 0 is any number
+                            max_length=25,
+                            default='Standard')
+    num_players = models.IntegerField(default=2)  # 0 is any number
     starting_life = models.IntegerField(default=20)
     min_deck_size = models.IntegerField(default=60)
-    max_deck_size = models.IntegerField(default=0) # 0 for none
+    max_deck_size = models.IntegerField(default=0)  # 0 for none
     side_board_size = models.IntegerField(default=15)
     card_copy_limit = models.IntegerField(default=4)
     has_commander = models.BooleanField(default=False)
-
 
 
 class Game(models.Model):
@@ -92,13 +89,12 @@ class Game(models.Model):
         # make the game's name from the username and the number of
         # games they've created
         game_type = GameType.objects.get(type=type)
-        hash = hashlib.sha1(('U' + str(user.id) + 'T' + str(game_type.id) + 'D' + str(datetime.now())).encode("UTF-8")).hexdigest()
+        hash = hashlib.sha1(
+            ('U' + str(user.id) + 'T' + str(game_type.id) + 'D' + str(datetime.now())).encode("UTF-8")).hexdigest()
         game_code = str(hash[:10]).upper()
         new_game = Game(creator=user, game_type=game_type, game_code=game_code)
         new_game.save()
         user_profile = UserProfile.objects.get(user=user)
-
-
 
         new_player = GamePlayer(
             game=new_game,
@@ -176,7 +172,6 @@ class Game(models.Model):
             )
             new_player.save()
 
-
     def get_game_log(self):
         """
         Gets the entire log for the game
@@ -204,7 +199,6 @@ class Game(models.Model):
                    'players': player_serializer.data}
 
         return message
-
 
     def mark_started(self):
         """
@@ -235,8 +229,10 @@ class GamePlayer(models.Model):
     clues = models.IntegerField(default=0)
     food = models.IntegerField(default=0)
     treasure = models.IntegerField(default=0)
-    commander_cost = models.CharField(max_length=200, default="{{},}") # { {'commander_id': string,'added_cost': int}, }  cost increments by 2
-    commander_damage = models.CharField(max_length=200, default="{{},}") # { {'user_id': int,'commander_id': string,'damage': int}, }
+    commander_cost = models.CharField(max_length=200,
+                                      default="{{},}")  # { {'commander_id': string,'added_cost': int}, }  cost increments by 2
+    commander_damage = models.CharField(max_length=200,
+                                        default="{{},}")  # { {'user_id': int,'commander_id': string,'damage': int}, }
     monarch = models.BooleanField(default=False)
     citys_blessing = models.BooleanField(default=False)
 

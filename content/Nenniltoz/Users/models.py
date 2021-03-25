@@ -1,10 +1,12 @@
-from django.contrib.auth.models import User
-from django.db import models
 from datetime import datetime
 
+from django.contrib.auth.models import User
+from django.db import models
 from django.db.models import Q
 
 from Collection.models import CardFace
+
+
 # Create your models here.
 class Preference:
     """
@@ -73,7 +75,8 @@ class UserProfile(models.Model):
     card_view = models.BooleanField(default=False)
     deck_view = models.BooleanField(default=True)
     profile_view = models.BooleanField(default=True)
-    avatar_img = models.CharField(max_length=200, default="https://c1.scryfall.com/file/scryfall-cards/art_crop/front/e/b/eba90d37-d7ac-4097-a04d-1f27e4c9e5de.jpg?1562702416")
+    avatar_img = models.CharField(max_length=200,
+                                  default="https://c1.scryfall.com/file/scryfall-cards/art_crop/front/e/b/eba90d37-d7ac-4097-a04d-1f27e4c9e5de.jpg?1562702416")
     avatar_img.null = True
     font_family = models.CharField(max_length=200, default='default_font')
     translate = models.CharField(max_length=200, default='notranslate')
@@ -155,13 +158,13 @@ class UserCards(models.Model):
             Q(user=user) &
             Q(wish=wish) &
             Q(quantity__gt=0) & (
-                (
-                    Q(card__name__icontains=term) |
-                    Q(card__text__icontains=term) |
-                    Q(card__type_line__icontains=term) |
-                    Q(card__flavor_text__icontains=term) |
-                    Q(card__legal__card_obj__keywords__icontains=term)
-                ) | Q(notes__icontains='{'+term+'}')
+                    (
+                            Q(card__name__icontains=term) |
+                            Q(card__text__icontains=term) |
+                            Q(card__type_line__icontains=term) |
+                            Q(card__flavor_text__icontains=term) |
+                            Q(card__legal__card_obj__keywords__icontains=term)
+                    ) | Q(notes__icontains='{' + term + '}')
             )
         ).order_by('card__name')
 
