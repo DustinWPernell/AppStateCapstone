@@ -333,7 +333,7 @@ class DeckType(models.Model):
 class Deck(models.Model):
     name = models.CharField(max_length=200)
     color_id = models.CharField(max_length=20)
-    created_by = models.CharField(max_length=20)
+    created_by = models.CharField(max_length=50)
     created_by.null = True
     is_pre_con = models.BooleanField()
     is_private = models.BooleanField()

@@ -1,9 +1,12 @@
 {% extends "base_generic.html" %}
 {% load replaceValues %}
+{% load static %}
+
 {% block css %}
  <!-- The block CSS places internal html into corresponding location in base generic (which is the base html page) -->
     <link href="{% static 'css\decks.css' %}" rel="stylesheet" type="text/css">
 {% endblock %}
+
 {% block content %}
 <div class="deckFilter">
   <!-- Forms either post or get. Get stores data in the url. Post stores data behind the scenes.
@@ -25,11 +28,11 @@
             {% for mana in mana_list %}
             <span class='manaSearchObj'>
           {% if mana.checked %}
-            <input checked="checked" name="mana-{{ mana.id }}" type="checkbox" value="{{ mama.id }}">
+            <input checked="checked" name="mana-{{ mana.id }}" type="checkbox" value="{{ mana.id }}">
           {% else %}
-            <input name="mana-{{ mana.id }}" type="checkbox" value="{{ mama.id }}">
+            <input name="mana-{{ mana.id }}" type="checkbox" value="{{ mana.id }}">
           {% endif %}
-          <img class='mamaSearchSymbols' src='{{ mana.imageURL }}'/>
+          <img class='manaSearchSymbols' src='{{ mana.imageURL }}'/>
         </span>
             {% endfor %}
         </div>
@@ -46,13 +49,13 @@
        If the deck is PreCon-->
       <div>{{ deck_obj.name }}</div>
       <!-- replaceMana is a template tag used for replacing mana text with it respective symbol. -->
-      <div>{{ deck_obj.colorId|replaceMana|safe }}</div>
-      <div>{{ deck_obj.deckType }}</div>
+      <div>{{ deck_obj.color_id|replaceMana|safe }}</div>
+      <div>{{ deck_obj.deck_type.name }}</div>
       <div>
-        {% if deck_obj.isPreCon %}
+        {% if deck_obj.is_pre_con %}
         Pre-Constructed Deck
         {% else %}
-        Created by: {{deck_obj.createdBy.username}}
+        Created by: {{deck_obj.created_by.username}}
         {% endif %}
       </div>
     </div>
@@ -60,4 +63,8 @@
 </div>
 {% include "./pager.html" %}
 
+{% endblock %}
+
+{% block custom_scripts %}
+    <script src="{% static 'js\deck.js' %}"></script>
 {% endblock %}

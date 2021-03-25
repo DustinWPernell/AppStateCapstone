@@ -272,15 +272,15 @@ def deck_list(request):
                     )
                 # Pulls the id's of the matched mana list and ensures it isn't already searched.
                 for deck_list_obj in filtered_deck_list:
-                    if deck_list_obj.legal.card_obj.card_id not in deck_id_list:
+                    if deck_list_obj.id not in deck_id_list:
                         deck_id_list.append(deck_list_obj.id)
             else:
-                filtered_deck_list = CardFace.deck_filter_by_term(
+                filtered_deck_list = Deck.deck_filter_by_term(
                     request.user, search_term
                 )
                 # Pulls the id's of the matched mana list and ensures it isn't already searched.
                 for deck_list_obj in filtered_deck_list:
-                    if deck_list_obj.legal.card_obj.card_id not in deck_id_list:
+                    if deck_list_obj.id not in deck_id_list:
                         deck_id_list.append(deck_list_obj.id)
 
 
@@ -324,12 +324,13 @@ def deck_list(request):
         # If you enter a number that's too high, you be taken to the last page.
         deck = paginator.page(paginator.num_pages)
 
+
     font_family = UserProfile.get_font(request.user)
     should_translate = UserProfile.get_translate(request.user)
     # Left is variable name, right is variable data.
     context = {'font_family': font_family, 'should_translate': should_translate, 'pages': deck,
                'SearchTerm': search_term, 'mana_list': mana_list, 'clearSearch': clear_search}
-    return render(request, 'Collection/Deck/deck_list.html', context)
+    return render(request, 'Collection/deck_list.html', context)
 
 
 def deck_display(request, deck_id):
