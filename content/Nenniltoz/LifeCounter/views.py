@@ -1,8 +1,6 @@
-from asgiref.sync import sync_to_async
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-
 
 # Create your views here.
 from LifeCounter.models import Game, GameType
@@ -36,7 +34,7 @@ def index(request):
                 )
         else:
 
-            #todo finish create
+            # todo finish create
             game_type = request.POST.get("game_type")
             game = Game.create_new(request.user, game_type)
             return redirect(
@@ -47,8 +45,10 @@ def index(request):
 
     font_family = UserProfile.get_font(request.user)
     should_translate = UserProfile.get_translate(request.user)
-    context = {'font_family': font_family, 'should_translate': should_translate, 'game_code': game_code, 'game_types': game_types}
+    context = {'font_family': font_family, 'should_translate': should_translate, 'game_code': game_code,
+               'game_types': game_types}
     return render(request, "LifeCounter/game_selector.html", context)
+
 
 @login_required
 def game(request, game_code):
@@ -61,7 +61,7 @@ def game(request, game_code):
     context = {
         'font_family': font_family,
         'game_code': game_code,
-        'current_player':current_player,
+        'current_player': current_player,
         'other_players': player_data,
     }
     return render(request, 'LifeCounter/game.html', context)

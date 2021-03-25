@@ -1,7 +1,8 @@
 {% extends 'base_generic.html' %}
+{% load static %}
 
 {% block css %}
-    <link href="{% static 'css\LifeCounter.css' %}" rel="stylesheet" type="text/css">
+<link href="{% static 'css\LifeCounter.css' %}" rel="stylesheet" type="text/css">
 {% endblock %}
 
 {% block content %}
@@ -11,23 +12,23 @@
         {% csrf_token %}
         <div class='form-control'>
             <label for="game">Game Code</label>
-            <input id="game" type="text" name="game_code" placeholder="{{ game_code }}"/>
+            <input id="game" name="game_code" placeholder="{{ game_code }}" type="text"/>
         </div>
-        <input type="submit" class="button" name="join_game" value="Join Game" />
+        <input class="button" name="join_game" type="submit" value="Join Game"/>
         Or
         <div class='form-control'>
             <label for="game_type">Game Type</label>
-            <select name="game_type" id="game_type">
-{% for game_type_obj in game_types %}
+            <select id="game_type" name="game_type">
+                {% for game_type_obj in game_types %}
                 <option value="{{ game_type_obj.type }}">{{ game_type_obj.type }}</option>
-{% endfor %}
+                {% endfor %}
             </select>
         </div>
-        <input type="submit" class="button" name="start_game" value="Start Game" />
+        <input class="button" name="start_game" type="submit" value="Start Game"/>
     </form>
 </div>
 {% endblock content %}
 
 {% block custom_scripts %}
-    <script src="{% static 'js\LifeCounter.js' %}"></script>
+<script src="{% static 'js\LifeCounter.js' %}"></script>
 {% endblock %}

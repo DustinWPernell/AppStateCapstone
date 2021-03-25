@@ -1,7 +1,7 @@
 {% extends "base_generic.html" %}
 {% load static %}
 {% block css %}
-    <link href="{% static 'css\admin.css' %}" rel="stylesheet" type="text/css">
+<link href="{% static 'css\admin.css' %}" rel="stylesheet" type="text/css">
 {% endblock %}
 
 {% block content %}
@@ -11,12 +11,12 @@
             Update Cards
         </button>
     </div>
-        <div>
+    <div>
         <button class="APIBtn" onclick="runImport('oracle',this);">
             Update Oracles
         </button>
     </div>
-        <div>
+    <div>
         <button class="APIBtn" onclick="runImport('set',this);">
             Update Sets
         </button>
@@ -43,5 +43,5 @@
 {% endblock %}
 
 {% block custom_scripts %}
-    <script src="{% static 'js\admin.js' %}"></script>
+<script src="{% static 'js\admin.js' %}"></script>
 {% endblock %}

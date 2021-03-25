@@ -1,18 +1,14 @@
 import json
 import logging
-from datetime import datetime
 from urllib.request import urlopen
 
 import ijson
-from asgiref.sync import sync_to_async
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponse
 from django.shortcuts import render
-
 # Create your views here.
 from rq import Queue
 
-from Collection.models import Card, CardFace, Legality, IgnoreCards, Symbol, Rule, CardSets, CardIDList
 from Management.models import Settings
 from Users.models import UserProfile
 from static.python.api_import import card_import_job, oracle_import_job, rule_import_job, set_import_job, \
@@ -20,6 +16,7 @@ from static.python.api_import import card_import_job, oracle_import_job, rule_im
 from worker import conn
 
 logger = logging.getLogger("logger")
+
 
 @staff_member_required
 def admin_index(request):

@@ -283,7 +283,6 @@ def deck_list(request):
                     if deck_list_obj.id not in deck_id_list:
                         deck_id_list.append(deck_list_obj.id)
 
-
             # Stores search parameters for quicker reloads
             request.session['deck_search'] = True
             request.session['deck_search_term'] = search_term
@@ -323,7 +322,6 @@ def deck_list(request):
     except EmptyPage:
         # If you enter a number that's too high, you be taken to the last page.
         deck = paginator.page(paginator.num_pages)
-
 
     font_family = UserProfile.get_font(request.user)
     should_translate = UserProfile.get_translate(request.user)
@@ -386,13 +384,13 @@ def update_user_card_data(request, oracle_id):
             card_quantity = 1
         if user_card_id == '':
             UserCards.objects.create(
-                id = str(request.user.id)+':'+ str(oracle_id),
-                card = CardFace.get_face_by_card(CardIDList.get_card_by_oracle(oracle_id).card_id)[0],
-                user = request.user,
-                oracle_id = oracle_id,
-                wish = False,
-                quantity = card_quantity,
-                notes = card_notes
+                id=str(request.user.id) + ':' + str(oracle_id),
+                card=CardFace.get_face_by_card(CardIDList.get_card_by_oracle(oracle_id).card_id)[0],
+                user=request.user,
+                oracle_id=oracle_id,
+                wish=False,
+                quantity=card_quantity,
+                notes=card_notes
             )
         else:
             user_card = UserCards.objects.get(id=str(user_card_id))
@@ -411,12 +409,12 @@ def update_user_card_data(request, oracle_id):
         if user_card_id == '':
             UserCards.objects.create(
                 id=str(request.user.id) + ':' + str(oracle_id),
-                card = CardFace.get_face_by_card(CardIDList.get_card_by_oracle(oracle_id).card_id)[0],
-                user = request.user,
-                oracle_id = oracle_id,
-                wish = True,
-                quantity = card_quantity,
-                notes = card_notes
+                card=CardFace.get_face_by_card(CardIDList.get_card_by_oracle(oracle_id).card_id)[0],
+                user=request.user,
+                oracle_id=oracle_id,
+                wish=True,
+                quantity=card_quantity,
+                notes=card_notes
             )
         else:
             user_card = UserCards.objects.get(id=str(user_card_id))

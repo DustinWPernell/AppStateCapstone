@@ -1,60 +1,60 @@
 {% load replaceValues %}
 
 {% if cardShow %}
-    <h4>Cards</h4>
-    <div class="cardFilter">
-        <form action="user_profile" method="post">
-            {% csrf_token %}
-            {% if clear_card_search %}
-            <input class="{{ font_family }}" name="user_search_card_term" type="text" value="{{ search_card_term }}">
-            {% else %}
-            <input class="{{ font_family }}" name="user_search_card_term" placeholder="Search" type="text">
-            {% endif %}
-            <input class="{{ font_family }}" name="user_search_card" type="submit" value="Search">
-            {% if clear_card_search %}
-            <input class="{{ font_family }}" name="user_clear_card_search" type="submit" value="Clear Search">
-            {% endif %}
-        </form>
-    </div>
+<h4>Cards</h4>
+<div class="cardFilter">
+    <form action="user_profile" method="post">
+        {% csrf_token %}
+        {% if clear_card_search %}
+        <input class="{{ font_family }}" name="user_search_card_term" type="text" value="{{ search_card_term }}">
+        {% else %}
+        <input class="{{ font_family }}" name="user_search_card_term" placeholder="Search" type="text">
+        {% endif %}
+        <input class="{{ font_family }}" name="user_search_card" type="submit" value="Search">
+        {% if clear_card_search %}
+        <input class="{{ font_family }}" name="user_clear_card_search" type="submit" value="Clear Search">
+        {% endif %}
+    </form>
+</div>
 
-    {% include "./card_pager.html" %}
-    <table class="cardTable" id="cardGrid">
-        <tr>
-            <td style="width: 20%;">Name</td>
-            <td style="width: 20%;">Quantity</td>
-            <td style="width: 20%;">Mana Cost</td>
-            <td style="width: 20%;">Notes</td>
-            <td style="width: 20%;"></td>
-        </tr>
-        {% for card_obj in cardPager %}
-        <tr>
-            <td class="{{ should_translate }}">
-                {{ card_obj.card.name }}
-            </td>
-            <td>
-                {{ card_obj.quantity }}
-            </td>
-            <td>
-                {{ card_obj.card.mana_cost|replaceMana|safe }}
-            </td>
-            <td>
-                {{ card_obj.notes|remove_bracket|safe }}
-            </td>
-            <td>
-                <a class="cardDirection" href="/Collection/Card/{{ card_obj.card.legal.card_obj.oracle_id }}/">
-                    <img alt="Avatar" class="smallCardImg" src="{{ card_obj.card.avatar_img }}">
-                </a>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
-    {% include "./card_pager.html" %}
+{% include "./card_pager.html" %}
+<table class="cardTable" id="cardGrid">
+    <tr>
+        <td style="width: 20%;">Name</td>
+        <td style="width: 20%;">Quantity</td>
+        <td style="width: 20%;">Mana Cost</td>
+        <td style="width: 20%;">Notes</td>
+        <td style="width: 20%;"></td>
+    </tr>
+    {% for card_obj in cardPager %}
+    <tr>
+        <td class="{{ should_translate }}">
+            {{ card_obj.card.name }}
+        </td>
+        <td>
+            {{ card_obj.quantity }}
+        </td>
+        <td>
+            {{ card_obj.card.mana_cost|replaceMana|safe }}
+        </td>
+        <td>
+            {{ card_obj.notes|remove_bracket|safe }}
+        </td>
+        <td>
+            <a class="cardDirection" href="/Collection/Card/{{ card_obj.card.legal.card_obj.oracle_id }}/">
+                <img alt="Avatar" class="smallCardImg" src="{{ card_obj.card.avatar_img }}">
+            </a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% include "./card_pager.html" %}
 {% else %}
-    <h4>Cards</h4>
-    {% if o_player %}
-        <h5>No cards added to account.</h5>
-    {% else %}
-        <h5>No cards added to account. Visit Card Database to add cards.</h5>
-    {% endif %}
+<h4>Cards</h4>
+{% if o_player %}
+<h5>No cards added to account.</h5>
+{% else %}
+<h5>No cards added to account. Visit Card Database to add cards.</h5>
+{% endif %}
 {% endif %}
 <hr>

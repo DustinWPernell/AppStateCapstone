@@ -1,4 +1,5 @@
 import json
+
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
 from LifeCounter.models import Game
@@ -41,7 +42,6 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
             'user_id': user_id,
             'player_data': player_data,
         })
-
 
     async def send_message(self, res):
         """ Receive message from game group """

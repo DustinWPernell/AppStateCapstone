@@ -2,8 +2,8 @@
 {% extends "base_generic.html" %}
 {% load static %}
 {% block css %}
- <!-- The block CSS places internal html into corresponding location in base generic (which is the base html page) -->
-    <link href="{% static 'css\decks.css' %}" rel="stylesheet" type="text/css">
+<!-- The block CSS places internal html into corresponding location in base generic (which is the base html page) -->
+<link href="{% static 'css\decks.css' %}" rel="stylesheet" type="text/css">
 {% endblock %}
 
 {% block content %}
@@ -11,12 +11,16 @@
     <!-- Include takes the html in the file and pastes it into the file.  -->
     {% include "./Deck/deck_info.html" %}
     {% include "./Deck/commander.html" %}
-    <div style="grid-column: 1 / span 2;"><hr></div>
+    <div style="grid-column: 1 / span 2;">
+        <hr>
+    </div>
     {% include "./Deck/cards.html" %}
-    <div style="grid-column: 1 / span 2;"><hr></div>
+    <div style="grid-column: 1 / span 2;">
+        <hr>
+    </div>
 </div>
 {% endblock %}
 
 {% block custom_scripts %}
-    <!-- <script src="{% static 'js\deck.js' %}"></script> -->
+<!-- <script src="{% static 'js\deck.js' %}"></script> -->
 {% endblock %}

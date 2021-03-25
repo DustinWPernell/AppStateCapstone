@@ -1,7 +1,9 @@
 import os
+
 os.environ['DJANGO_SETTINGS_MODULE'] = 'Nenniltoz.settings'
 
 import django
+
 django.setup()
 
 import logging
@@ -35,7 +37,6 @@ def symbol_import_job(param):
     api_symbol = Settings.get_api_symbol()
 
     Symbol.objects.all().delete()
-
 
     f = urlopen(api_symbol)
     objects = list(ijson.items(f, 'data.item'))
@@ -150,7 +151,6 @@ def rule_import_job(param):
     api_rule = Settings.get_api_rule()
 
     Rule.objects.all().delete()
-
 
     objects = list(ijson.items(urlopen(api_rule), 'item'))
     for obj in objects:
@@ -272,7 +272,6 @@ def card_import_job(param):
                 old_school=legal_or_not(obj['legalities']['oldschool']),
                 premodern=legal_or_not(obj['legalities']['premodern']),
             )
-
 
             if 'card_faces' not in obj:
                 if 'name' in obj:

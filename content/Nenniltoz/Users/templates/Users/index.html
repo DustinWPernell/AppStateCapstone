@@ -1,24 +1,24 @@
 {% extends "base_generic.html" %}
 {% load static %}
 {% block css %}
-    <link href="{% static 'css/home.css' %}" rel="stylesheet" type="text/css">
+<link href="{% static 'css/home.css' %}" rel="stylesheet" type="text/css">
 {% endblock %}
 
 {% block content %}
-    {% if latest_news_list %}
-    <table class="magicupdate">
-        {% for news in latest_news_list %}
-        <tr>
-            <td class="imagespace">
-                <img src="{{ news.image_url }}" width="200px">
-            </td>
-            <td>
-                {{ news.headline }}
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
-    {% else %}
-    <p>No news is available.</p>
-    {% endif %}
+{% if latest_news_list %}
+<table class="magicupdate">
+    {% for news in latest_news_list %}
+    <tr>
+        <td class="imagespace">
+            <img src="{{ news.image_url }}" width="200px">
+        </td>
+        <td>
+            {{ news.headline }}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>No news is available.</p>
+{% endif %}
 {% endblock %}
