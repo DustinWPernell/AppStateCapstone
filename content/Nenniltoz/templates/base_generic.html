@@ -3,7 +3,7 @@
 <head>
     <title>
         {% block title %}
-            Nenniltozs
+            Nenniltoz
         {% endblock %}
     </title>
     {% load static %}
@@ -23,73 +23,77 @@
 
 </head>
 <body class="{{ font_family }}">
-    <div class="google_translate" id="google_translate_element"></div>
-    <div class="bodyContainer">
-        <div class="topNav colorNavBackground">
-            <a class="topNavItem colorText tNactive clickableCol" href="/Users/" id="tnHome">Home</a>
-            <div class="navDropdown colorNavBackground colorText">
-                <button class="navDropBtn colorNavBackground clickableCol colorText" onclick="navDropFunc()">=</button>
-                <div class="navDropDownContent colorNavBackground colorText" id="userNavDrop">
-                    <ul class="navDropDownUL">
-                        {% if request.user.is_authenticated %}
-                        <li class="navDropDownLI"><p class="topDropNavHeadItem colorText">Welcome {{ request.user.username }}</p></li>
-                        <li class="navDropDownLI"><a class="topDropNavHeadItem colorText clickableCol"
-                                                     href="{% url 'logout_page'%}?next={{request.path}}">Logout</a></li>
-                        {% else %}
-                        <li class="navDropDownLI"><a class="topDropNavHeadItem colorText clickableCol"
-                                                     href="{% url 'login_page'%}?next={{request.path}}">Login</a></li>
-                        {% endif %}
-                        {% if request.user.is_authenticated %}
-                        <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol"
-                                                     href="{% url 'card_database'%}">Card Database</a></li>
-                        <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol"
-                                                     href="/LifeCounter/">Life Counter</a></li>
-                        <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol"
-                                                     href="/Users/user_profile/{{ request.user.id }}/">Profile</a></li>
-                        {% else %}
-                        <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol"
-                                                     href="{% url 'card_database'%}">Card Database</a></li>
-                        {% endif %}
-                        {% if request.user.is_staff %}
-                        <li class="navDropDownLI"><p class="topDropNavHeadItem colorText">Admin</p></li>
-                        <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol"
-                                                     href="{% url 'APIimport'%}">Update Cards</a></li>
-                        {% endif %}
-                    </ul>
-                </div>
+<div class="google_translate" id="google_translate_element"></div>
+<div class="bodyContainer">
+    <div class="topNav colorNavBackground">
+        <a class="topNavItem colorText tNactive clickableCol" href="/Users/" id="tnHome">Home</a>
+        <div class="navDropdown colorNavBackground colorText">
+            <button class="navDropBtn colorNavBackground clickableCol colorText" onclick="navDropFunc()">=</button>
+            <div class="navDropDownContent colorNavBackground colorText" id="userNavDrop">
+                <ul class="navDropDownUL">
+                    {% if request.user.is_authenticated %}
+                    <li class="navDropDownLI"><p class="topDropNavHeadItem colorText">
+                        Welcome {{request.user.username}}</p></li>
+                    <li class="navDropDownLI"><a class="topDropNavHeadItem colorText clickableCol"
+                                                 href="{% url 'logout_page'%}?next={{request.path}}">Logout</a></li>
+                    {% else %}
+                    <li class="navDropDownLI"><a class="topDropNavHeadItem colorText clickableCol"
+                                                 href="{% url 'login_page'%}?next={{request.path}}">Login</a></li>
+                    {% endif %}
+                    {% if request.user.is_authenticated %}
+                    <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol"
+                                                 href="{% url 'card_database'%}">Card Database</a></li>
+                    <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol"
+                                                 href="{% url 'deck_list'%}">Deck Database</a></li>
+                    <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol"
+                                                 href="/LifeCounter/">Life Counter</a></li>
+                    <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol"
+                                                 href="/Users/user_profile/{{ request.user.id }}/">Profile</a></li>
+                    {% else %}
+                    <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol"
+                                                 href="{% url 'card_database'%}">Card Database</a></li>
+                    {% endif %}
+                    {% if request.user.is_staff %}
+                    <li class="navDropDownLI"><p class="topDropNavHeadItem colorText">Admin</p></li>
+                    <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol"
+                                                 href="{% url 'APIimport'%}">Update Cards</a></li>
+                    {% endif %}
+                </ul>
             </div>
-        </div>
-
-        <div class="innerBody colorText">
-
-                {% if messages %}
-                    {% for message in messages %}
-                        {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
-                            <div class="alert successAlert">
-                                {{ message }}
-                            </div>
-                        {% else %}
-                            <div class="alert errorAlert">
-                                {{ message }}
-                            </div>
-                        {% endif %}
-                    {% endfor %}
-                {% endif %}
-
-            {% block content %}
-            <!-- default content text (typically empty) -->
-            {% endblock %}
         </div>
     </div>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="{% static 'js\general.js' %}"></script>
-    <script src="{% static 'js\dropdown.js' %}"></script>
+    <div class="innerBody colorText">
+
+        {% if messages %}
+        {% for message in messages %}
+        {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+        <div class="alert successAlert">
+            {{ message }}
+        </div>
+        {% else %}
+        <div class="alert errorAlert">
+            {{ message }}
+        </div>
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+
+        {% block content %}
+        <!-- default content text (typically empty) -->
+        {% endblock %}
+    </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="{% static 'js\general.js' %}"></script>
+<script src="{% static 'js\dropdown.js' %}"></script>
 
 
 {% block custom_scripts %}
 
 {% endblock %}
- <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+        type="text/javascript"></script>
 </body>
 </html>

@@ -1,0 +1,73 @@
+{% extends "base_generic.html" %}
+{% load replaceValues %}
+{% load static %}
+
+{% block css %}
+<!-- The block CSS places internal html into corresponding location in base generic (which is the base html page) -->
+<link href="{% static 'css\decks.css' %}" rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% block content %}
+<div class="deckFilter">
+    <!-- Forms either post or get. Get stores data in the url. Post stores data behind the scenes.
+     Action is the method that will be called during submitting. CSRF token helps against attacks and protects data.-->
+    <form action="deck_list" method="post">
+        {% csrf_token %}
+        <!-- Determines if clear search is used. -->
+        {% if clearSearch %}
+        <input class="{{ font_family }}" name="SearchTerm" value="{{ SearchTerm }}">
+        {% else %}
+        <input class="{{ font_family }}" name="SearchTerm" placeholder="Search">
+        {% endif %}
+        <input class="{{ font_family }}" type="submit" value="Search">
+        {% if clearSearch %}
+        <input class="{{ font_family }}" name="clearSearch" type="submit" value="Clear Search">
+        {% endif %}
+        <a class="advFilterA clickable colorText" onclick="advFilterFunc();">Advanced Search</a>
+        <div class="deckAdvFilter" id="advFilter">
+            {% for mana in mana_list %}
+            <span class='manaSearchObj'>
+          {% if mana.checked %}
+            <input checked="checked" name="mana-{{ mana.id }}" type="checkbox" value="{{ mana.id }}">
+          {% else %}
+            <input name="mana-{{ mana.id }}" type="checkbox" value="{{ mana.id }}">
+          {% endif %}
+          <img class='manaSearchSymbols' src='{{ mana.imageURL }}'/>
+        </span>
+            {% endfor %}
+        </div>
+    </form>
+</div>
+
+<!-- Pager is used by the paginator to generate paging options -->
+{% include "./pager.html" %}
+<div class="deckGrid" id="deckGrid">
+    <!-- Loops through deck objects in pages -->
+    {% for deck_obj in pages %}
+    <div class="deckObj">
+        <!-- This is the display for a deck. It will show the name, colors associated, game type, and name of the creator of the deck.
+         If the deck is PreCon-->
+        <div>{{ deck_obj.name }}</div>
+        <!-- replaceMana is a template tag used for replacing mana text with it respective symbol. -->
+        <div>{{ deck_obj.color_id|replaceMana|safe }}</div>
+        <div>{{ deck_obj.deck_type.name }}</div>
+        <div>
+            {% if deck_obj.is_pre_con %}
+            Pre-Constructed Deck
+            {% else %}
+            Created by: {{deck_obj.created_by.username}}
+            {% endif %}
+        </div>
+        <div>
+            <img class="deck_image" src="{{deck_obj.image_url}}">
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% include "./pager.html" %}
+
+{% endblock %}
+
+{% block custom_scripts %}
+<script src="{% static 'js\deck.js' %}"></script>
+{% endblock %}

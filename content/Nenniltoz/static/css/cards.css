@@ -156,14 +156,6 @@
     text-transform: capitalize;
 }
 
-.singCardSymbol{
-    width: 20px;
-}
-
-.smallSingCardSymbol{
-    width: 13px;
-}
-
 .singCardValueMulti{
     display: grid;
     grid-template-columns: 49% 49%;

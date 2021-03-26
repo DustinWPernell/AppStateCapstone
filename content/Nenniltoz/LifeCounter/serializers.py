@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
-from .models import Game, GamePlayer, GameLog
 from rest_framework import serializers
+
+from .models import Game, GamePlayer, GameLog
 
 
 class UserSerializer(serializers.ModelSerializer):

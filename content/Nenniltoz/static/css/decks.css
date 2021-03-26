@@ -1,0 +1,27 @@
+.advFilterA{
+    font-size: 12px;
+    text-decoration: none !important;
+}
+
+.setSearchCheckBoxes{
+    column-count: 8;
+    list-style-type: none;
+}
+
+.deckAdvFilter{
+    display: none;
+}
+
+.manaSearchCheckBoxes{
+    column-count: 7;
+    list-style-type: none;
+}
+
+.manaSearchSymbols{
+    height: 20px;
+    max-width: 20px;
+}
+
+.deck_image{
+    max-height: 100px;
+}

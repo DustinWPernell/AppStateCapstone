@@ -2,9 +2,10 @@ import operator
 from datetime import datetime
 from functools import reduce
 
+from django.db import models
 from django.db.models import Q
 
-from django.db import models
+
 # Create your models here.
 class IgnoreCards(models.Model):
     """
@@ -37,7 +38,7 @@ class CardIDList(models.Model):
     @staticmethod
     def get_card_by_oracle(oracle_id):
         return CardIDList.objects.get(oracle_id=oracle_id)
-            #.get(oracle_id=oracle_id)
+        # .get(oracle_id=oracle_id)
 
 
 class CardLayout(models.Model):
@@ -96,7 +97,6 @@ class Card(models.Model):
     layout = models.ForeignKey(CardLayout, on_delete=models.DO_NOTHING, related_name='card_layout')
     color = models.CharField(max_length=30)
     set_obj = models.ForeignKey(CardSets, on_delete=models.DO_NOTHING, related_name='card_set')
-
 
     def __str__(self):
         return self.card_id
@@ -173,7 +173,6 @@ class CardFace(models.Model):
     first_face = models.BooleanField()
     legal = models.ForeignKey(Legality, on_delete=models.CASCADE, related_name='face_legal')
 
-
     def __int__(self):
         return self.id
 
@@ -206,7 +205,7 @@ class CardFace(models.Model):
     def card_face_filter_by_card_oracle_term(card_id, oracle_id, term):
         return CardFace.objects.select_related().filter(
             Q(legal__card_obj__card_id__in=card_id) &
-            Q(legal__card_obj__oracle_id__in=oracle_id) &(
+            Q(legal__card_obj__oracle_id__in=oracle_id) & (
                     Q(name__icontains=term) |
                     Q(text__icontains=term) |
                     Q(type_line__icontains=term) |
@@ -219,7 +218,7 @@ class CardFace(models.Model):
     def card_face_filter_by_card_oracle_term_notes(card_id, oracle_id, notes_terms, term):
         return CardFace.objects.select_related().filter(
             Q(legal__card_obj__card_id__in=card_id) &
-            Q(legal__card_obj__oracle_id__in=oracle_id) &(
+            Q(legal__card_obj__oracle_id__in=oracle_id) & (
                     Q(name__icontains=term) |
                     Q(text__icontains=term) |
                     Q(type_line__icontains=term) |
@@ -244,7 +243,7 @@ class CardFace(models.Model):
                         )
                     ) &
                     reduce(
-                        operator.and_,(
+                        operator.and_, (
                             ~Q(mana_cost__contains=item) for item in list_of_colors
                         )
                     )
@@ -252,7 +251,7 @@ class CardFace(models.Model):
                     Q(name__icontains=term) |
                     Q(text__icontains=term) |
                     Q(type_line__icontains=term) |
-                    Q(flavor_text__icontains=term)|
+                    Q(flavor_text__icontains=term) |
                     Q(legal__card_obj__keywords__icontains=term)
             )
         ).order_by('name')
@@ -333,7 +332,7 @@ class DeckType(models.Model):
 class Deck(models.Model):
     name = models.CharField(max_length=200)
     color_id = models.CharField(max_length=20)
-    created_by = models.CharField(max_length=20)
+    created_by = models.CharField(max_length=50)
     created_by.null = True
     is_pre_con = models.BooleanField()
     is_private = models.BooleanField()
@@ -354,8 +353,8 @@ class Deck(models.Model):
                           '{G}', '{2/G}', '{G/P}', '{HG}']
         return Deck.objects.select_related().filter(
             (
-                    Q(deck__isPrivate=False) |
-                    Q(deck__createdBy=user.id)
+                    Q(is_private=False) |
+                    Q(created_by=user.id)
             ) &
             Q(name__icontains=term) & (
                     reduce(
@@ -364,7 +363,7 @@ class Deck(models.Model):
                         )
                     ) &
                     reduce(
-                        operator.and_,(
+                        operator.and_, (
                             ~Q(mana_cost__contains=item) for item in list_of_colors
                         )
                     )
@@ -377,8 +376,8 @@ class Deck(models.Model):
         # or name contains the search term
         return Deck.objects.select_related().filter(
             (
-                    Q(deck__isPrivate=False) |
-                    Q(deck__createdBy=user.id)
+                    Q(is_private=False) |
+                    Q(created_by=user.id)
             ) &
             reduce(
                 operator.or_, (
@@ -395,8 +394,8 @@ class Deck(models.Model):
         # or name contains the search term
         return Deck.objects.select_related().filter(
             (
-                    Q(deck__isPrivate=False) |
-                    Q(deck__createdBy=user.id)
+                    Q(is_private=False) |
+                    Q(created_by=user.id)
             ) &
             Q(name__icontains=term)
         ).order_by('name')
@@ -412,6 +411,7 @@ class DeckCards(models.Model):
     deck = models.ForeignKey(Deck, related_name='deck_cards', on_delete=models.CASCADE)
     card = models.ForeignKey(CardFace, related_name='face_cards', on_delete=models.CASCADE)
     quantity = models.IntegerField(default=0)
+    sideboard = models.BooleanField(default=False)
 
     @staticmethod
     # This method returns all cards and pieces associated with those cards within a deck.
@@ -419,9 +419,9 @@ class DeckCards(models.Model):
         # This grabs everything associated with the deck of cards. Cards, the deck itself, sets of cards.
         return DeckCards.objects.select_related().filter(
             # Retrieves the deck where it is not private or if it's created by the current user.
-            Q(deck_id=deck_id) & (
-                Q(deck__isPrivate=False) |
-                Q(deck__createdBy=user_id)
+            Q(deck__id=deck_id) & (
+                    Q(deck__is_private=False) |
+                    Q(deck__created_by=user_id)
             )
         )
 
@@ -461,27 +461,27 @@ class Symbol(models.Model):
     @staticmethod
     def get_green():
         return Symbol.objects.filter(
-                            symbol__in=['{B/G}', '{R/G}', '{G/W}', '{G/U}', '{2/G}', '{G/P}', '{HG}'])
+            symbol__in=['{B/G}', '{R/G}', '{G/W}', '{G/U}', '{2/G}', '{G/P}', '{HG}'])
 
     @staticmethod
     def get_red():
         return Symbol.objects.filter(
-                            symbol__in=['{B/R}', '{U/R}', '{R/G}', '{R/W}', '{2/R}', '{R/P}', '{HR}'])
+            symbol__in=['{B/R}', '{U/R}', '{R/G}', '{R/W}', '{2/R}', '{R/P}', '{HR}'])
 
     @staticmethod
     def get_black():
         return Symbol.objects.filter(
-                            symbol__in=['{W/B}', '{B/R}', '{B/G}', '{U/B}', '{2/B}', '{B/P}', '{HB}'])
+            symbol__in=['{W/B}', '{B/R}', '{B/G}', '{U/B}', '{2/B}', '{B/P}', '{HB}'])
 
     @staticmethod
     def get_blue():
         return Symbol.objects.filter(
-                            symbol__in=['{W/U}', '{U/B}', '{U/R}', '{G/U}', '{2/U}', '{U/P}', '{HU}'])
+            symbol__in=['{W/U}', '{U/B}', '{U/R}', '{G/U}', '{2/U}', '{U/P}', '{HU}'])
 
     @staticmethod
     def get_white():
         return Symbol.objects.filter(
-                            symbol__in=['{W/U}', '{W/B}', '{R/W}', '{G/W}', '{2/W}', '{W/P}', '{HW}'])
+            symbol__in=['{W/U}', '{W/B}', '{R/W}', '{G/W}', '{2/W}', '{W/P}', '{HW}'])
 
 
 class Rule(models.Model):

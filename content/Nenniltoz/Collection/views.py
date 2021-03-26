@@ -272,17 +272,16 @@ def deck_list(request):
                     )
                 # Pulls the id's of the matched mana list and ensures it isn't already searched.
                 for deck_list_obj in filtered_deck_list:
-                    if deck_list_obj.legal.card_obj.card_id not in deck_id_list:
+                    if deck_list_obj.id not in deck_id_list:
                         deck_id_list.append(deck_list_obj.id)
             else:
-                filtered_deck_list = CardFace.deck_filter_by_term(
+                filtered_deck_list = Deck.deck_filter_by_term(
                     request.user, search_term
                 )
                 # Pulls the id's of the matched mana list and ensures it isn't already searched.
                 for deck_list_obj in filtered_deck_list:
-                    if deck_list_obj.legal.card_obj.card_id not in deck_id_list:
+                    if deck_list_obj.id not in deck_id_list:
                         deck_id_list.append(deck_list_obj.id)
-
 
             # Stores search parameters for quicker reloads
             request.session['deck_search'] = True
@@ -324,12 +323,12 @@ def deck_list(request):
         # If you enter a number that's too high, you be taken to the last page.
         deck = paginator.page(paginator.num_pages)
 
-    font_family = UserProfile.get_font(request.user.id)
-    should_translate = UserProfile.get_translate(request.user.id)
+    font_family = UserProfile.get_font(request.user)
+    should_translate = UserProfile.get_translate(request.user)
     # Left is variable name, right is variable data.
     context = {'font_family': font_family, 'should_translate': should_translate, 'pages': deck,
                'SearchTerm': search_term, 'mana_list': mana_list, 'clearSearch': clear_search}
-    return render(request, 'Collection/CollectionDisplay.html', context)
+    return render(request, 'Collection/deck_list.html', context)
 
 
 def deck_display(request, deck_id):
@@ -385,13 +384,13 @@ def update_user_card_data(request, oracle_id):
             card_quantity = 1
         if user_card_id == '':
             UserCards.objects.create(
-                id = str(request.user.id)+':'+ str(oracle_id),
-                card = CardFace.get_face_by_card(CardIDList.get_card_by_oracle(oracle_id).card_id)[0],
-                user = request.user,
-                oracle_id = oracle_id,
-                wish = False,
-                quantity = card_quantity,
-                notes = card_notes
+                id=str(request.user.id) + ':' + str(oracle_id),
+                card=CardFace.get_face_by_card(CardIDList.get_card_by_oracle(oracle_id).card_id)[0],
+                user=request.user,
+                oracle_id=oracle_id,
+                wish=False,
+                quantity=card_quantity,
+                notes=card_notes
             )
         else:
             user_card = UserCards.objects.get(id=str(user_card_id))
@@ -410,12 +409,12 @@ def update_user_card_data(request, oracle_id):
         if user_card_id == '':
             UserCards.objects.create(
                 id=str(request.user.id) + ':' + str(oracle_id),
-                card = CardFace.get_face_by_card(CardIDList.get_card_by_oracle(oracle_id).card_id)[0],
-                user = request.user,
-                oracle_id = oracle_id,
-                wish = True,
-                quantity = card_quantity,
-                notes = card_notes
+                card=CardFace.get_face_by_card(CardIDList.get_card_by_oracle(oracle_id).card_id)[0],
+                user=request.user,
+                oracle_id=oracle_id,
+                wish=True,
+                quantity=card_quantity,
+                notes=card_notes
             )
         else:
             user_card = UserCards.objects.get(id=str(user_card_id))

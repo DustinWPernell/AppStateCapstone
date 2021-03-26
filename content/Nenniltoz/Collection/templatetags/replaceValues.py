@@ -10,7 +10,7 @@ def replaceMana(val):
     symbols = Symbol.objects.all()
     for sym in symbols:
         val = val.replace(sym.symbol,
-                          "<img class=\"singCardSymbol\" src=\"" + sym.image_url + "\" alt=\"" + sym.symbol + "\">")
+                          "<img class=\"manaSymbol\" src=\"" + sym.image_url + "\" alt=\"" + sym.symbol + "\">")
     return val
 
 
@@ -26,7 +26,7 @@ def replaceTextMana(val):
     symbols = Symbol.objects.all()
     for sym in symbols:
         val = val.replace(sym.symbol,
-                          "<img class=\"smallSingCardSymbol\" src=\"" + sym.image_url + "\" alt=\"" + sym.symbol + "\">")
+                          "<img class=\"smallManaSymbol\" src=\"" + sym.image_url + "\" alt=\"" + sym.symbol + "\">")
     return val
 
 

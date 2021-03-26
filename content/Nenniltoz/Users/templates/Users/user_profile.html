@@ -1,7 +1,7 @@
 {% extends "base_generic.html" %}
 {% load static %}
 {% block css %}
-    <link href="{% static 'css\profile.css' %}" rel="stylesheet" type="text/css">
+<link href="{% static 'css\profile.css' %}" rel="stylesheet" type="text/css">
 {% endblock %}
 
 {% block content %}
@@ -9,53 +9,54 @@
 
     <div class="leftGrid">
         {% if o_player %}
-            {% if user_profile_obj.profile_view %}
-                <div class="AccountDetails">
-                    {% include "./Profile/account_details.html" %}
-                </div>
-            {% else %}
-                <div class="row">
-                    <div class="">
-                        <h3>Hidden Profile</h3>
-                    </div>
-                </div>
-            {% endif %}
+        {% if user_profile_obj.profile_view %}
+        <div class="AccountDetails">
+            {% include "./Profile/account_details.html" %}
+        </div>
         {% else %}
-            <div class="tab">
-                <button class="tablinks {{ font_family }}" id="defaultOpen" onclick="openTab(event, 'profile')">Profile</button>
-                <button class="tablinks {{ font_family }}" onclick="openTab(event, 'editProfile')">Edit Profile</button>
+        <div class="row">
+            <div class="">
+                <h3>Hidden Profile</h3>
             </div>
-            <div class="tabcontent" id="profile">
-                <div class="AccountDetails">
-                    {% include "./Profile/account_details.html" %}
-                </div>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="tab">
+            <button class="tablinks {{ font_family }}" id="defaultOpen" onclick="openTab(event, 'profile')">Profile
+            </button>
+            <button class="tablinks {{ font_family }}" onclick="openTab(event, 'editProfile')">Edit Profile</button>
+        </div>
+        <div class="tabcontent" id="profile">
+            <div class="AccountDetails">
+                {% include "./Profile/account_details.html" %}
             </div>
-            <div class="tabcontent" id="editProfile">
-                <div class="ChAccountPref">
-                    {% include "./Profile/ch_account_pref.html" %}
-                </div>
+        </div>
+        <div class="tabcontent" id="editProfile">
+            <div class="ChAccountPref">
+                {% include "./Profile/ch_account_pref.html" %}
             </div>
+        </div>
         {% endif %}
     </div>
     <div class="rightGrid">
         {% if user_profile_obj.profile_view or not o_player%}
-            <hr class="rightGridHR">
-            <div class="userAvatarDiv">
-                <img class="userAvatarImg" src="{{ user_profile_obj.avatar_img }}">
-            </div>
-            <div class="FriendDetails">
-                {% include "./Profile/friend_details.html" %}
-            </div>
-            <hr>
-            <div class="FollowerDetails">
-                {% include "./Profile/follower_details.html" %}
-            </div>
+        <hr class="rightGridHR">
+        <div class="userAvatarDiv">
+            <img class="userAvatarImg" src="{{ user_profile_obj.avatar_img }}">
+        </div>
+        <div class="FriendDetails">
+            {% include "./Profile/friend_details.html" %}
+        </div>
+        <hr>
+        <div class="FollowerDetails">
+            {% include "./Profile/follower_details.html" %}
+        </div>
         {% endif %}
     </div>
 </div>
 {% endblock %}
 
 {% block custom_scripts %}
-    <script src="{% static 'js\profile.js' %}"></script>
-    <script>document.getElementById("defaultOpen").click();</script>
+<script src="{% static 'js\profile.js' %}"></script>
+<script>document.getElementById("defaultOpen").click();</script>
 {% endblock %}

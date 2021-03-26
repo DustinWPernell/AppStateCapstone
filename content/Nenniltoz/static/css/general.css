@@ -39,6 +39,14 @@ html{
     min-height: 500px;
 }
 
+.manaSymbol{
+    width: 20px;
+}
+
+.smallManaSymbol{
+    width: 13px;
+}
+
 ::-webkit-scrollbar {
   width: 10px;
 }
