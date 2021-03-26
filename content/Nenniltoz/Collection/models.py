@@ -1,6 +1,9 @@
 import operator
+import urllib
 from datetime import datetime
 from functools import reduce
+from django.core.files import File
+import os
 
 from django.db import models
 from django.db.models import Q
@@ -161,6 +164,8 @@ class CardFace(models.Model):
     """
     name = models.CharField(max_length=200)
     image_url = models.CharField(max_length=200)
+    image_file = models.ImageField(upload_to='images')
+    image_file.null = True
     mana_cost = models.CharField(max_length=100)
     loyalty = models.CharField(max_length=10)
     power = models.CharField(max_length=10)
@@ -175,6 +180,16 @@ class CardFace(models.Model):
 
     def __int__(self):
         return self.id
+
+    def get_remote_image(self):
+        if self.image_url and not self.image_file:
+            result = urllib.urlretrieve(self.image_url)
+            self.image_file.save(
+                os.path.basename(self.image_url),
+                File(open(result[0]))
+            )
+            self.save()
+        return self.image_file
 
     @staticmethod
     def get_face_by_card(card_id):
@@ -328,6 +343,10 @@ class DeckType(models.Model):
     card_copy_limit = models.IntegerField(default=4)
     has_commander = models.BooleanField(default=False)
 
+    @staticmethod
+    def get_deck_type_by_type(type):
+        return DeckType.objects.get(name__icontains=type)
+
 
 class Deck(models.Model):
     name = models.CharField(max_length=200)
@@ -406,6 +425,12 @@ class Deck(models.Model):
             Q(id__in=deck_ids)
         ).order_by('name')
 
+    @staticmethod
+    def get_deck_by_deck(deck_id):
+        return DeckCards.objects.select_related().get(
+            Q(id__in=deck_id)
+        )
+
 
 class DeckCards(models.Model):
     deck = models.ForeignKey(Deck, related_name='deck_cards', on_delete=models.CASCADE)
@@ -424,6 +449,15 @@ class DeckCards(models.Model):
                     Q(deck__created_by=user_id)
             )
         )
+
+    @staticmethod
+    def build_json_by_deck_user(deck_id, user_id):
+        json_obj = '{'
+        deck_cards = DeckCards.deck_card_by_deck_user(deck_id,user_id)
+        for card in deck_cards:
+            json_obj = json_obj + '{"card_id": '+ + ', "quantity": }'
+
+        json_obj = json_obj + '}'
 
 
 class Symbol(models.Model):

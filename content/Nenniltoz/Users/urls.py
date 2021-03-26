@@ -19,6 +19,6 @@ urlpatterns = [
     path('user_profile/<user_id>/update_settings/', views.update_settings, name='update_settings'),
     path('select_avatar', views.select_avatar, name='select_avatar'),
     path('save_avatar', views.save_avatar, name='save_avatar'),
-    path('modify_deck', views.modify_deck, name='modify_deck'),
+    path('user_profile/<user_id>/modify_deck/<deck_id>/', views.modify_deck, name='modify_deck'),
 
 ]

@@ -10,7 +10,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
-from Collection.models import CardFace, Deck, DeckType
+from Collection.models import CardFace, Deck, DeckType, DeckCards
 from .forms import CreateUserForm
 from .models import News, UserProfile, Friends, PendingFriends, Followers, UserCards
 
@@ -159,7 +159,7 @@ def logout_page(request):
 
 
 @login_required
-def modify_deck(request, user_id):
+def modify_deck(request, user_id, deck_id):
     """Displays new deck page
 
     Redirects to new deck page
@@ -290,32 +290,48 @@ def modify_deck(request, user_id):
             # todo make deck
             # js to load selected cards into deck / sideboard
 
-            deck_id = request.POST.get('deck_id')
-            deck_obj = Deck.get_deck_by_deck(deck_id)
-            deck_type_obj = DeckType.get_deck_type_by_type(deck_type)
+            try:
+                deck_id = request.POST.get('deck_id')
+                deck_obj = Deck.get_deck_by_deck(deck_id)
+                deck_type_obj = DeckType.get_deck_type_by_type(deck_type)
 
-            if deck_type_obj.has_commander:
-                try:
-                    commander_obj = CardFace.get_face_by_card(commander)
-                except CardFace.DoesNotExist:
+                if deck_type_obj.has_commander:
+                    try:
+                        commander_obj = CardFace.get_face_by_card(commander)
+                    except CardFace.DoesNotExist:
+                        commander_obj = None
+                        messages.error(request, "Commander not found. Leaving blank")
+                else:
                     commander_obj = None
-                    messages.error(request, "Commander not found. Leaving blank")
-            else:
-                commander_obj = None
 
-            deck_obj.deck_name = deck_name
-            deck_obj.deck_type = deck_type_obj
-            deck_obj.is_private = is_private == 'True'
-            deck_obj.image_url = image_url
-            deck_obj.description = description
-            deck_obj.commander = commander_obj
-            deck_obj.save()
+                deck_obj.deck_name = deck_name
+                deck_obj.deck_type = deck_type_obj
+                deck_obj.is_private = is_private == 'True'
+                deck_obj.image_url = image_url
+                deck_obj.description = description
+                deck_obj.commander = commander_obj
+                deck_obj.save()
+            except DeckType.DoesNotExist:
+                messages.error(request, "Deck type not defined. Deck not modified.")
+            except Deck.DoesNotExist:
+                messages.error(request, "Deck not found. Deck not modified.")
+
+        elif 'save_cards' in request.POST:
+            card_list = request.SESSION['deck_card_list'] = request.POST.get('hid_deck_card_list')
+
+
 
         return redirect('../' + str(user_id) + '?user_card_page=' +
                         str(card_page) + '&all_card_page=' + str(all_card_page) + '&wish_card_page=' + str(
             wish_card_page))
 
     # region Cards from sessions
+
+    try:
+        card_list = request.SESSION['deck_card_list']
+
+    except KeyError:
+        card_list = DeckCards.build_json_by_deck_user()
 
     try:
         search_card_term = request.session['user_search_card_term']
