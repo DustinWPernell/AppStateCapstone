@@ -183,7 +183,7 @@ class CardFace(models.Model):
 
     def get_remote_image(self):
         if self.image_url and not self.image_file:
-            result = urllib.urlretrieve(self.image_url)
+            result = urllib.request.urlretrieve(self.image_url)
             self.image_file.save(
                 os.path.basename(self.image_url),
                 File(open(result[0]))
@@ -447,10 +447,10 @@ class DeckCards(models.Model):
             # Retrieves the deck where it is not private or if it's created by the current user.
             Q(deck__id=deck_id) & (
                     Q(deck__is_private=False) |
-                    Q(deck_user=user_id)
-            )
-        ) & Q(sideboard=side)
-
+                    Q(deck__deck_user=user_id)
+            ) &
+            Q(sideboard=side)
+        )
 
     @staticmethod
     def build_json_by_deck_user(deck_id, user_id):
