@@ -1,6 +1,9 @@
 import operator
+import urllib
 from datetime import datetime
 from functools import reduce
+from django.core.files import File
+import os
 
 from django.db import models
 from django.db.models import Q
@@ -161,6 +164,8 @@ class CardFace(models.Model):
     """
     name = models.CharField(max_length=200)
     image_url = models.CharField(max_length=200)
+    image_file = models.ImageField(upload_to='images')
+    image_file.null = True
     mana_cost = models.CharField(max_length=100)
     loyalty = models.CharField(max_length=10)
     power = models.CharField(max_length=10)
@@ -175,6 +180,16 @@ class CardFace(models.Model):
 
     def __int__(self):
         return self.id
+
+    def get_remote_image(self):
+        if self.image_url and not self.image_file:
+            result = urllib.urlretrieve(self.image_url)
+            self.image_file.save(
+                os.path.basename(self.image_url),
+                File(open(result[0]))
+            )
+            self.save()
+        return self.image_file
 
     @staticmethod
     def get_face_by_card(card_id):
@@ -328,12 +343,17 @@ class DeckType(models.Model):
     card_copy_limit = models.IntegerField(default=4)
     has_commander = models.BooleanField(default=False)
 
+    @staticmethod
+    def get_deck_type_by_type(type):
+        return DeckType.objects.get(name__icontains=type)
+
 
 class Deck(models.Model):
     name = models.CharField(max_length=200)
     color_id = models.CharField(max_length=20)
     created_by = models.CharField(max_length=50)
     created_by.null = True
+    deck_user = models.CharField(max_length=50)
     is_pre_con = models.BooleanField()
     is_private = models.BooleanField()
     image_url = models.CharField(max_length=200)
@@ -354,7 +374,7 @@ class Deck(models.Model):
         return Deck.objects.select_related().filter(
             (
                     Q(is_private=False) |
-                    Q(created_by=user.id)
+                    Q(deck_user=user.id)
             ) &
             Q(name__icontains=term) & (
                     reduce(
@@ -377,7 +397,7 @@ class Deck(models.Model):
         return Deck.objects.select_related().filter(
             (
                     Q(is_private=False) |
-                    Q(created_by=user.id)
+                    Q(deck_user=user.id)
             ) &
             reduce(
                 operator.or_, (
@@ -395,7 +415,7 @@ class Deck(models.Model):
         return Deck.objects.select_related().filter(
             (
                     Q(is_private=False) |
-                    Q(created_by=user.id)
+                    Q(deck_user=user.id)
             ) &
             Q(name__icontains=term)
         ).order_by('name')
@@ -406,6 +426,12 @@ class Deck(models.Model):
             Q(id__in=deck_ids)
         ).order_by('name')
 
+    @staticmethod
+    def get_deck_by_deck(deck_id):
+        return DeckCards.objects.select_related().get(
+            Q(id__in=deck_id)
+        )
+
 
 class DeckCards(models.Model):
     deck = models.ForeignKey(Deck, related_name='deck_cards', on_delete=models.CASCADE)
@@ -415,15 +441,35 @@ class DeckCards(models.Model):
 
     @staticmethod
     # This method returns all cards and pieces associated with those cards within a deck.
-    def deck_card_by_deck_user(deck_id, user_id):
+    def deck_card_by_deck_user(deck_id, user_id, side):
         # This grabs everything associated with the deck of cards. Cards, the deck itself, sets of cards.
         return DeckCards.objects.select_related().filter(
             # Retrieves the deck where it is not private or if it's created by the current user.
             Q(deck__id=deck_id) & (
                     Q(deck__is_private=False) |
-                    Q(deck__created_by=user_id)
+                    Q(deck_user=user_id)
             )
-        )
+        ) & Q(sideboard=side)
+
+
+    @staticmethod
+    def build_json_by_deck_user(deck_id, user_id):
+        json_obj = '{'
+        deck_cards = DeckCards.deck_card_by_deck_user(deck_id, user_id, False)
+        for card in deck_cards:
+            json_obj = json_obj + '{"card_id": '+ card.card.legal.card_obj.card_id + ', "quantity": '+ card.quantity + '}'
+
+        return json_obj + '}'
+
+
+    @staticmethod
+    def build_side_json_by_deck_user(deck_id, user_id):
+        json_obj = '{'
+        deck_cards = DeckCards.deck_card_by_deck_user(deck_id, user_id, True)
+        for card in deck_cards:
+            json_obj = json_obj + '{"card_id": ' + card.card.legal.card_obj.card_id + ', "quantity": ' + card.quantity + '}'
+
+        return json_obj + '}'
 
 
 class Symbol(models.Model):
