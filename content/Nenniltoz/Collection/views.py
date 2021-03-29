@@ -332,18 +332,19 @@ def deck_list(request):
 
 
 def deck_display(request, deck_id):
-    # Helps with debugging if you cant find the issue.
     logger.info("Run: deck_display; Params: " + json.dumps(request.GET.dict()))
     try:
-        # Gets the deck using the deck id passed to it.
-        deck_cards = DeckCards.deck_card_by_deck_user(deck_id, request.user.id, False)
-        deck = deck_cards.deck
+        deck = Deck.get_deck_by_deck(deck_id)
+        deck_cards = DeckCards.build_json_by_deck_user(deck_id, request.user.id, False)
+        side_cards = DeckCards.build_json_by_deck_user(deck_id, request.user.id, True)
         user_profile = UserProfile.get_profile_by_user(deck.deck_user)
+        created_by = UserProfile.get_profile_by_user(deck.created_by)
         font_family = UserProfile.get_font(request.user)
         should_translate = UserProfile.get_translate(request.user)
         context = {'font_family': font_family, 'should_translate': should_translate,
-                   'auth': request.user.is_authenticated, 'deck': deck, 'deck_cards': deck_cards,
-                   'user_profile': user_profile}
+                   'auth': request.user.is_authenticated,
+                   'deck': deck, 'deck_cards': deck_cards, 'side_cards': side_cards,
+                   'user_profile': user_profile, 'created_by': created_by}
         return render(request, 'Collection/deck_display.html', context)
 
     except DeckCards.DoesNotExist:

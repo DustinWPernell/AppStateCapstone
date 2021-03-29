@@ -6,8 +6,8 @@
                 {% for set_images in set_info %}
                 <option class="set_option" data-font="{{ font_family }}"
                         data-thumbnail="{{ set_images.set_image }}" data-translate="{{ should_translate }}"
-                        value="'{{ set_images.set_name }}', '{{ set_images.card_image_one }}',
-                                    '{{ set_images.card_image_two }}'">
+                        value="'{{ set_images.set_name }}', '../../../{{ set_images.card_image_one }}',
+                                    '../../../{{ set_images.card_image_two }}'">
                     {{ set_images.set_name }}
                 </option>
                 {% endfor %}
@@ -23,12 +23,12 @@
     <div class="{{ faces.0.legal.card_obj.layout.sides|cardDuelSide }}">
         <div class="singCardObj">
             <img alt="{{ faces.0.name }}" class="singCardImg" id="singCardFirstImg"
-                 src="{{ set_info.0.card_image_one }}">
+                 src="../../../{{ set_info.0.card_image_one }}">
         </div>
         {% if faces.0.legal.card_obj.layout.sides == 2%}
         <div class="singCardObj">
             <img alt="{{ faces.1.name }}" class="singCardImg" id="singCardSecondImg"
-                 src="{{ set_info.1.card_image_two }}">
+                 src="../../../{{ set_info.1.card_image_two }}">
         </div>
         {% endif %}
     </div>
