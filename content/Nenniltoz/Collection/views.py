@@ -337,7 +337,7 @@ def deck_display(request, deck_id):
     try:
         # Gets the deck using the deck id passed to it.
         deck_cards = DeckCards.deck_card_by_deck_user(deck_id, request.user.id, False)
-        deck = deck_cards.deck
+        deck = deck_cards[0].deck
         user_profile = UserProfile.get_profile_by_user(deck.deck_user)
         font_family = UserProfile.get_font(request.user)
         should_translate = UserProfile.get_translate(request.user)
