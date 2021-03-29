@@ -219,7 +219,7 @@ def card_import_job(param):
     CardFace.objects.all().delete()
     Legality.objects.all().delete()
 
-    files = glob.glob('/static/img/cards/**/*.txt', recursive=True)
+    files = glob.glob('../img/cards/**/*.txt', recursive=True)
     for f in files:
         try:
             os.remove(f)
