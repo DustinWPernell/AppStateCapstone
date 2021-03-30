@@ -77,3 +77,16 @@ html{
 .errorlist{
     color: red;
 }
+
+.register_table{
+    
+}
+
+.register_table tr{
+    verticle_align: text-top;
+}
+
+.link_obks {
+    color: white;
+    text-decortaion: none;
+}
