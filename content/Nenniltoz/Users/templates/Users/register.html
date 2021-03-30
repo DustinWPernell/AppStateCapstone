@@ -15,7 +15,7 @@
 
             {% csrf_token %}
 
-            <table class="table">
+            <table class="register_table">
                 {{ form.as_table }}
                 <tr>
                     <td><input name="next" type="hidden" value="{{ next }}"></td>
