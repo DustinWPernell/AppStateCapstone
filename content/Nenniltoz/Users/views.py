@@ -455,7 +455,8 @@ def register(request):
 
             messages.success(request, 'Account created successfully')
             return redirect('login_page')
-
+        else:
+            messages.error(request, 'Account not created')
     else:
         f = UserCreationForm()
 
