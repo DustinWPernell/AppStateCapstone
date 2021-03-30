@@ -28,13 +28,13 @@
 
 .deckGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     column-gap: 20px;
     row-gap: 20px;
 }
 
 .deckObj {
-    width: 170px;
+    width: 175px;
     margin-top: 15px;
     vertical-align: middle;
     border-style: solid;
@@ -42,4 +42,10 @@
     border-color: white;
     border-radius: 23px;
     padding: 10px;
+    text-transform: capitalize;
+}
+
+.deckDirection {
+    color: white;
+    text-decoration: none;
 }
