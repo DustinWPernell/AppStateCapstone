@@ -49,3 +49,12 @@
     color: white;
     text-decoration: none;
 }
+
+.deckHead {
+    display: grid;
+    grid-template-columns: 150px auto;
+    column-gap: 2%;
+    row-gap: 20px;
+    grid-auto-rows: minmax(min-content, max-content);
+    text-transform: capitalize;
+}

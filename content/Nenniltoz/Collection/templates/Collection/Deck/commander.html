@@ -1,0 +1,8 @@
+<div class="CommanderImage">
+    {% if deck.deck_type.has_commander %}
+        <div class="singCardObj">
+            <img alt="{{ deck.name }}" class="singCardImg" id="singCardFirstImg"
+                 src="../../../{{ deck.commander.get_remote_image }}">
+        </div>
+    {% endif %}
+</div>

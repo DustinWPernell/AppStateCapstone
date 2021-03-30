@@ -13,7 +13,7 @@
     <!-- Determining the value of the deck and whether it should translate. -->
     <div class="deckValue {{ should_translate }}">
         <!-- This checks DeckCards in models and pulls the deck colors -->
-        {{ deck.colorId }}
+        {{ deck.color_id|replaceMana|safe }}
     </div>
 
     <span class="deckAttributeLabel">Created By:</span>
@@ -27,7 +27,7 @@
     <!-- Determining the value of the deck and whether it should translate. -->
     <div class="deckValue {{ should_translate }}">
         <!-- This checks DeckCards in models and pulls the deck type -->
-        {{ deck.deck_type }}
+        {{ deck.deck_type.name }}
     </div>
 
     <span class="deckAttributeLabel">Description:</span>
