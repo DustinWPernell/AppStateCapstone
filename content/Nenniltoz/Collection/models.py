@@ -469,7 +469,7 @@ class DeckCards(models.Model):
             json_obj = json_obj + '{"card_id": ' + card.card.legal.card_obj.card_id +\
             ', "name": ' + card.card.name +\
             ', "img": ' + str(card.quantity) +\
-            ', "image_file": ' + card.card.get_remote_image() +\
+            ', "image_file": ' + card.card.get_remote_image().name +\
             '}'
 
         return json_obj + '}'
