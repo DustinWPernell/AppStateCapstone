@@ -342,6 +342,9 @@ class Deck(models.Model):
     commander = models.ForeignKey(CardFace, related_name='commander_deck', on_delete=models.DO_NOTHING)
     commander.null = True
 
+    def get_deck_user_by(self):
+        return User.objects.get(id=self.deck_user)
+
     @staticmethod
     def deck_filter_by_color_term_colorless(user, mana, term):
         # Retrieve all decks that are not private and colorId contains the selected colors,
