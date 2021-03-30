@@ -4,6 +4,7 @@ from datetime import datetime
 from functools import reduce
 from urllib.request import urlopen
 
+from django.contrib.auth.models import User
 from django.core.files import File
 import os
 
@@ -369,6 +370,9 @@ class Deck(models.Model):
     deck_type = models.ForeignKey(DeckType, related_name='type_deck', on_delete=models.CASCADE)
     commander = models.ForeignKey(CardFace, related_name='commander_deck', on_delete=models.DO_NOTHING)
     commander.null = True
+
+    def get_created_by(self):
+        return User.objects.get(id=self.created_by)
 
     @staticmethod
     def deck_filter_by_color_term_colorless(user, mana, term):
