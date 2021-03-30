@@ -31,6 +31,7 @@
     <input name="next" type="hidden" value="{{ next }}"/>
 </form>
 
-<p><a href="{% url 'register' %}">New User?</a></p>
+<p><a class="link_objs" href="{% url 'register' %}">New User?</a></p>
+<p><a class="link_objs" href="{% url 'password_reset' %}">Reset Password</a></p>
 
 {% endblock %}

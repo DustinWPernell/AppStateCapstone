@@ -1,5 +1,7 @@
 import os
 
+from django.contrib.sites import requests
+
 os.environ['DJANGO_SETTINGS_MODULE'] = 'Nenniltoz.settings'
 
 import django
@@ -483,3 +485,4 @@ def check_card_obj(obj):
         if name.value in name_val:
             return False
     return True
+
