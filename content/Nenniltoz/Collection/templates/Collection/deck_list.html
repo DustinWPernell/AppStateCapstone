@@ -50,12 +50,12 @@
         <div>{{ deck_obj.name }}</div>
         <!-- replaceMana is a template tag used for replacing mana text with it respective symbol. -->
         <div>{{ deck_obj.color_id|replaceMana|safe }}</div>
-        <div>{{ deck_obj.deck_type.name }}</div>
+        <div>Deck Type: {{ deck_obj.deck_type.name }}</div>
         <div>
             {% if deck_obj.is_pre_con %}
             Pre-Constructed Deck
             {% else %}
-            Created by: {{deck_obj.created_by.username}}
+            Created by: {{deck_obj.get_created_by}}
             {% endif %}
         </div>
         <div>
