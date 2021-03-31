@@ -5,6 +5,7 @@ from functools import reduce
 from urllib.request import urlopen
 
 from django.contrib.auth.models import User
+from django.core import serializers
 from django.core.files import File
 import os
 
@@ -463,18 +464,18 @@ class DeckCards(models.Model):
 
     @staticmethod
     def build_json_by_deck_user(deck_id, user_id, side):
-        json_obj = '{'
+        json_obj = []
         deck_cards = DeckCards.deck_card_by_deck_user(deck_id, user_id, side)
         for card in deck_cards:
-            json_obj = json_obj + '{' \
-                                  '"card_id": ' + card.card.legal.card_obj.card_id + \
-                                  ', "oracle_id": ' + card.card.legal.card_obj.oracle_id + \
-                                  ', "name": ' + card.card.name +\
-                                  ', "quantity": ' + str(card.quantity) +\
-                                  ', "image_file": ' + card.card.get_remote_image().name + \
-                       '}'
+            card_obj = {}
+            card_obj["card_id"] = card.card.legal.card_obj.card_id
+            card_obj["oracle_id"] = card.card.legal.card_obj.oracle_id
+            card_obj["name"] = card.card.name
+            card_obj["quantity"] = str(card.quantity)
+            card_obj["image_file"] = card.card.get_remote_image().name
+            json_obj.append(card_obj)
 
-        return json_obj + '}'
+        return json_obj
 
 
 #endregion
