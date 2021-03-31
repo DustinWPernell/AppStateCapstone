@@ -1,0 +1,38 @@
+.login_label{}
+
+.login_field{}
+
+.login_button{
+
+}
+
+.errorlist{
+    color: red;
+}
+
+.register_table tr{
+    vertical-align: text-top;
+}
+
+.link_objs {
+    color: white;
+    text-decoration: none;
+}
+
+@media screen and (min-width: 600px) {
+    .login_div{
+        margin-bottom:20px;
+        display: grid;
+        grid-template-rows: auto auto;
+        grid-template-columns: 200px auto;
+        row-gap: 10px;
+    }
+
+    .login_errors{
+        grid-column: 1 / span 2;
+    }
+
+    .login_help{
+        grid-column: 1 / span 2;
+    }
+}
