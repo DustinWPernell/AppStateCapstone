@@ -58,3 +58,12 @@
     grid-auto-rows: minmax(min-content, max-content);
     text-transform: capitalize;
 }
+
+.CommanderImage {
+    border-radius: 23px;
+    border-color: white;
+    border-style: solid;
+    width: 90%;
+    max-width: 350px;
+    min-width: 200px;
+}
