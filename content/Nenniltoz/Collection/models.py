@@ -470,7 +470,7 @@ class DeckCards(models.Model):
                                   '"card_id": ' + card.card.legal.card_obj.card_id + \
                                   '"oracle_id": ' + card.card.legal.card_obj.oracle_id + \
                                   ', "name": ' + card.card.name +\
-                                  ', "img": ' + str(card.quantity) +\
+                                  ', "quantity": ' + str(card.quantity) +\
                                   ', "image_file": ' + card.card.get_remote_image().name + \
                        '}'
 
