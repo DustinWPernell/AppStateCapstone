@@ -40,7 +40,7 @@
                                                  href="{% url 'logout'%}?next={% url 'logout'%}">Logout</a></li>
                     {% else %}
                     <li class="navDropDownLI"><a class="topDropNavHeadItem colorText clickableCol"
-                                                 href="{% url 'login'%}?next=User/">Login</a></li>
+                                                 href="{% url 'login'%}">Login</a></li>
                     {% endif %}
                     {% if request.user.is_authenticated %}
                     <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol"
