@@ -192,7 +192,7 @@ class CardFace(models.Model):
             img_temp.write(urlopen(self.image_url).read())
             img_temp.flush()
 
-            self.image_file.save("image_%s" % self.pk, File(img_temp))
+            self.image_file.save("image_%s" % self.legal.card_obj.card_id, File(img_temp))
             self.save()
         return self.image_file
 

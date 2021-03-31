@@ -180,7 +180,7 @@ def collection_display(request):
 
     page = request.GET.get('page', 1)
 
-    paginator = Paginator(card_list, 50)
+    paginator = Paginator(card_list, 20)
     try:
         cards = paginator.page(page)
     except PageNotAnInteger:
