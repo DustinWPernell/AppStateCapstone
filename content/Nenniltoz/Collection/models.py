@@ -468,7 +468,7 @@ class DeckCards(models.Model):
         for card in deck_cards:
             json_obj = json_obj + '{' \
                                   '"card_id": ' + card.card.legal.card_obj.card_id + \
-                                  '"oracle_id": ' + card.card.legal.card_obj.oracle_id + \
+                                  ', "oracle_id": ' + card.card.legal.card_obj.oracle_id + \
                                   ', "name": ' + card.card.name +\
                                   ', "quantity": ' + str(card.quantity) +\
                                   ', "image_file": ' + card.card.get_remote_image().name + \
