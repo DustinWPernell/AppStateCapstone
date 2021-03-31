@@ -6,8 +6,6 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('home', views.index, name='index'),
     path('register', views.register, name='register'),
-    path('login_page', views.login_page, name='login_page'),
-    path('logout_page', views.logout_page, name='logout_page'),
     path('user_profile/<user_id>/', views.user_profile, name='user_profile'),
     path('user_profile/<user_id>/user_profile', views.user_profile, name='user_profile'),
     path('user_profile/<user_id>/send_friend_request', views.send_friend_request, name='send_friend_request'),
@@ -20,5 +18,5 @@ urlpatterns = [
     path('select_avatar', views.select_avatar, name='select_avatar'),
     path('save_avatar', views.save_avatar, name='save_avatar'),
     path('user_profile/<user_id>/modify_deck/<deck_id>/', views.modify_deck, name='modify_deck'),
-
+    # path("password_reset", views.password_reset_request, name="password_reset")
 ]

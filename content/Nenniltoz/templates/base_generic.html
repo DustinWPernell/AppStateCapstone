@@ -22,7 +22,7 @@
     <script data-ad-client="ca-pub-6372259072729638" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 
 </head>
-<body class="{{ font_family }}">
+<body class="{{ font_family }} default_font">
 <div class="google_translate" id="google_translate_element"></div>
 <div class="bodyContainer">
     <div class="topNav colorNavBackground">
@@ -35,10 +35,10 @@
                     <li class="navDropDownLI"><p class="topDropNavHeadItem colorText">
                         Welcome {{request.user.username}}</p></li>
                     <li class="navDropDownLI"><a class="topDropNavHeadItem colorText clickableCol"
-                                                 href="{% url 'logout_page'%}?next={{request.path}}">Logout</a></li>
+                                                 href="{% url 'logout'%}?next={% url 'logout'%}">Logout</a></li>
                     {% else %}
                     <li class="navDropDownLI"><a class="topDropNavHeadItem colorText clickableCol"
-                                                 href="{% url 'login_page'%}?next={{request.path}}">Login</a></li>
+                                                 href="{% url 'login'%}?next=User/">Login</a></li>
                     {% endif %}
                     {% if request.user.is_authenticated %}
                     <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol"

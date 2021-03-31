@@ -1,37 +1,45 @@
 {% extends "base_generic.html" %}
+{% load static %}
+{% block css %}
+<link href="{% static 'css\registration.css' %}" rel="stylesheet" type="text/css">
+{% endblock %}
 
 {% block content %}
 
 {% if form.errors %}
-<p>Your username and password didn't match. Please try again.</p>
+    <p>Your username and password didn't match. Please try again.</p>
 {% endif %}
 
 {% if next %}
-{% if user.is_authenticated %}
-<p>Your account doesn't have access to this page. To proceed,
-    please login with an account that has access.</p>
-{% else %}
-<p>Please login to see this page.</p>
-{% endif %}
+    {% if user.is_authenticated %}
+        <p>Your account doesn't have access to this page. To proceed,
+            please login with an account that has access.</p>
+    {% else %}
+        <h2>Login</h2>
+        <hr>
+    {% endif %}
 {% endif %}
 
 <form action="{% url 'login' %}" method="post">
     {% csrf_token %}
-    <table>
-        <tr>
-            <td>{{ form.username.label_tag }}</td>
-            <td>{{ form.username }}</td>
-        </tr>
-        <tr>
-            <td>{{ form.password.label_tag }}</td>
-            <td>{{ form.password }}</td>
-        </tr>
-    </table>
-    <input type="submit" value="login"/>
+    <div class="login_div">
+    {% for field in form %}
+        <div class="login_errors">{{ field.errors }}</div>
+        <div class="login_label">{{ field.label_tag }}</div>
+        <div class="login_field">{{ field }}</div>
+        {% if field.help_text %}
+        <p class="login_help">{{ field.help_text|safe }}</p>
+        {% endif %}
+    {% endfor %}
+    </div>
+    <input class="login_button" type="submit" value="login"/>
     <input name="next" type="hidden" value="{{ next }}"/>
 </form>
 
-<p><a class="link_objs" href="{% url 'register' %}">New User?</a></p>
-<p><a class="link_objs" href="{% url 'password_reset' %}">Reset Password</a></p>
+<p>
+    <a class="link_objs" href="{% url 'register' %}">New User?</a>
+    <br>
+    <a class="link_objs" href="{% url 'password_reset' %}">Reset Password</a>
+</p>
 
 {% endblock %}

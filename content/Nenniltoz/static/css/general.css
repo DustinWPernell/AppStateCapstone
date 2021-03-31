@@ -73,20 +73,3 @@ html{
     right: 0;
     z-index: 500;
 }
-
-.errorlist{
-    color: red;
-}
-
-.register_table{
-    
-}
-
-.register_table tr{
-    verticle_align: text-top;
-}
-
-.link_obks {
-    color: white;
-    text-decortaion: none;
-}
