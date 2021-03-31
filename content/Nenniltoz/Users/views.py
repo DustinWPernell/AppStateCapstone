@@ -5,13 +5,19 @@ from datetime import datetime
 
 from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, PasswordResetForm
 from django.contrib.auth.models import User
+from django.contrib.auth.tokens import default_token_generator
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.http import HttpResponse
+from django.db.models import Q
+from django.http import HttpResponse, BadHeaderError
 from django.shortcuts import render, redirect
+from django.template.loader import render_to_string
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 
 from Collection.models import CardFace, Deck, DeckType, DeckCards
+from static.python.mailers import send_password_reset
 from .forms import CreateUserForm
 from .models import News, UserProfile, Friends, PendingFriends, Followers, UserCards
 
@@ -110,36 +116,6 @@ def index(request):
     return render(request, 'Users/index.html', context)
 
 
-def login_page(request):
-    """Login page.
-
-    Shows a login form. On POST, redirects to the user profile if credentials are good.
-
-    @param request:
-
-    :todo: Update display/layout
-    """
-    logger.info("Run: login_page; Params: " + json.dumps(request.GET.dict()))
-
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user = auth.authenticate(username=username, password=password)
-
-        if user is not None:
-            # correct username and password login the user
-            auth.login(request, user)
-            return redirect('user_profile', user_id=str(request.user.id))
-
-        else:
-            messages.error(request, 'Error wrong username/password')
-
-    font_family = UserProfile.get_font(request.user)
-    should_translate = UserProfile.get_translate(request.user)
-    context = {'font_family': font_family, 'should_translate': should_translate}
-    return render(request, 'Users/login.html', context)
-
-
 @login_required
 def logout_page(request):
     """Logout page.
@@ -156,7 +132,7 @@ def logout_page(request):
     font_family = UserProfile.get_font(request.user)
     should_translate = UserProfile.get_translate(request.user)
     context = {'font_family': font_family, 'should_translate': should_translate}
-    return render(request, 'Users/logout.html', context)
+    return render(request, 'logout.html', context)
 
 
 @login_required
@@ -406,6 +382,35 @@ def modify_deck(request, user_id, deck_id):
     return render(request, 'User/Profile/ProfileDecks/modify_deck.html', context)
 
 
+def password_reset_request(request):
+    if request.method == "POST":
+        password_reset_form = PasswordResetForm(request.POST)
+        if password_reset_form.is_valid():
+            data = password_reset_form.cleaned_data['email']
+            associated_users = User.objects.filter(Q(email=data))
+            if associated_users.exists():
+                for user in associated_users:
+                    subject = "Password Reset Requested"
+                    email_template_name = "main/password/password_reset_email.txt"
+                    c = {
+                    "email":user.email,
+                    'domain':'127.0.0.1:8000',
+                    'site_name': 'Website',
+                    "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+                    "user": user,
+                    'token': default_token_generator.make_token(user),
+                    'protocol': 'http',
+                    }
+                    email = render_to_string(email_template_name, c)
+                    try:
+                        send_password_reset(subject,  [user.email])
+                    except BadHeaderError:
+                        return HttpResponse('Invalid header found.')
+                    return redirect ("/password_reset/done/")
+    password_reset_form = PasswordResetForm()
+    return render(request=request, template_name="main/password/password_reset.html", context={"password_reset_form":password_reset_form})
+
+
 @login_required
 def process_friend(request, user_id):
     """Processes button click for friend request on receivers profile.
@@ -455,8 +460,9 @@ def register(request):
             f.save(request)
 
             messages.success(request, 'Account created successfully')
-            return redirect('login_page')
-
+            return redirect('login')
+        else:
+            messages.error(request, 'Account not created')
     else:
         f = UserCreationForm()
 
