@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 from datetime import datetime
 
 from django.contrib import messages, auth
@@ -533,8 +534,17 @@ def save_avatar(request):
     user_obj = User.objects.get(id=request.user.id)
 
     custom_user_profile = UserProfile.objects.get(user=user_obj)
+
+    try:
+        os.remove(custom_user_profile.avatar_file.name)
+    except OSError as e:
+        print("Error: %s : %s" % (custom_user_profile.avatar_file, e.strerror))
+
     custom_user_profile.avatar_img = avatar
+    custom_user_profile.avatar_file = None
     custom_user_profile.save()
+
+
 
     return redirect('user_profile', user_id=str(request.user.id))
 

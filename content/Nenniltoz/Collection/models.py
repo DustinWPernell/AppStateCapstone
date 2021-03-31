@@ -2,9 +2,13 @@ import operator
 import urllib
 from datetime import datetime
 from functools import reduce
+from urllib.request import urlopen
+
+from django.contrib.auth.models import User
 from django.core.files import File
 import os
 
+from django.core.files.temp import NamedTemporaryFile
 from django.db import models
 from django.db.models import Q
 
@@ -43,6 +47,7 @@ class CardIDList(models.Model):
         return CardIDList.objects.get(oracle_id=oracle_id)
         # .get(oracle_id=oracle_id)
 
+#region Cards
 
 class CardLayout(models.Model):
     """
@@ -164,7 +169,7 @@ class CardFace(models.Model):
     """
     name = models.CharField(max_length=200)
     image_url = models.CharField(max_length=200)
-    image_file = models.ImageField(upload_to='images')
+    image_file = models.ImageField(upload_to='static/img/cards')
     image_file.null = True
     mana_cost = models.CharField(max_length=100)
     loyalty = models.CharField(max_length=10)
@@ -183,11 +188,11 @@ class CardFace(models.Model):
 
     def get_remote_image(self):
         if self.image_url and not self.image_file:
-            result = urllib.urlretrieve(self.image_url)
-            self.image_file.save(
-                os.path.basename(self.image_url),
-                File(open(result[0]))
-            )
+            img_temp = NamedTemporaryFile()
+            img_temp.write(urlopen(self.image_url).read())
+            img_temp.flush()
+
+            self.image_file.save("image_%s" % self.pk, File(img_temp))
             self.save()
         return self.image_file
 
@@ -322,17 +327,20 @@ class CardFace(models.Model):
                     set_info.append(
                         {'set_name': card_set_obj.legal.card_obj.set_obj.name,
                          'set_image': card_set_obj.legal.card_obj.set_obj.icon_svg_uri,
-                         'card_image_one': card_set_obj.image_url,
-                         'card_image_two': card_set_obj.legal.face_legal.all()[1].image_url})
+                         'card_image_one': card_set_obj.get_remote_image(),
+                         'card_image_two': card_set_obj.legal.face_legal.all()[1].get_remote_image()})
                 else:
                     set_info.append(
                         {'set_name': card_set_obj.legal.card_obj.set_obj.name,
                          'set_image': card_set_obj.legal.card_obj.set_obj.icon_svg_uri,
-                         'card_image_one': card_set_obj.image_url,
+                         'card_image_one': card_set_obj.get_remote_image(),
                          'card_image_two': 'NONE'})
 
         return set_info
 
+#endregion
+
+#region Decks
 
 class DeckType(models.Model):
     name = models.CharField(max_length=50)
@@ -354,6 +362,7 @@ class Deck(models.Model):
     created_by = models.CharField(max_length=50)
     created_by.null = True
     deck_user = models.CharField(max_length=50)
+    created_by.null = True
     is_pre_con = models.BooleanField()
     is_private = models.BooleanField()
     image_url = models.CharField(max_length=200)
@@ -362,8 +371,8 @@ class Deck(models.Model):
     commander = models.ForeignKey(CardFace, related_name='commander_deck', on_delete=models.DO_NOTHING)
     commander.null = True
 
-    def get_deck_user_by(self):
-        return User.objects.get(id=self.deck_user)
+    def get_created_by(self):
+        return User.objects.get(id=self.created_by)
 
     @staticmethod
     def deck_filter_by_color_term_colorless(user, mana, term):
@@ -431,7 +440,7 @@ class Deck(models.Model):
 
     @staticmethod
     def get_deck_by_deck(deck_id):
-        return DeckCards.objects.select_related().get(
+        return Deck.objects.select_related().get(
             Q(id__in=deck_id)
         )
 
@@ -443,37 +452,30 @@ class DeckCards(models.Model):
     sideboard = models.BooleanField(default=False)
 
     @staticmethod
-    # This method returns all cards and pieces associated with those cards within a deck.
     def deck_card_by_deck_user(deck_id, user_id, side):
-        # This grabs everything associated with the deck of cards. Cards, the deck itself, sets of cards.
         return DeckCards.objects.select_related().filter(
-            # Retrieves the deck where it is not private or if it's created by the current user.
             Q(deck__id=deck_id) & (
                     Q(deck__is_private=False) |
-                    Q(deck_user=user_id)
-            )
-        ) & Q(sideboard=side)
-
+                    Q(deck__deck_user=user_id)
+            ) &
+            Q(sideboard=side)
+        )
 
     @staticmethod
-    def build_json_by_deck_user(deck_id, user_id):
+    def build_json_by_deck_user(deck_id, user_id, side):
         json_obj = '{'
-        deck_cards = DeckCards.deck_card_by_deck_user(deck_id, user_id, False)
+        deck_cards = DeckCards.deck_card_by_deck_user(deck_id, user_id, side)
         for card in deck_cards:
-            json_obj = json_obj + '{"card_id": '+ card.card.legal.card_obj.card_id + ', "quantity": '+ card.quantity + '}'
+            json_obj = json_obj + '{"card_id": ' + card.card.legal.card_obj.card_id +\
+            ', "name": ' + card.card.name +\
+            ', "img": ' + str(card.quantity) +\
+            ', "image_file": ' + card.card.get_remote_image().name +\
+            '}'
 
         return json_obj + '}'
 
 
-    @staticmethod
-    def build_side_json_by_deck_user(deck_id, user_id):
-        json_obj = '{'
-        deck_cards = DeckCards.deck_card_by_deck_user(deck_id, user_id, True)
-        for card in deck_cards:
-            json_obj = json_obj + '{"card_id": ' + card.card.legal.card_obj.card_id + ', "quantity": ' + card.quantity + '}'
-
-        return json_obj + '}'
-
+#endregion
 
 class Symbol(models.Model):
     """

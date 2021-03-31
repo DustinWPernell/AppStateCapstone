@@ -1,3 +1,4 @@
+import glob
 import os
 
 from django.contrib.sites import requests
@@ -217,6 +218,13 @@ def card_import_job(param):
     Card.objects.all().delete()
     CardFace.objects.all().delete()
     Legality.objects.all().delete()
+
+    files = glob.glob('../img/cards/**/*.txt', recursive=True)
+    for f in files:
+        try:
+            os.remove(f)
+        except OSError as e:
+            print("Error: %s : %s" % (f, e.strerror))
 
     objects = list(ijson.items(urlopen(api_card), 'item'))
     for obj in objects:

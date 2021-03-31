@@ -28,7 +28,9 @@
     <div class="topNav colorNavBackground">
         <a class="topNavItem colorText tNactive clickableCol" href="/Users/" id="tnHome">Home</a>
         <div class="navDropdown colorNavBackground colorText">
-            <button class="navDropBtn colorNavBackground clickableCol colorText" onclick="navDropFunc()">=</button>
+            <button class="navDropBtn colorNavBackground clickableCol colorText" onclick="navDropFunc()">
+               <img src="{% static 'img\Menu-icon.png' %}" alt="Menu" class="navDropBtnImg">
+            </button>
             <div class="navDropDownContent colorNavBackground colorText" id="userNavDrop">
                 <ul class="navDropDownUL">
                     {% if request.user.is_authenticated %}

@@ -29,6 +29,13 @@
             cursor: pointer;
         }
 
+        .navDropBtnImg {
+            filter: invert(100%);
+            height: 16px;
+            width: 16px;
+            pointer-events:none;
+        }
+
         .navDropDownContent {
             display: none;
             position: absolute;

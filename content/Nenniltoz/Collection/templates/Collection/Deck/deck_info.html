@@ -6,14 +6,14 @@
     <!-- Determining the value of the deck and whether it should translate. -->
     <div class="deckValue {{ should_translate }}">
         <!-- This checks DeckCards in models and pulls the deck name -->
-        {{ deck_cards[0].deck.name }}
+        {{ deck.name }}
     </div>
 
     <span class="deckAttributeLabel">Mana Colors:</span>
     <!-- Determining the value of the deck and whether it should translate. -->
     <div class="deckValue {{ should_translate }}">
         <!-- This checks DeckCards in models and pulls the deck colors -->
-        {{ deck_cards[0].deck.colorId }}
+        {{ deck.color_id|replaceMana|safe }}
     </div>
 
     <span class="deckAttributeLabel">Created By:</span>
@@ -27,13 +27,13 @@
     <!-- Determining the value of the deck and whether it should translate. -->
     <div class="deckValue {{ should_translate }}">
         <!-- This checks DeckCards in models and pulls the deck type -->
-        {{ deck_cards[0].deck.deck_type }}
+        {{ deck.deck_type.name }}
     </div>
 
     <span class="deckAttributeLabel">Description:</span>
     <!-- Determining the value of the deck and whether it should translate. -->
     <div class="deckValue {{ should_translate }}">
         <!-- This checks DeckCards in models and pulls the description for the deck -->
-        {{ deck_cards[0].deck.description }}
+        {{ deck.description }}
     </div>
 </div>

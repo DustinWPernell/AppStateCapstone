@@ -1,6 +1,9 @@
 from datetime import datetime
+from urllib.request import urlopen
 
 from django.contrib.auth.models import User
+from django.core.files import File
+from django.core.files.temp import NamedTemporaryFile
 from django.db import models
 from django.db.models import Q
 
@@ -78,12 +81,24 @@ class UserProfile(models.Model):
     avatar_img = models.CharField(max_length=200,
                                   default="https://c1.scryfall.com/file/scryfall-cards/art_crop/front/e/b/eba90d37-d7ac-4097-a04d-1f27e4c9e5de.jpg?1562702416")
     avatar_img.null = True
+    avatar_file = models.ImageField(upload_to='static/img/avatars')
+    avatar_file.null = True
     font_family = models.CharField(max_length=200, default='default_font')
     translate = models.CharField(max_length=200, default='notranslate')
     translate.null = True
 
     def __int__(self):
         return self.user.id
+
+    def get_remote_avatar(self):
+        if self.avatar_img and not self.avatar_file:
+            img_temp = NamedTemporaryFile()
+            img_temp.write(urlopen(self.avatar_img).read())
+            img_temp.flush()
+
+            self.avatar_file.save("avatar_%s" % self.pk, File(img_temp))
+            self.save()
+        return self.avatar_file
 
     def get_user_friends(self):
         friend_list = Friends.objects.filter(user_one=self.user)
