@@ -59,11 +59,33 @@
     text-transform: capitalize;
 }
 
-.CommanderImage {
+
+.CommanderObj {
+    width: 60%;
+    margin-top: 8px;
+    max-width: 325px;
+}
+
+.CommanderImg {
     border-radius: 23px;
     border-color: white;
     border-style: solid;
     width: 90%;
     max-width: 350px;
     min-width: 200px;
+}
+
+@media screen and (min-width: 1000px) {
+.DeckBody {
+    display: grid;
+    grid-template-columns: 49% 49%;
+    column-gap: 2%;
+    row-gap: 20px;
+}
+.CommanderObj {
+    float: right;
+}
+.CommanderHr {
+    display: none;
+}
 }
