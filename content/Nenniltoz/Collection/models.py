@@ -466,11 +466,13 @@ class DeckCards(models.Model):
         json_obj = '{'
         deck_cards = DeckCards.deck_card_by_deck_user(deck_id, user_id, side)
         for card in deck_cards:
-            json_obj = json_obj + '{"card_id": ' + card.card.legal.card_obj.card_id +\
-            ', "name": ' + card.card.name +\
-            ', "img": ' + str(card.quantity) +\
-            ', "image_file": ' + card.card.get_remote_image().name +\
-            '}'
+            json_obj = json_obj + '{' \
+                                  '"card_id": ' + card.card.legal.card_obj.card_id + \
+                                  '"oracle_id": ' + card.card.legal.card_obj.oracle_id + \
+                                  ', "name": ' + card.card.name +\
+                                  ', "img": ' + str(card.quantity) +\
+                                  ', "image_file": ' + card.card.get_remote_image().name + \
+                       '}'
 
         return json_obj + '}'
 
