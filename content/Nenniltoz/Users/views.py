@@ -23,12 +23,6 @@ from .models import News, UserProfile, Friends, PendingFriends, Followers, UserC
 
 logger = logging.getLogger(__name__)
 
-
-@login_required
-def add_card_deck(request, user_id):
-    card_list = []
-
-
 @login_required
 def add_follower(request, user_id):
     """Adds a followed user to the user.
@@ -136,15 +130,7 @@ def logout_page(request):
 
 
 @login_required
-def modify_deck(request, user_id, deck_id):
-    """Displays new deck page
-
-    Redirects to new deck page
-
-    @param request:
-
-    :todo: Finish new deck page
-    """
+def manage_deck_cards(request, user_id):
 
     user_profile_obj = UserProfile.get_profile_by_user(user_id)
 
@@ -235,64 +221,6 @@ def modify_deck(request, user_id, deck_id):
             request.session['user_wish_cards'] = card_id_list
             request.session['user_clear_wish_search'] = True
 
-        elif 'create_deck' in request.POST:
-            # todo make deck
-            # js to load selected cards into deck / sideboard
-
-            deck_type_obj = DeckType.get_deck_type_by_type(deck_type)
-
-            if deck_type_obj.has_commander:
-                try:
-                    commander_obj = CardFace.get_face_by_card(commander)
-                except CardFace.DoesNotExist:
-                    commander_obj = None
-                    messages.error(request, "Commander not found. Leaving blank")
-            else:
-                commander_obj = None
-
-            Deck.objects.create(
-                deck_name=deck_name,
-                deck_type=deck_type_obj,
-                is_private=is_private == 'True',
-                image_url=image_url,
-                description=description,
-                commander=commander_obj,
-                color_id="",
-                created_by=request.user.id,
-                is_pre_con=request.user.username == "Preconstructed"
-            )
-
-
-        elif 'update_deck' in request.POST:
-            # todo make deck
-            # js to load selected cards into deck / sideboard
-
-            try:
-                deck_id = request.POST.get('deck_id')
-                deck_obj = Deck.get_deck_by_deck(deck_id)
-                deck_type_obj = DeckType.get_deck_type_by_type(deck_type)
-
-                if deck_type_obj.has_commander:
-                    try:
-                        commander_obj = CardFace.get_face_by_card(commander)
-                    except CardFace.DoesNotExist:
-                        commander_obj = None
-                        messages.error(request, "Commander not found. Leaving blank")
-                else:
-                    commander_obj = None
-
-                deck_obj.deck_name = deck_name
-                deck_obj.deck_type = deck_type_obj
-                deck_obj.is_private = is_private == 'True'
-                deck_obj.image_url = image_url
-                deck_obj.description = description
-                deck_obj.commander = commander_obj
-                deck_obj.save()
-            except DeckType.DoesNotExist:
-                messages.error(request, "Deck type not defined. Deck not modified.")
-            except Deck.DoesNotExist:
-                messages.error(request, "Deck not found. Deck not modified.")
-
         elif 'save_cards' in request.POST:
             card_list = request.SESSION['deck_card_list'] = request.POST.get('hid_deck_card_list')
 
@@ -306,7 +234,6 @@ def modify_deck(request, user_id, deck_id):
 
     try:
         card_list = request.SESSION['deck_card_list']
-
     except KeyError:
         card_list = DeckCards.build_json_by_deck_user()
 
@@ -374,12 +301,100 @@ def modify_deck(request, user_id, deck_id):
     should_translate = UserProfile.get_translate(request.user)
     context = {
         'font_family': font_family, 'should_translate': should_translate,
-        'user_cards': user_cards, 'all_cards': all_cards, 'wish_cards': wish_cards,
-        'search_card_term': search_card_term, 'search_all_term': search_all_term, 'search_wish_term': search_wish_term,
-        'user_clear_card_search': user_clear_card_search, 'user_clear_all_search': user_clear_all_search,
-        'user_clear_wish_search': user_clear_wish_search,
     }
-    return render(request, 'User/Profile/ProfileDecks/modify_deck.html', context)
+    return render(request, 'Users/Profile/ProfileDecks/modify_cards_deck.html', context)
+
+@login_required
+def modify_deck(request, user_id, deck_id):
+    """Displays new deck page
+
+    Redirects to new deck page
+
+    @param request:
+
+    :todo: Finish new deck page
+    """
+    user_profile_obj = UserProfile.get_profile_by_user(user_id)
+
+    if request.method == 'POST':
+        deck_name = request.session['deck_name'] = request.POST.get('deck_name')
+        is_private = request.session['is_private'] = request.POST.get('is_private')
+        image_url = request.session['image_url'] = request.POST.get('image_url')
+        description = request.session['description'] = request.POST.get('description')
+        deck_type = request.session['deck_type'] = request.POST.get('deck_type')
+        commander = request.session['commander'] = request.POST.get('commander')
+
+        if 'create_deck' in request.POST:
+            # todo make deck
+            # js to load selected cards into deck / sideboard
+
+            deck_type_obj = DeckType.get_deck_type_by_type(deck_type)
+
+            if deck_type_obj.has_commander:
+                try:
+                    commander_obj = CardFace.get_face_by_card(commander)
+                except CardFace.DoesNotExist:
+                    commander_obj = None
+                    messages.error(request, "Commander not found. Leaving blank")
+            else:
+                commander_obj = None
+
+            Deck.objects.create(
+                deck_name=deck_name,
+                deck_type=deck_type_obj,
+                is_private=is_private == 'True',
+                image_url=image_url,
+                description=description,
+                commander=commander_obj,
+                color_id="",
+                created_by=request.user.id,
+                is_pre_con=request.user.username == "Preconstructed"
+            )
+
+        elif 'update_deck' in request.POST:
+            # todo make deck
+            # js to load selected cards into deck / sideboard
+
+            try:
+                deck_id = request.POST.get('deck_id')
+                deck_obj = Deck.get_deck_by_deck(deck_id)
+                deck_type_obj = DeckType.get_deck_type_by_type(deck_type)
+
+                if deck_type_obj.has_commander:
+                    try:
+                        commander_obj = CardFace.get_face_by_card(commander)
+                    except CardFace.DoesNotExist:
+                        commander_obj = None
+                        messages.error(request, "Commander not found. Leaving blank")
+                else:
+                    commander_obj = None
+
+                deck_obj.deck_name = deck_name
+                deck_obj.deck_type = deck_type_obj
+                deck_obj.is_private = is_private == 'True'
+                deck_obj.image_url = image_url
+                deck_obj.description = description
+                deck_obj.commander = commander_obj
+                deck_obj.save()
+            except DeckType.DoesNotExist:
+                messages.error(request, "Deck type not defined. Deck not modified.")
+            except Deck.DoesNotExist:
+                messages.error(request, "Deck not found. Deck not modified.")
+
+        return redirect('../' + str(user_id))
+
+    if int(deck_id) > -1:
+        deck_obj = Deck.get_deck_by_deck(deck_id)
+    else:
+        deck_obj = "new"
+
+    font_family = UserProfile.get_font(request.user)
+    should_translate = UserProfile.get_translate(request.user)
+    context = {
+        'font_family': font_family, 'should_translate': should_translate,
+        'deck_obj': deck_obj,
+    }
+    return render(request, 'Users/Profile/ProfileDecks/modify_deck.html', context)
 
 
 def password_reset_request(request):
