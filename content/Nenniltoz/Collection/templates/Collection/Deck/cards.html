@@ -2,7 +2,7 @@
     {% for card_obj in deck_cards %}
     <div class="cardObj">
         <a class="cardDirection" href="/Collection/Card/{{ card_obj.oracle_id }}/">
-            <img alt="Avatar" class="cardImg" src="../../../{{ card_obj.image_file }}">
+            <img alt="Avatar" class="cardImg" src="{{ card_obj.image_file }}">
             <div class="cardObjText {{ should_translate }}">
                 {{ card_obj.quantity }} X {{ card_obj.name }}
             </div>

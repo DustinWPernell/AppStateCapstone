@@ -505,7 +505,7 @@ class DeckCards(models.Model):
             card_obj["oracle_id"] = card.card.legal.card_obj.oracle_id
             card_obj["name"] = card.card.name
             card_obj["quantity"] = str(card.quantity)
-            card_obj["image_file"] = card.card.get_remote_image().name
+            card_obj["image_file"] = card.card.get_remote_image()
             json_obj.append(card_obj)
 
         return json_obj
