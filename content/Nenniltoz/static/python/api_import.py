@@ -1,6 +1,8 @@
 import glob
 import os
 
+import boto3
+from decouple import config
 from django.contrib.sites import requests
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'Nenniltoz.settings'
@@ -219,13 +221,6 @@ def card_import_job(param):
     CardFace.objects.all().delete()
     Legality.objects.all().delete()
 
-    files = glob.glob('../img/cards/**/*.txt', recursive=True)
-    for f in files:
-        try:
-            os.remove(f)
-        except OSError as e:
-            print("Error: %s : %s" % (f, e.strerror))
-
     objects = list(ijson.items(urlopen(api_card), 'item'))
     for obj in objects:
         if check_card_obj(obj):
@@ -265,7 +260,6 @@ def card_import_job(param):
             )
 
             new_legal = Legality.objects.create(
-                oracle_id=ori_id,
                 card_obj=new_card,
                 standard=legal_or_not(obj['legalities']['standard']),
                 future=legal_or_not(obj['legalities']['future']),
@@ -282,6 +276,12 @@ def card_import_job(param):
                 old_school=legal_or_not(obj['legalities']['oldschool']),
                 premodern=legal_or_not(obj['legalities']['premodern']),
             )
+
+            session = boto3.Session(
+                aws_access_key_id=config('AWS_ACCESS_KEY_ID'),
+                aws_secret_access_key=config('AWS_SECRET_ACCESS_KEY'),
+            )
+            s3 = session.client('s3')
 
             if 'card_faces' not in obj:
                 if 'name' in obj:
@@ -346,9 +346,26 @@ def card_import_job(param):
                 color_id = color_id.strip()
                 color_id = color_id.strip(",")
 
+                filename = "cards/image_%s" % card_id + '.png'
+                image_data = requests.get(image_url, stream=True)
+                try:
+                    s3.upload_fileobj(image_data.raw, config('AWS_STORAGE_BUCKET_NAME'), filename)
+                    image_file = filename
+                except Exception as e:
+                    return e
+
+                filename = "cards/avatar_%s" % card_id + '.png'
+                image_data = requests.get(avatar_img, stream=True)
+                try:
+                    s3.upload_fileobj(image_data.raw, config('AWS_STORAGE_BUCKET_NAME'), filename)
+                    avatar_file = filename
+                except Exception as e:
+                    return e
+
                 CardFace.objects.create(
                     name=name,
                     image_url=image_url,
+                    image_file=image_file,
                     mana_cost=mana_cost,
                     loyalty=loyalty,
                     power=power,
@@ -357,9 +374,8 @@ def card_import_job(param):
                     color_id=color_id,
                     text=text,
                     flavor_text=flavor_text,
-                    card_id=card_id,
-                    oracle_id=ori_id,
                     avatar_img=avatar_img,
+                    avatar_file=avatar_file,
                     first_face=True,
                     legal=new_legal,
                 )
@@ -435,9 +451,26 @@ def card_import_job(param):
                     color_id = color_id.strip()
                     color_id = color_id.strip(",")
 
+                    filename = "cards/image_%s" % card_id + '.png'
+                    image_data = requests.get(image_url, stream=True)
+                    try:
+                        s3.upload_fileobj(image_data.raw, config('AWS_STORAGE_BUCKET_NAME'), filename)
+                        image_file = filename
+                    except Exception as e:
+                        return e
+
+                    filename = "cards/avatar_%s" % card_id + '.png'
+                    image_data = requests.get(avatar_img, stream=True)
+                    try:
+                        s3.upload_fileobj(image_data.raw, config('AWS_STORAGE_BUCKET_NAME'), filename)
+                        avatar_file = filename
+                    except Exception as e:
+                        return e
+
                     CardFace.objects.create(
                         name=name,
                         image_url=image_url,
+                        image_file=image_file,
                         mana_cost=mana_cost,
                         loyalty=loyalty,
                         power=power,
@@ -446,10 +479,9 @@ def card_import_job(param):
                         color_id=color_id,
                         text=text,
                         flavor_text=flavor_text,
-                        card_id=card_id,
-                        first_face=first_face,
                         avatar_img=avatar_img,
-                        oracle_id=ori_id,
+                        avatar_file=avatar_file,
+                        first_face=first_face,
                         legal=new_legal,
                     )
                     first_face = False
