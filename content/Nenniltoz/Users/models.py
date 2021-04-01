@@ -1,6 +1,9 @@
 from datetime import datetime
 from urllib.request import urlopen
 
+import boto3
+import requests
+from decouple import config
 from django.contrib.auth.models import User
 from django.core.files import File
 from django.core.files.temp import NamedTemporaryFile
@@ -81,7 +84,7 @@ class UserProfile(models.Model):
     avatar_img = models.CharField(max_length=200,
                                   default="https://c1.scryfall.com/file/scryfall-cards/art_crop/front/e/b/eba90d37-d7ac-4097-a04d-1f27e4c9e5de.jpg?1562702416")
     avatar_img.null = True
-    avatar_file = models.ImageField(upload_to='static/img/avatars')
+    avatar_file = models.CharField(max_length=200)
     avatar_file.null = True
     font_family = models.CharField(max_length=200, default='default_font')
     translate = models.CharField(max_length=200, default='notranslate')
@@ -91,14 +94,23 @@ class UserProfile(models.Model):
         return self.user.id
 
     def get_remote_avatar(self):
-        if self.avatar_img and not self.avatar_file:
-            img_temp = NamedTemporaryFile()
-            img_temp.write(urlopen(self.avatar_img).read())
-            img_temp.flush()
+        session = boto3.Session(
+            aws_access_key_id=config('AWS_ACCESS_KEY_ID'),
+            aws_secret_access_key=config('AWS_SECRET_ACCESS_KEY'),
+        )
+        s3 = session.client('s3')
 
-            self.avatar_file.save("avatar_%s" % self.pk, File(img_temp))
-            self.save()
-        return self.avatar_file
+        if self.avatar_img and not self.avatar_file:
+            filename = "avatars/image_%s" % self.user.id + '.png'
+            image_data = requests.get(self.avatar_img, stream=True)
+            try:
+                s3.upload_fileobj(image_data.raw, config('AWS_STORAGE_BUCKET_NAME'), filename)
+                self.avatar_file = filename
+                self.save()
+            except Exception as e:
+                return e
+
+        return config('AWS_S3_CUSTOM_DOMAIN') + '/' + self.avatar_file
 
     def get_user_friends(self):
         friend_list = Friends.objects.filter(user_one=self.user)

@@ -42,7 +42,7 @@
         {% if user_profile_obj.profile_view or not o_player%}
         <hr class="rightGridHR">
         <div class="userAvatarDiv">
-            <img class="userAvatarImg" src="../../../{{ user_profile_obj.get_remote_avatar }}">
+            <img class="userAvatarImg" src="{{ user_profile_obj.get_remote_avatar }}">
         </div>
         <div class="FriendDetails">
             {% include "./Profile/friend_details.html" %}

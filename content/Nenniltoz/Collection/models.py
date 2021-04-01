@@ -183,6 +183,8 @@ class CardFace(models.Model):
     text = models.CharField(max_length=500)
     flavor_text = models.CharField(max_length=500)
     avatar_img = models.CharField(max_length=200)
+    avatar_file = models.CharField(max_length=200)
+    avatar_file.null = True
     first_face = models.BooleanField()
     legal = models.ForeignKey(Legality, on_delete=models.CASCADE, related_name='face_legal')
 
@@ -207,6 +209,25 @@ class CardFace(models.Model):
                 return e
 
         return config('AWS_S3_CUSTOM_DOMAIN') + '/' + self.image_file
+
+    def get_remote_avatar(self):
+        session = boto3.Session(
+            aws_access_key_id=config('AWS_ACCESS_KEY_ID'),
+            aws_secret_access_key=config('AWS_SECRET_ACCESS_KEY'),
+        )
+        s3 = session.client('s3')
+
+        if self.avatar_img and not self.avatar_file:
+            filename = "cards/avatar_%s" % self.legal.card_obj.card_id + '.png'
+            image_data = requests.get(self.avatar_img, stream=True)
+            try:
+                s3.upload_fileobj(image_data.raw, config('AWS_STORAGE_BUCKET_NAME'), filename)
+                self.avatar_file = filename
+                self.save()
+            except Exception as e:
+                return e
+
+        return config('AWS_S3_CUSTOM_DOMAIN') + '/' + self.avatar_file
 
     @staticmethod
     def get_face_by_card(card_id):
