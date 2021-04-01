@@ -1,12 +1,13 @@
 import operator
-import urllib
 from datetime import datetime
 from functools import reduce
 from urllib.request import urlopen
 
+import boto3
+import requests
+from decouple import config
 from django.contrib.auth.models import User
 from django.core.files import File
-import os
 
 from django.core.files.temp import NamedTemporaryFile
 from django.db import models
@@ -14,6 +15,8 @@ from django.db.models import Q
 
 
 # Create your models here.
+
+
 class IgnoreCards(models.Model):
     """
         Stores cards that should be ignored during import
@@ -169,7 +172,7 @@ class CardFace(models.Model):
     """
     name = models.CharField(max_length=200)
     image_url = models.CharField(max_length=200)
-    image_file = models.ImageField(upload_to='static/img/cards')
+    image_file = models.CharField(max_length=200)
     image_file.null = True
     mana_cost = models.CharField(max_length=100)
     loyalty = models.CharField(max_length=10)
@@ -187,14 +190,23 @@ class CardFace(models.Model):
         return self.id
 
     def get_remote_image(self):
-        if self.image_url and not self.image_file:
-            img_temp = NamedTemporaryFile()
-            img_temp.write(urlopen(self.image_url).read())
-            img_temp.flush()
+        session = boto3.Session(
+            aws_access_key_id=config('AWS_ACCESS_KEY_ID'),
+            aws_secret_access_key=config('AWS_SECRET_ACCESS_KEY'),
+        )
+        s3 = session.client('s3')
 
-            self.image_file.save("image_%s" % self.legal.card_obj.card_id, File(img_temp))
-            self.save()
-        return self.image_file
+        if self.image_url and not self.image_file:
+            filename = "cards/image_%s" % self.legal.card_obj.card_id + '.png'
+            image_data = requests.get(self.image_url, stream=True)
+            try:
+                s3.upload_fileobj(image_data.raw, config('AWS_STORAGE_BUCKET_NAME'), filename)
+                self.image_file = filename
+                self.save()
+            except Exception as e:
+                return e
+
+        return config('AWS_S3_CUSTOM_DOMAIN') + '/' + self.image_file
 
     @staticmethod
     def get_face_by_card(card_id):
