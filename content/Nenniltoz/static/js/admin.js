@@ -39,7 +39,7 @@ function RetrieveAPI(type){
 }
 
 function OracleImport(){
-    printToList("Running Oracle import");
+    printToList("Running Oracle Import");
     var request_data = "Oracle";
     $.ajax({
         url: "../Management/oracleUpdate",
@@ -53,7 +53,7 @@ function OracleImport(){
 
 
 function SetImport(){
-    printToList("Running set import");
+    printToList("Running set Import");
     var request_data = "Sets";
     $.ajax({
         url: "../Management/setUpdate",
@@ -66,7 +66,7 @@ function SetImport(){
 }
 
 function CardImport(){
-    printToList("Running Card import");
+    printToList("Running Card Import");
     var request_data = "Cards";
     $.ajax({
         url: "../Management/cardUpdate",
@@ -78,8 +78,21 @@ function CardImport(){
     })
 }
 
+function CardImport(){
+    printToList("Running Card Image Import");
+    var request_data = "Cards";
+    $.ajax({
+        url: "../Management/cardUpdate",
+        data : {request: request_data},
+        success : function(json) {
+            printToList("Added Card Image To Queue");
+            showLoad();
+        }
+    })
+}
+
 function RuleImport(){
-    printToList("Running Rule import");
+    printToList("Running Rule Import");
     var request_data = "Rules";
     $.ajax({
         url: "../Management/ruleUpdate",
@@ -92,7 +105,7 @@ function RuleImport(){
 }
 
 function SymbolImport(){
-    printToList("Running Symbol import");
+    printToList("Running Symbol Import");
     var request_data = "Symbols";
     $.ajax({
         url: "../Management/symbolUpdate",

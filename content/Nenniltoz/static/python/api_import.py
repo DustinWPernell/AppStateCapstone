@@ -1,9 +1,8 @@
-import glob
 import os
 
 import boto3
 from decouple import config
-from django.contrib.sites import requests
+import requests
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'Nenniltoz.settings'
 
@@ -198,6 +197,34 @@ def oracle_import_job(param):
     return (HttpResponse("Finished"))
 
 
+def card_image_job(parma):
+    session = boto3.Session(
+        aws_access_key_id=config('AWS_ACCESS_KEY_ID'),
+        aws_secret_access_key=config('AWS_SECRET_ACCESS_KEY'),
+    )
+    s3 = session.client('s3')
+
+    for card_face in CardFace.objects.select_related().all():
+        card_id = card_face.legal.card_obj.card_id
+        filename = "cards/image_%s" % card_id + '.png'
+        image_data = requests.get(card_face.image_url, stream=True)
+        try:
+            s3.upload_fileobj(image_data.raw, config('AWS_STORAGE_BUCKET_NAME'), filename)
+            card_face.image_file = filename
+        except Exception as e:
+            return e
+
+        filename = "cards/avatar_%s" % card_id + '.png'
+        image_data = requests.get(card_face.avatar_img, stream=True)
+        try:
+            s3.upload_fileobj(image_data.raw, config('AWS_STORAGE_BUCKET_NAME'), filename)
+            card_face.avatar_file = filename
+        except Exception as e:
+            return e
+
+        card_face.save()
+
+
 def card_import_job(param):
     """Performs API call for cards.
 
@@ -277,12 +304,6 @@ def card_import_job(param):
                 premodern=legal_or_not(obj['legalities']['premodern']),
             )
 
-            session = boto3.Session(
-                aws_access_key_id=config('AWS_ACCESS_KEY_ID'),
-                aws_secret_access_key=config('AWS_SECRET_ACCESS_KEY'),
-            )
-            s3 = session.client('s3')
-
             if 'card_faces' not in obj:
                 if 'name' in obj:
                     name = obj['name']
@@ -346,21 +367,6 @@ def card_import_job(param):
                 color_id = color_id.strip()
                 color_id = color_id.strip(",")
 
-                filename = "cards/image_%s" % card_id + '.png'
-                image_data = requests.get(image_url, stream=True)
-                try:
-                    s3.upload_fileobj(image_data.raw, config('AWS_STORAGE_BUCKET_NAME'), filename)
-                    image_file = filename
-                except Exception as e:
-                    return e
-
-                filename = "cards/avatar_%s" % card_id + '.png'
-                image_data = requests.get(avatar_img, stream=True)
-                try:
-                    s3.upload_fileobj(image_data.raw, config('AWS_STORAGE_BUCKET_NAME'), filename)
-                    avatar_file = filename
-                except Exception as e:
-                    return e
 
                 card_search = key_words + ' // ' + \
                               set_name + ' // ' + \
@@ -372,7 +378,6 @@ def card_import_job(param):
                 CardFace.objects.create(
                     name=name,
                     image_url=image_url,
-                    image_file=image_file,
                     mana_cost=mana_cost,
                     loyalty=loyalty,
                     power=power,
@@ -382,7 +387,6 @@ def card_import_job(param):
                     text=text,
                     flavor_text=flavor_text,
                     avatar_img=avatar_img,
-                    avatar_file=avatar_file,
                     first_face=True,
                     legal=new_legal,
                     card_search=card_search,
@@ -459,22 +463,6 @@ def card_import_job(param):
                     color_id = color_id.strip()
                     color_id = color_id.strip(",")
 
-                    filename = "cards/image_%s" % card_id + '.png'
-                    image_data = requests.get(image_url, stream=True)
-                    try:
-                        s3.upload_fileobj(image_data.raw, config('AWS_STORAGE_BUCKET_NAME'), filename)
-                        image_file = filename
-                    except Exception as e:
-                        return e
-
-                    filename = "cards/avatar_%s" % card_id + '.png'
-                    image_data = requests.get(avatar_img, stream=True)
-                    try:
-                        s3.upload_fileobj(image_data.raw, config('AWS_STORAGE_BUCKET_NAME'), filename)
-                        avatar_file = filename
-                    except Exception as e:
-                        return e
-
                     card_search = key_words + ' // ' + \
                                   set_name + ' // ' + \
                                   name + ' // ' + \
@@ -485,7 +473,6 @@ def card_import_job(param):
                     CardFace.objects.create(
                         name=name,
                         image_url=image_url,
-                        image_file=image_file,
                         mana_cost=mana_cost,
                         loyalty=loyalty,
                         power=power,
@@ -495,7 +482,6 @@ def card_import_job(param):
                         text=text,
                         flavor_text=flavor_text,
                         avatar_img=avatar_img,
-                        avatar_file=avatar_file,
                         first_face=first_face,
                         legal=new_legal,
                         card_search=card_search,

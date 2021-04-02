@@ -12,7 +12,7 @@ from rq import Queue
 from Management.models import Settings
 from Users.models import UserProfile
 from static.python.api_import import card_import_job, oracle_import_job, rule_import_job, set_import_job, \
-    symbol_import_job
+    symbol_import_job, card_image_job
 from worker import conn
 
 logger = logging.getLogger("logger")
@@ -60,6 +60,15 @@ def card_update(request):
     global api_card
     q = Queue(connection=conn)
     q.enqueue(card_import_job, 'http://heroku.com', job_timeout=20000)
+    return HttpResponse("Added to queue")
+
+
+@staff_member_required
+def card_image(request):
+    logger.info("Params: " + json.dumps(request.GET.dict()))
+    global api_card
+    q = Queue(connection=conn)
+    q.enqueue(card_image_job, 'http://heroku.com', job_timeout=20000)
     return HttpResponse("Added to queue")
 
 

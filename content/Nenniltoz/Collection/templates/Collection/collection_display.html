@@ -37,7 +37,7 @@
 <div class="cardGrid" id="cardGrid">
     {% for card_obj in pages %}
     <div class="cardObj">
-        <a class="cardDirection" href="/Collection/Card/{{ card_obj.legal.card_obj.oracle_id }}/">
+        <a class="cardDirection" href="/Collection/card/{{ card_obj.legal.card_obj.oracle_id }}/">
             <img alt="Avatar" class="cardImg" src="{{ card_obj.get_remote_image }}">
             <div class="cardObjText {{ should_translate }}">
                 {{ card_obj.name }}

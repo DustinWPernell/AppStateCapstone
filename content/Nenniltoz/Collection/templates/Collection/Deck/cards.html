@@ -1,7 +1,7 @@
 <div class="cardGrid" id="cardGrid">
     {% for card_obj in deck_cards %}
     <div class="cardObj">
-        <a class="cardDirection" href="/Collection/Card/{{ card_obj.card_oracle }}/">
+        <a class="cardDirection" href="/Collection/card/{{ card_obj.card_oracle }}/">
             <img alt="Avatar" class="cardImg" src="{{ card_obj.card_file }}">
             <div class="cardObjText {{ should_translate }}">
                 {{ card_obj.quantity }} X {{ card_obj.name }}

@@ -11,7 +11,7 @@
 <div class="deckFilter">
     <!-- Forms either post or get. Get stores data in the url. Post stores data behind the scenes.
      Action is the method that will be called during submitting. CSRF token helps against attacks and protects data.-->
-    <form action="deck_list" method="post">
+    <form action="deck_database" method="post">
         {% csrf_token %}
         <!-- Determines if clear search is used. -->
         {% if clearSearch %}
@@ -46,7 +46,7 @@
     {% for deck_obj in pages %}
     <div class="deckObj">
         <!-- deckDirection makes the deck object clickable -->
-        <a class="deckDirection" href="/Collection/Deck/{{ deck_obj.id }}/">
+        <a class="deckDirection" href="/Collection/deck/{{ deck_obj.id }}/">
             <!-- This is the display for a deck. It will show the name, colors associated, game type, and name of the creator of the deck.
              If the deck is PreCon-->
             <div>{{ deck_obj.name }}</div>
