@@ -23,6 +23,16 @@ from Management.models import Settings
 logger = logging.getLogger("logger")
 
 
+def build_comma_list(array_obj):
+    list = ""
+    for obj in array_obj:
+        list = list + ", " + obj
+
+    list = list.strip()
+    list = list.strip(",")
+    return list
+
+
 def symbol_import_job(param):
     """Performs API call for symbols.
 
@@ -40,48 +50,47 @@ def symbol_import_job(param):
 
     api_symbol = Settings.get_api_symbol()
 
-    Symbol.objects.all().delete()
-
     f = urlopen(api_symbol)
     objects = list(ijson.items(f, 'data.item'))
     for obj in objects:
-        colors_array = obj['colors']
-        color_id = ""
-        for new_color in colors_array:
-            color_id = color_id + ", " + new_color
-
-        color_id = color_id.strip()
-        color_id = color_id.strip(",")
-
         if 'symbol' in obj:
             symbol = obj['symbol']
         else:
             symbol = ""
-        if 'english' in obj:
-            english = obj['english']
-        else:
-            english = ""
-        if 'svg_uri' in obj:
-            svg_uri = obj['svg_uri']
-        else:
-            svg_uri = ""
-        if 'represents_mana' in obj:
-            represents_mana = obj['represents_mana']
-        else:
-            represents_mana = ""
-        if 'cmc' in obj:
-            cmc = obj['cmc']
-        else:
-            cmc = ""
 
-        Symbol.objects.create(
-            symbol=symbol,
-            text=english,
-            image_url=svg_uri,
-            is_mana=represents_mana,
-            mana_cost=cmc,
-            color_id=color_id,
-        )
+        try:
+            Symbol.objects.get(symbol=symbol)
+        except Symbol.DoesNotExist:
+            if 'english' in obj:
+                english = obj['english']
+            else:
+                english = ""
+
+            if 'svg_uri' in obj:
+                svg_uri = obj['svg_uri']
+            else:
+                svg_uri = ""
+
+            if 'represents_mana' in obj:
+                represents_mana = obj['represents_mana']
+            else:
+                represents_mana = ""
+
+            if 'cmc' in obj:
+                cmc = obj['cmc']
+            else:
+                cmc = ""
+
+            color_id = build_comma_list(obj['colors'])
+
+            Symbol.objects.create(
+                symbol=symbol,
+                text=english,
+                image_url=svg_uri,
+                is_mana=represents_mana,
+                mana_cost=cmc,
+                color_id=color_id,
+            )
     return HttpResponse("Finished")
 
 
@@ -98,8 +107,6 @@ def set_import_job(param):
 
     api_set = Settings.get_api_set()
 
-    CardSets.objects.all().delete()
-
     f = urlopen(api_set)
     objects = list(ijson.items(f, 'data.item'))
     cur_order = 0
@@ -108,31 +115,35 @@ def set_import_job(param):
             set_id = obj['id']
         else:
             set_id = ""
-        if 'code' in obj:
-            code = obj['code']
-        else:
-            code = ""
-        if 'name' in obj:
-            name = obj['name']
-        else:
-            name = ""
-        if 'released_at' in obj:
-            released_at = obj['released_at']
-        else:
-            released_at = ""
-        if 'icon_svg_uri' in obj:
-            icon_svg_uri = obj['icon_svg_uri']
-        else:
-            icon_svg_uri = ""
 
-        CardSets.objects.create(
-            set_id=set_id,
-            code=code,
-            name=name,
-            released_at=released_at,
-            icon_svg_uri=icon_svg_uri,
-            order=cur_order,
-        )
+        try:
+            CardSets.objects.get(set_id=set_id)
+        except CardSets.DoesNotExist:
+            if 'code' in obj:
+                code = obj['code']
+            else:
+                code = ""
+            if 'name' in obj:
+                name = obj['name']
+            else:
+                name = ""
+            if 'released_at' in obj:
+                released_at = obj['released_at']
+            else:
+                released_at = ""
+            if 'icon_svg_uri' in obj:
+                icon_svg_uri = obj['icon_svg_uri']
+            else:
+                icon_svg_uri = ""
+
+            CardSets.objects.create(
+                set_id=set_id,
+                code=code,
+                name=name,
+                released_at=released_at,
+                icon_svg_uri=icon_svg_uri,
+                order=cur_order,
+            )
         cur_order = cur_order + 1
     return HttpResponse("Finished")
 
@@ -197,7 +208,9 @@ def oracle_import_job(param):
     return (HttpResponse("Finished"))
 
 
-def card_image_job(parma):
+def card_image_job(param):
+    logger.info("Param: " + param)
+
     session = boto3.Session(
         aws_access_key_id=config('AWS_ACCESS_KEY_ID'),
         aws_secret_access_key=config('AWS_SECRET_ACCESS_KEY'),
@@ -244,224 +257,126 @@ def card_import_job(param):
 
     api_card = Settings.get_api_card()
 
-    Card.objects.all().delete()
-    CardFace.objects.all().delete()
-    Legality.objects.all().delete()
-
     objects = list(ijson.items(urlopen(api_card), 'item'))
     for obj in objects:
         if check_card_obj(obj):
             card_id = obj['id']
-            ori_id = obj['oracle_id']
-            set_name = obj['set_name']
-            rarity = obj['rarity']
-            layout = obj['layout']
-            key_words = ""
-            keyword_array = obj['keywords']
-            for new_keyword in keyword_array:
-                key_words = key_words + ", " + new_keyword
+            try:
+                legal = Legality.objects.get(card_obj__card_id=card_id)
+                legal.standard = legal_or_not(obj['legalities']['standard'])
+                legal.future = legal_or_not(obj['legalities']['future'])
+                legal.historic = legal_or_not(obj['legalities']['historic'])
+                legal.gladiator = legal_or_not(obj['legalities']['gladiator'])
+                legal.modern = legal_or_not(obj['legalities']['modern'])
+                legal.legacy = legal_or_not(obj['legalities']['legacy'])
+                legal.pauper = legal_or_not(obj['legalities']['pauper'])
+                legal.vintage = legal_or_not(obj['legalities']['vintage'])
+                legal.penny = legal_or_not(obj['legalities']['penny'])
+                legal.commander = legal_or_not(obj['legalities']['commander'])
+                legal.brawl = legal_or_not(obj['legalities']['brawl'])
+                legal.duel = legal_or_not(obj['legalities']['duel'])
+                legal.old_school = legal_or_not(obj['legalities']['oldschool'])
+                legal.premodern = legal_or_not(obj['legalities']['premodern'])
+                legal.save()
+            except Legality.DoesNotExist:
+                ori_id = obj['oracle_id']
+                set_name = obj['set_name']
+                rarity = obj['rarity']
+                layout = obj['layout']
+                key_words = build_comma_list(obj['keywords'])
 
-            key_words = key_words.strip()
-            key_words = key_words.strip(",")
+                color_list = build_comma_list(obj['color_identity'])
 
-            color_identity = obj['color_identity']
-            color_list = ""
-            for new_color in color_identity:
-                color_list = color_list + ", " + new_color
+                set_obj = CardSets.objects.get(name=set_name)
+                layout_obj = CardLayout.objects.get(layout=layout)
 
-            color_list = color_list.strip()
-            color_list = color_list.strip(",")
-
-            set_obj = CardSets.objects.get(name=set_name)
-            layout_obj = CardLayout.objects.get(layout=layout)
-
-            new_card = Card.objects.create(
-                card_id=card_id,
-                oracle_id=ori_id,
-                keywords=key_words,
-                set_name=set_name,
-                rarity=rarity,
-                layout=layout_obj,
-                set_obj=set_obj,
-                color=color_list
-            )
-
-            new_legal = Legality.objects.create(
-                card_obj=new_card,
-                standard=legal_or_not(obj['legalities']['standard']),
-                future=legal_or_not(obj['legalities']['future']),
-                historic=legal_or_not(obj['legalities']['historic']),
-                gladiator=legal_or_not(obj['legalities']['gladiator']),
-                modern=legal_or_not(obj['legalities']['modern']),
-                legacy=legal_or_not(obj['legalities']['legacy']),
-                pauper=legal_or_not(obj['legalities']['pauper']),
-                vintage=legal_or_not(obj['legalities']['vintage']),
-                penny=legal_or_not(obj['legalities']['penny']),
-                commander=legal_or_not(obj['legalities']['commander']),
-                brawl=legal_or_not(obj['legalities']['brawl']),
-                duel=legal_or_not(obj['legalities']['duel']),
-                old_school=legal_or_not(obj['legalities']['oldschool']),
-                premodern=legal_or_not(obj['legalities']['premodern']),
-            )
-
-            if 'card_faces' not in obj:
-                if 'name' in obj:
-                    name = obj['name']
-                else:
-                    name = ""
-
-                if 'image_uris' in obj:
-                    image_url = obj['image_uris']['png']
-                    if 'art_crop' in obj['image_uris']:
-                        avatar_img = obj['image_uris']['art_crop']
-                    else:
-                        avatar_img = ""
-                else:
-                    image_url = ""
-                    avatar_img = ""
-
-                if 'mana_cost' in obj:
-                    mana_cost = obj['mana_cost']
-                else:
-                    mana_cost = ""
-
-                if 'loyalty' in obj:
-                    loyalty = obj['loyalty']
-                else:
-                    loyalty = ""
-
-                if 'power' in obj:
-                    power = obj['power']
-                else:
-                    power = ""
-
-                if 'toughness' in obj:
-                    toughness = obj['toughness']
-                else:
-                    toughness = ""
-
-                if 'oracle_text' in obj:
-                    text = obj['oracle_text']
-                else:
-                    text = ""
-
-                if 'type_line' in obj:
-                    type_line = obj['type_line']
-                else:
-                    type_line = ""
-
-                if 'color_identity' in obj:
-                    colors_array = obj['color_identity']
-                else:
-                    colors_array = ""
-
-                if 'flavor_text' in obj:
-                    flavor_text = obj['flavor_text']
-                else:
-                    flavor_text = ""
-
-                color_id = ""
-                for newColor in colors_array:
-                    color_id = color_id + ", " + newColor
-
-                color_id = color_id.strip()
-                color_id = color_id.strip(",")
-
-
-                card_search = key_words + ' // ' + \
-                              set_name + ' // ' + \
-                              name + ' // ' + \
-                              text + ' // ' + \
-                              type_line + ' // ' + \
-                              flavor_text
-
-                CardFace.objects.create(
-                    name=name,
-                    image_url=image_url,
-                    mana_cost=mana_cost,
-                    loyalty=loyalty,
-                    power=power,
-                    toughness=toughness,
-                    type_line=type_line,
-                    color_id=color_id,
-                    text=text,
-                    flavor_text=flavor_text,
-                    avatar_img=avatar_img,
-                    first_face=True,
-                    legal=new_legal,
-                    card_search=card_search,
+                new_card = Card.objects.create(
+                    card_id=card_id,
+                    oracle_id=ori_id,
+                    keywords=key_words,
+                    set_name=set_name,
+                    rarity=rarity,
+                    layout=layout_obj,
+                    set_obj=set_obj,
+                    color=color_list
                 )
-            else:
-                first_face = True
-                for face in obj['card_faces']:
-                    if 'image_uris' in face:
-                        image_url = face['image_uris']['png']
-                        if 'art_crop' in face['image_uris']:
-                            avatar_img = face['image_uris']['art_crop']
-                        else:
-                            avatar_img = ""
-                    else:
-                        if 'image_uris' in obj:
-                            image_url = obj['image_uris']['png']
-                            if 'art_crop' in obj['image_uris']:
-                                avatar_img = obj['image_uris']['art_crop']
-                            else:
-                                avatar_img = ""
-                        else:
-                            image_url = ""
-                            avatar_img = ""
 
-                    if 'name' in face:
-                        name = face['name']
+                new_legal = Legality.objects.create(
+                    card_obj=new_card,
+                    standard=legal_or_not(obj['legalities']['standard']),
+                    future=legal_or_not(obj['legalities']['future']),
+                    historic=legal_or_not(obj['legalities']['historic']),
+                    gladiator=legal_or_not(obj['legalities']['gladiator']),
+                    modern=legal_or_not(obj['legalities']['modern']),
+                    legacy=legal_or_not(obj['legalities']['legacy']),
+                    pauper=legal_or_not(obj['legalities']['pauper']),
+                    vintage=legal_or_not(obj['legalities']['vintage']),
+                    penny=legal_or_not(obj['legalities']['penny']),
+                    commander=legal_or_not(obj['legalities']['commander']),
+                    brawl=legal_or_not(obj['legalities']['brawl']),
+                    duel=legal_or_not(obj['legalities']['duel']),
+                    old_school=legal_or_not(obj['legalities']['oldschool']),
+                    premodern=legal_or_not(obj['legalities']['premodern']),
+                )
+
+                if 'card_faces' not in obj:
+                    if 'name' in obj:
+                        name = obj['name']
                     else:
                         name = ""
 
-                    if 'mana_cost' in face:
-                        mana_cost = face['mana_cost']
+                    if 'image_uris' in obj:
+                        image_url = obj['image_uris']['png']
+                        if 'art_crop' in obj['image_uris']:
+                            avatar_img = obj['image_uris']['art_crop']
+                        else:
+                            avatar_img = ""
+                    else:
+                        image_url = ""
+                        avatar_img = ""
+
+                    if 'mana_cost' in obj:
+                        mana_cost = obj['mana_cost']
                     else:
                         mana_cost = ""
 
-                    if 'loyalty' in face:
-                        loyalty = face['loyalty']
+                    if 'loyalty' in obj:
+                        loyalty = obj['loyalty']
                     else:
                         loyalty = ""
 
-                    if 'power' in face:
-                        power = face['power']
+                    if 'power' in obj:
+                        power = obj['power']
                     else:
                         power = ""
 
-                    if 'toughness' in face:
-                        toughness = face['toughness']
+                    if 'toughness' in obj:
+                        toughness = obj['toughness']
                     else:
                         toughness = ""
 
-                    if 'oracle_text' in face:
-                        text = face['oracle_text']
+                    if 'oracle_text' in obj:
+                        text = obj['oracle_text']
                     else:
                         text = ""
 
-                    if 'type_line' in face:
-                        type_line = face['type_line']
+                    if 'type_line' in obj:
+                        type_line = obj['type_line']
                     else:
                         type_line = ""
 
-                    if 'color_identity' in face:
-                        colors_array = face['color_identity']
+                    if 'color_identity' in obj:
+                        colors_array = obj['color_identity']
                     else:
                         colors_array = ""
 
-                    if 'flavor_text' in face:
-                        flavor_text = face['flavor_text']
+                    if 'flavor_text' in obj:
+                        flavor_text = obj['flavor_text']
                     else:
                         flavor_text = ""
 
-                    color_id = ""
-                    for newColor in colors_array:
-                        color_id = color_id + ", " + newColor
+                    color_id = build_comma_list(colors_array)
 
-                    color_id = color_id.strip()
-                    color_id = color_id.strip(",")
 
                     card_search = key_words + ' // ' + \
                                   set_name + ' // ' + \
@@ -482,11 +397,101 @@ def card_import_job(param):
                         text=text,
                         flavor_text=flavor_text,
                         avatar_img=avatar_img,
-                        first_face=first_face,
+                        first_face=True,
                         legal=new_legal,
                         card_search=card_search,
                     )
-                    first_face = False
+                else:
+                    first_face = True
+                    for face in obj['card_faces']:
+                        if 'image_uris' in face:
+                            image_url = face['image_uris']['png']
+                            if 'art_crop' in face['image_uris']:
+                                avatar_img = face['image_uris']['art_crop']
+                            else:
+                                avatar_img = ""
+                        else:
+                            if 'image_uris' in obj:
+                                image_url = obj['image_uris']['png']
+                                if 'art_crop' in obj['image_uris']:
+                                    avatar_img = obj['image_uris']['art_crop']
+                                else:
+                                    avatar_img = ""
+                            else:
+                                image_url = ""
+                                avatar_img = ""
+
+                        if 'name' in face:
+                            name = face['name']
+                        else:
+                            name = ""
+
+                        if 'mana_cost' in face:
+                            mana_cost = face['mana_cost']
+                        else:
+                            mana_cost = ""
+
+                        if 'loyalty' in face:
+                            loyalty = face['loyalty']
+                        else:
+                            loyalty = ""
+
+                        if 'power' in face:
+                            power = face['power']
+                        else:
+                            power = ""
+
+                        if 'toughness' in face:
+                            toughness = face['toughness']
+                        else:
+                            toughness = ""
+
+                        if 'oracle_text' in face:
+                            text = face['oracle_text']
+                        else:
+                            text = ""
+
+                        if 'type_line' in face:
+                            type_line = face['type_line']
+                        else:
+                            type_line = ""
+
+                        if 'color_identity' in face:
+                            colors_array = face['color_identity']
+                        else:
+                            colors_array = ""
+
+                        if 'flavor_text' in face:
+                            flavor_text = face['flavor_text']
+                        else:
+                            flavor_text = ""
+
+                        color_id = build_comma_list(colors_array)
+
+                        card_search = key_words + ' // ' + \
+                                      set_name + ' // ' + \
+                                      name + ' // ' + \
+                                      text + ' // ' + \
+                                      type_line + ' // ' + \
+                                      flavor_text
+
+                        CardFace.objects.create(
+                            name=name,
+                            image_url=image_url,
+                            mana_cost=mana_cost,
+                            loyalty=loyalty,
+                            power=power,
+                            toughness=toughness,
+                            type_line=type_line,
+                            color_id=color_id,
+                            text=text,
+                            flavor_text=flavor_text,
+                            avatar_img=avatar_img,
+                            first_face=first_face,
+                            legal=new_legal,
+                            card_search=card_search,
+                        )
+                        first_face = False
     return HttpResponse("Finished")
 
 
