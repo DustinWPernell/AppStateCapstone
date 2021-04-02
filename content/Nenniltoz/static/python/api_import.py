@@ -362,6 +362,13 @@ def card_import_job(param):
                 except Exception as e:
                     return e
 
+                card_search = key_words + ' // ' + \
+                              set_name + ' // ' + \
+                              name + ' // ' + \
+                              text + ' // ' + \
+                              type_line + ' // ' + \
+                              flavor_text
+
                 CardFace.objects.create(
                     name=name,
                     image_url=image_url,
@@ -378,6 +385,7 @@ def card_import_job(param):
                     avatar_file=avatar_file,
                     first_face=True,
                     legal=new_legal,
+                    card_search=card_search,
                 )
             else:
                 first_face = True
@@ -467,6 +475,13 @@ def card_import_job(param):
                     except Exception as e:
                         return e
 
+                    card_search = key_words + ' // ' + \
+                                  set_name + ' // ' + \
+                                  name + ' // ' + \
+                                  text + ' // ' + \
+                                  type_line + ' // ' + \
+                                  flavor_text
+
                     CardFace.objects.create(
                         name=name,
                         image_url=image_url,
@@ -483,6 +498,7 @@ def card_import_job(param):
                         avatar_file=avatar_file,
                         first_face=first_face,
                         legal=new_legal,
+                        card_search=card_search,
                     )
                     first_face = False
     return HttpResponse("Finished")

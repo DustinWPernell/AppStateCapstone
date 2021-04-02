@@ -1,16 +1,12 @@
 import operator
 from datetime import datetime
 from functools import reduce
-from urllib.request import urlopen
 
 import boto3
 import requests
 from decouple import config
 from django.contrib.auth.models import User
-from django.core import serializers
-from django.core.files import File
 
-from django.core.files.temp import NamedTemporaryFile
 from django.db import models
 from django.db.models import Q
 
@@ -30,6 +26,8 @@ class IgnoreCards(models.Model):
     def __str__(self):
         return self.value
 
+
+#region Cards
 
 class CardIDList(models.Model):
     """
@@ -51,7 +49,6 @@ class CardIDList(models.Model):
         return CardIDList.objects.get(oracle_id=oracle_id)
         # .get(oracle_id=oracle_id)
 
-#region Cards
 
 class CardLayout(models.Model):
     """
@@ -188,6 +185,7 @@ class CardFace(models.Model):
     avatar_file.null = True
     first_face = models.BooleanField()
     legal = models.ForeignKey(Legality, on_delete=models.CASCADE, related_name='face_legal')
+    card_search = models.CharField(max_length=2000)
 
     def __int__(self):
         return self.id
@@ -259,13 +257,8 @@ class CardFace(models.Model):
     def card_face_filter_by_card_oracle_term(card_id, oracle_id, term):
         return CardFace.objects.select_related().filter(
             Q(legal__card_obj__card_id__in=card_id) &
-            Q(legal__card_obj__oracle_id__in=oracle_id) & (
-                    Q(name__icontains=term) |
-                    Q(text__icontains=term) |
-                    Q(type_line__icontains=term) |
-                    Q(flavor_text__icontains=term) |
-                    Q(legal__card_obj__keywords__icontains=term)
-            )
+            Q(legal__card_obj__oracle_id__in=oracle_id) &
+            Q(card_search__icontains=term)
         ).order_by('name')
 
     @staticmethod
@@ -273,11 +266,7 @@ class CardFace(models.Model):
         return CardFace.objects.select_related().filter(
             Q(legal__card_obj__card_id__in=card_id) &
             Q(legal__card_obj__oracle_id__in=oracle_id) & (
-                    Q(name__icontains=term) |
-                    Q(text__icontains=term) |
-                    Q(type_line__icontains=term) |
-                    Q(flavor_text__icontains=term) |
-                    Q(legal__card_obj__keywords__icontains=term) |
+                    Q(card_search__icontains=term) |
                     Q(legal__card_obj__oracle_id__in=notes_terms)
             )
         ).order_by('name')
@@ -301,13 +290,8 @@ class CardFace(models.Model):
                             ~Q(mana_cost__contains=item) for item in list_of_colors
                         )
                     )
-            ) & (
-                    Q(name__icontains=term) |
-                    Q(text__icontains=term) |
-                    Q(type_line__icontains=term) |
-                    Q(flavor_text__icontains=term) |
-                    Q(legal__card_obj__keywords__icontains=term)
-            )
+            ) &
+            Q(card_search__icontains=term)
         ).order_by('name')
 
     @staticmethod
@@ -318,25 +302,15 @@ class CardFace(models.Model):
                 operator.or_, (
                     Q(mana_cost__contains=item) for item in mana_color
                 )
-            ) & (
-                    Q(name__icontains=term) |
-                    Q(text__icontains=term) |
-                    Q(type_line__icontains=term) |
-                    Q(flavor_text__icontains=term) |
-                    Q(legal__card_obj__keywords__icontains=term)
-            )
+            ) &
+            Q(card_searchs__icontains=term)
         ).order_by('name')
 
     @staticmethod
     def card_face_filter_by_card_term(card_ids, term):
         return CardFace.objects.select_related().filter(
-            Q(legal__card_obj__card_id__in=card_ids) & (
-                    Q(name__icontains=term) |
-                    Q(text__icontains=term) |
-                    Q(type_line__icontains=term) |
-                    Q(flavor_text__icontains=term) |
-                    Q(legal__card_obj__keywords__icontains=term)
-            )
+            Q(legal__card_obj__card_id__in=card_ids) &
+            Q(card_search__icontains=term)
         ).order_by('name')
 
     @staticmethod
@@ -372,6 +346,21 @@ class CardFace(models.Model):
 
         return set_info
 
+
+class Rule(models.Model):
+    """
+        Stores rule objects
+            * oracleID - ID for the card (specific to name)
+            * pub_date - Data the ruling was made
+            * comment - The text about the ruling
+    """
+    oracle_id = models.CharField(max_length=200)
+    pub_date = models.CharField(max_length=50)
+    comment = models.CharField(max_length=500)
+
+    def __str__(self):
+        return self.oracle_id
+
 #endregion
 
 #region Decks
@@ -402,8 +391,14 @@ class Deck(models.Model):
     image_url = models.CharField(max_length=200)
     description = models.CharField(max_length=1000)
     deck_type = models.ForeignKey(DeckType, related_name='type_deck', on_delete=models.CASCADE)
-    commander = models.ForeignKey(CardFace, related_name='commander_deck', on_delete=models.DO_NOTHING)
-    commander.null = True
+    commander_oracle = models.CharField(max_length=200)
+    commander_id = models.CharField(max_length=200)
+    commander_name = models.CharField(max_length=200)
+    commander_file = models.CharField(max_length=200)
+    commander_id.null = True
+    commander_name.null = True
+    commander_file.null = True
+    commander_oracle.null = True
 
     def get_created_by(self):
         return User.objects.get(id=self.created_by)
@@ -481,7 +476,11 @@ class Deck(models.Model):
 
 class DeckCards(models.Model):
     deck = models.ForeignKey(Deck, related_name='deck_cards', on_delete=models.CASCADE)
-    card = models.ForeignKey(CardFace, related_name='face_cards', on_delete=models.CASCADE)
+    card_oracle = models.CharField(max_length=200)
+    card_name = models.CharField(max_length=200)
+    card_file = models.CharField(max_length=200)
+    card_file.null = True
+    card_search = models.CharField(max_length=2000)
     quantity = models.IntegerField(default=0)
     sideboard = models.BooleanField(default=False)
 
@@ -501,15 +500,13 @@ class DeckCards(models.Model):
         deck_cards = DeckCards.deck_card_by_deck_user(deck_id, user_id, side)
         for card in deck_cards:
             card_obj = {}
-            card_obj["card_id"] = card.card.legal.card_obj.card_id
-            card_obj["oracle_id"] = card.card.legal.card_obj.oracle_id
-            card_obj["name"] = card.card.name
+            card_obj["card_oracle"] = card.card_oracle
+            card_obj["name"] = card.card_name
             card_obj["quantity"] = str(card.quantity)
-            card_obj["image_file"] = card.card.get_remote_image()
+            card_obj["card_file"] = card.card_file
             json_obj.append(card_obj)
 
         return json_obj
-
 
 #endregion
 
@@ -571,16 +568,4 @@ class Symbol(models.Model):
             symbol__in=['{W/U}', '{W/B}', '{R/W}', '{G/W}', '{2/W}', '{W/P}', '{HW}'])
 
 
-class Rule(models.Model):
-    """
-        Stores rule objects
-            * oracleID - ID for the card (specific to name)
-            * pub_date - Data the ruling was made
-            * comment - The text about the ruling
-    """
-    oracle_id = models.CharField(max_length=200)
-    pub_date = models.CharField(max_length=50)
-    comment = models.CharField(max_length=500)
 
-    def __str__(self):
-        return self.oracle_id

@@ -385,11 +385,34 @@ def update_user_card_data(request, oracle_id):
         if card_quantity <= 0:
             card_quantity = 1
         if user_card_id == '':
+            card_faces = CardFace.get_face_by_card(CardIDList.get_card_by_oracle(oracle_id).card_id)
+            card_search = card_faces[0].legal.card_obj.keywords + ' // '+ card_faces[0].legal.card_obj.set_name
+            card_name = card_all_mana = card_mana = ''
+            for face in card_faces:
+                card_search = card_search + ' // ' + \
+                              face.name + ' // ' + \
+                              face.text + ' // ' + \
+                              face.type_line + ' // ' + \
+                              face.flavor_text
+                card_name = card_name + ' // '
+                card_all_mana = card_all_mana + face.mana_cost
+
+            card_name.strip(" // ")
+
+            symbols = Symbol.objects.all()
+            for sym in symbols:
+                if sym.symbol in card_all_mana:
+                    card_mana = card_mana + sym.symbol
+
+
             UserCards.objects.create(
                 id=str(request.user.id) + ':' + str(oracle_id),
-                card=CardFace.get_face_by_card(CardIDList.get_card_by_oracle(oracle_id).card_id)[0],
+                card_oracle=oracle_id,
+                card_name=card_name,
+                card_mana=card_mana,
+                card_file=card_faces[0].get_remote_avatar(),
+                card_search=card_search,
                 user=request.user,
-                oracle_id=oracle_id,
                 wish=False,
                 quantity=card_quantity,
                 notes=card_notes
@@ -409,11 +432,34 @@ def update_user_card_data(request, oracle_id):
         if card_quantity <= 0:
             card_quantity = 1
         if user_card_id == '':
+            card_faces = CardFace.get_face_by_card(CardIDList.get_card_by_oracle(oracle_id).card_id)
+            card_search = card_faces[0].legal.card_obj.keywords + ' // '+ card_faces[0].legal.card_obj.set_name
+            card_name = card_all_mana = card_mana = ''
+            for face in card_faces:
+                card_search = card_search + ' // ' + \
+                              face.name + ' // ' + \
+                              face.text + ' // ' + \
+                              face.type_line + ' // ' + \
+                              face.flavor_text
+                card_name = card_name + ' // '
+                card_all_mana = card_all_mana + face.mana_cost
+
+            card_name.strip(" // ")
+
+            symbols = Symbol.objects.all()
+            for sym in symbols:
+                if sym.symbol in card_all_mana:
+                    card_mana = card_mana + sym.symbol
+
+
             UserCards.objects.create(
                 id=str(request.user.id) + ':' + str(oracle_id),
-                card=CardFace.get_face_by_card(CardIDList.get_card_by_oracle(oracle_id).card_id)[0],
+                card_oracle=oracle_id,
+                card_name=card_name,
+                card_mana=card_mana,
+                card_file=card_faces[0].get_remote_avatar(),
+                card_search=card_search,
                 user=request.user,
-                oracle_id=oracle_id,
                 wish=True,
                 quantity=card_quantity,
                 notes=card_notes
