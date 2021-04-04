@@ -24,11 +24,15 @@
     <script data-ad-client="ca-pub-6372259072729638" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 
 </head>
-<body class="{{ font_family }} default_font">
+<body class="{{ font_family }} default_font body_class colorText">
+    <div class="page_loading" id="page_loading">
+        <div class="loadCircle"></div>
+    </div>
+
 <div class="google_translate" id="google_translate_element"></div>
 <div class="bodyContainer">
     <div class="topNav colorNavBackground">
-        <a class="topNavItem colorText tNactive clickableCol" href="/Users/" id="tnHome">Home</a>
+        <a class="topNavItem colorText tNactive clickableCol" onclick="show_page_load();" href="/Users/" id="tnHome">Home</a>
         <div class="navDropdown colorNavBackground colorText">
             <button class="navDropBtn colorNavBackground clickableCol colorText" onclick="navDropFunc()">
                <img src="{% static 'img\Menu-icon.png' %}" alt="Menu" class="navDropBtnImg">
@@ -38,30 +42,30 @@
                     {% if request.user.is_authenticated %}
                     <li class="navDropDownLI"><p class="topDropNavHeadItem colorText">
                         Welcome {{request.user.username}}</p></li>
-                    <li class="navDropDownLI"><a class="topDropNavHeadItem colorText clickableCol"
+                    <li class="navDropDownLI"><a class="topDropNavHeadItem colorText clickableCol" onclick="show_page_load();"
                                                  href="{% url 'logout'%}?next={% url 'logout'%}">Logout</a></li>
                     {% else %}
-                    <li class="navDropDownLI"><a class="topDropNavHeadItem colorText clickableCol"
+                    <li class="navDropDownLI"><a class="topDropNavHeadItem colorText clickableCol" onclick="show_page_load();"
                                                  href="{% url 'login'%}">Login</a></li>
                     {% endif %}
                     {% if request.user.is_authenticated %}
-                    <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol"
+                    <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol" onclick="show_page_load();"
                                                  href="{% url 'card_database'%}">Card Database</a></li>
-                    <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol"
+                    <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol" onclick="show_page_load();"
                                                  href="{% url 'deck_database'%}">Deck Database</a></li>
-                    <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol"
+                    <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol"  onclick="show_page_load();"
                                                  href="/LifeCounter/">Life Counter</a></li>
-                    <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol"
+                    <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol" onclick="show_page_load();"
                                                  href="/Users/user_profile/{{ request.user.id }}/">Profile</a></li>
                     {% else %}
-                    <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol"
+                    <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol" onclick="show_page_load();"
                                                  href="{% url 'card_database'%}">Card Database</a></li>
                     {% endif %}
                     {% if request.user.is_staff %}
                     <li class="navDropDownLI"><p class="topDropNavHeadItem colorText">Admin</p></li>
-                    <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol"
+                    <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol" onclick="show_page_load();"
                                                  href="{% url 'APIimport'%}">Update Cards</a></li>
-                    <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol"
+                    <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol" onclick="show_page_load();"
                              href="{% url 'quick_search_update'%}">Update Searches</a></li>
                     {% endif %}
                 </ul>
@@ -69,8 +73,7 @@
         </div>
     </div>
 
-    <div class="innerBody colorText">
-
+    <div class="innerBody">
         {% if messages %}
         {% for message in messages %}
         {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}

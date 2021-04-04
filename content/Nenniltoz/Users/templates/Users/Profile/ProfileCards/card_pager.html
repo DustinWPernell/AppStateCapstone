@@ -1,8 +1,9 @@
 {% if cardPager.has_other_pages %}
 <div class="pagination">
     {% if cardPager.has_previous %}
-    <span class="pages"><a class="pageLinks" href="?deckPage={{ deckPage }}&cardPage=1&cardWishPage={{ cardWishPage }}">&#60;&#60;</a></span>
-    <span class="pages"><a class="pageLinks"
+    <span class="pages"><a class="pageLinks" onclick="show_page_load();"
+                           href="?deckPage={{ deckPage }}&cardPage=1&cardWishPage={{ cardWishPage }}">&#60;&#60;</a></span>
+    <span class="pages"><a class="pageLinks" onclick="show_page_load();"
                            href="?deckPage={{ deckPage }}&cardPage={{ cardPager.previous_page_number }}&cardWishPage={{ cardWishPage }}">&#60;</a></span>
     {% else %}
     <span class="disabled pages"><span>&#60;&#60;</span></span>
@@ -12,15 +13,15 @@
     {% if cardPager.number == i %}
     <span class="pages"><span class="active">{{ i }}</span></span>
     {% else %}
-    <span class="pages"><a class="pageLinks"
+    <span class="pages"><a class="pageLinks" onclick="show_page_load();"
                            href="?deckPage={{ deckPage }}&cardPage={{ i }}&cardWishPage={{ cardWishPage }}">{{ i }}</a></span>
     {% endif %}
     {% endif %}
     {% endfor %}
     {% if cardPager.has_next %}
-    <span class="pages"><a class="pageLinks"
+    <span class="pages"><a class="pageLinks" onclick="show_page_load();"
                            href="?deckPage={{ deckPage }}&cardPage={{ cardPager.next_page_number }}&cardWishPage={{ cardWishPage }}">&#62;</a></span>
-    <span class="pages"><a class="pageLinks"
+    <span class="pages"><a class="pageLinks" onclick="show_page_load();"
                            href="?deckPage={{ deckPage }}&cardPage={{ cardPager.paginator.num_pages  }}&cardWishPage={{ cardWishPage }}">&#62;&#62;</a></span>
     {% else %}
     <span class="disabled pages"><span>&#62;&#62;</span></span>

@@ -13,9 +13,9 @@
         {% else %}
         <input name="avatarSearchTerm" placeholder="Search" type="text">
         {% endif %}
-        <input type="submit" value="Search">
+        <input type="submit" onclick="show_page_load();" value="Search">
         {% if clearSearch %}
-        <input name="clearSearch" type="submit" value="Clear Search">
+        <input name="clearSearch" type="submit" onclick="show_page_load();" value="Clear Search">
         {% endif %}
     </form>
 </div>

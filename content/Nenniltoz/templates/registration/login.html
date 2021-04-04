@@ -32,14 +32,14 @@
         {% endif %}
     {% endfor %}
     </div>
-    <input class="login_button" type="submit" value="login"/>
+    <input class="login_button" type="submit" onclick="show_page_load();" value="login"/>
     <input name="next" type="hidden" value="{{ next }}"/>
 </form>
 
 <p>
-    <a class="link_objs" href="{% url 'register' %}">New User?</a>
+    <a class="link_objs" onclick="show_page_load();" href="{% url 'register' %}">New User?</a>
     <br>
-    <a class="link_objs" href="{% url 'password_reset' %}">Reset Password</a>
+    <a class="link_objs" onclick="show_page_load();" href="{% url 'password_reset' %}">Reset Password</a>
 </p>
 
 {% endblock %}

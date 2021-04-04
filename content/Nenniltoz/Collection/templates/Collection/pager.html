@@ -1,8 +1,8 @@
 {% if pages.has_other_pages %}
 <div class="pagination">
     {% if pages.has_previous %}
-    <span class="pages"><a class="pageLinks" href="?page=1">&#60;&#60;</a></span>
-    <span class="pages"><a class="pageLinks" href="?page={{ pages.previous_page_number }}">&#60;</a></span>
+    <span class="pages"><a class="pageLinks" onclick="show_page_load();" href="?page=1">&#60;&#60;</a></span>
+    <span class="pages"><a class="pageLinks" onclick="show_page_load();" href="?page={{ pages.previous_page_number }}">&#60;</a></span>
     {% else %}
     <span class="disabled pages"><span>&#60;&#60;</span></span>
     {% endif %}
@@ -11,13 +11,13 @@
     {% if pages.number == i %}
     <span class="pages"><span class="active">{{ i }}</span></span>
     {% else %}
-    <span class="pages"><a class="pageLinks" href="?page={{ i }}">{{ i }}</a></span>
+    <span class="pages"><a class="pageLinks" onclick="show_page_load();" href="?page={{ i }}">{{ i }}</a></span>
     {% endif %}
     {% endif %}
     {% endfor %}
     {% if pages.has_next %}
-    <span class="pages"><a class="pageLinks" href="?page={{ pages.next_page_number }}">&#62;</a></span>
-    <span class="pages"><a class="pageLinks" href="?page={{ pages.paginator.num_pages  }}">&#62;&#62;</a></span>
+    <span class="pages"><a class="pageLinks" onclick="show_page_load();" href="?page={{ pages.next_page_number }}">&#62;</a></span>
+    <span class="pages"><a class="pageLinks" onclick="show_page_load();" href="?page={{ pages.paginator.num_pages  }}">&#62;&#62;</a></span>
     {% else %}
     <span class="disabled pages"><span>&#62;&#62;</span></span>
     {% endif %}

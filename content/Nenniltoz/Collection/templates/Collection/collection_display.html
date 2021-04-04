@@ -13,12 +13,12 @@
         {% else %}
         <input class="{{ font_family }}" name="collection_card_search_Term" placeholder="Search">
         {% endif %}
-        <input class="{{ font_family }}" type="submit" value="Search">
+        <input class="{{ font_family }}" type="submit" onclick="show_page_load();" value="Search">
         {% if clearSearch %}
-        <input class="{{ font_family }}" name="collection_card_clear_search" type="submit" value="Clear Search">
+        <input class="{{ font_family }}" name="collection_card_clear_search" type="submit" onclick="show_page_load();" value="Clear Search">
         {% endif %}
         <a class="advFilterA clickable colorText" onclick="advFilterFunc();">Advanced Search</a>
-        <div class="cardAdvFilter" id="advFilter">
+        <div class="cardAdvFilter" id="adv_mana_filter">
             {% for mana in mana_list %}
             <span class='manaSearchObj'>
           {% if mana.checked %}
@@ -30,6 +30,11 @@
         </span>
             {% endfor %}
         </div>
+        {% if not full_list %}
+        <div class="cardAdvFilter" id="adv_full_filter">
+            <input class="{{ font_family }}" name="collection_card_full_list" type="submit" onclick="show_page_load();" value="Full List">
+        </div>
+        {% endif %}
     </form>
 </div>
 
@@ -37,7 +42,7 @@
 <div class="cardGrid" id="cardGrid">
     {% for card_obj in pages %}
     <div class="cardObj">
-        <a class="cardDirection" href="/Collection/card/{{ card_obj.legal.card_obj.oracle_id }}/">
+        <a class="cardDirection" onclick="show_page_load();" href="/Collection/card/{{ card_obj.legal.card_obj.oracle_id }}/">
             <img alt="Avatar" class="cardImg" src="{{ card_obj.image_url }}">
             <div class="cardObjText {{ should_translate }}">
                 {{ card_obj.name }}

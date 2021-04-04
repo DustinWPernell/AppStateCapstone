@@ -6,7 +6,8 @@ function setSwitch(set_name, card_image_one, card_image_two){
 }
 
 function advFilterFunc() {
-    document.getElementById("advFilter").classList.toggle("show");
+    document.getElementById("adv_mana_filter").classList.toggle("show");
+    document.getElementById("adv_full_filter").classList.toggle("show");
 }
 
 function setSearchDisplay() {

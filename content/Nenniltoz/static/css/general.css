@@ -4,12 +4,11 @@ html{
     margin: 0;
 }
 
-.body{
-    min-width: 1120px;
+.body_class{
+    padding: 50px 50px 50px 50px;
 }
 
 .bodyContainer{
-    margin: 50px 50px 50px 50px;
     overflow: hidden;
 }
 
@@ -71,5 +70,5 @@ html{
     position: fixed;
     top: 0;
     right: 0;
-    z-index: 500;
+    z-index: 300;
 }

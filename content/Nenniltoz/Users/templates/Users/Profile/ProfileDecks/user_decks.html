@@ -10,9 +10,9 @@
         {% else %}
         <input class="{{ font_family }}" name="user_search_deck_term" placeholder="Search" type="text">
         {% endif %}
-        <input class="{{ font_family }}" name="user_search_deck" type="submit" value="Search">
+        <input class="{{ font_family }}" name="user_search_deck" type="submit" onclick="show_page_load();" value="Search">
         {% if clear_card_search %}
-        <input class="{{ font_family }}" name="user_clear_deck_search" type="submit" value="Clear Search">
+        <input class="{{ font_family }}" name="user_clear_deck_search" type="submit" onclick="show_page_load();" value="Clear Search">
         {% endif %}
     </form>
 </div>
@@ -27,6 +27,6 @@
 </table>
 {% endif %}
 
-<a class="colorText clickableCol" href="modify_deck/-1">New Deck</a>
+<a class="colorText clickableCol" onclick="show_page_load();" href="modify_deck/-1">New Deck</a>
 
 <hr>

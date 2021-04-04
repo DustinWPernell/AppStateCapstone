@@ -10,9 +10,9 @@
         {% else %}
         <input class="{{ font_family }}" name="user_search_card_term" placeholder="Search" type="text">
         {% endif %}
-        <input class="{{ font_family }}" name="user_search_card" type="submit" value="Search">
+        <input class="{{ font_family }}" name="user_search_card" type="submit" onclick="show_page_load();" value="Search">
         {% if clear_card_search %}
-        <input class="{{ font_family }}" name="user_clear_card_search" type="submit" value="Clear Search">
+        <input class="{{ font_family }}" name="user_clear_card_search" type="submit" onclick="show_page_load();" value="Clear Search">
         {% endif %}
     </form>
 </div>
@@ -41,7 +41,7 @@
             {{ card_obj.notes|remove_bracket|safe }}
         </td>
         <td>
-            <a class="cardDirection" href="/Collection/Card/{{ card_obj.card_oracle }}/">
+            <a class="cardDirection" onclick="show_page_load();" href="/Collection/Card/{{ card_obj.card_oracle }}/">
                 <img alt="Avatar" class="smallCardImg" src="{{ card_obj.card.get_remote_avatar }}">
             </a>
         </td>

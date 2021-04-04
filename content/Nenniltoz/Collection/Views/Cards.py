@@ -84,6 +84,11 @@ class Card_Database(View):
             del request.session['collection_card_selected_mana']
             request.session['collection_card_card_list'] = request.session['collection_card_card_base']
             request.session['collection_card_clear'] = False
+            request.session['collection_card_card_full'] = False
+        elif 'collection_card_full_list' in request.POST:
+            request.session['collection_card_card_full'] = True
+            request.session['collection_card_clear'] = True
+            request.session['collection_card_search_Term'] = "Full List"
         else:
             text = request.POST.get('collection_card_search_Term')
             search_term = text
@@ -142,6 +147,7 @@ class Card_Database(View):
             request.session['collection_card_selected_mana'] = selected_mana
             request.session['collection_card_card_list'] = filtered_card_list
             request.session['collection_card_clear'] = True
+            request.session['collection_card_card_full'] = False
         return redirect('card_database')
 
     def get(self, request):
@@ -155,36 +161,46 @@ class Card_Database(View):
         """
         logger.info("Run: collection_display; Params: " + json.dumps(request.GET.dict()))
         init_mana_list = Symbol.get_base_symbols()
+        selected_mana = []
+        card_xml = []
         try:
-            search_term = request.session['collection_card_search_Term']
-            selected_mana = request.session['collection_card_selected_mana']
-            card_xml = request.session['collection_card_card_list']
+            full_list = request.session['collection_card_card_full']
             clear_search = request.session['collection_card_clear']
+            search_term = request.session['collection_card_search_Term']
+            if not full_list:
+                selected_mana = request.session['collection_card_selected_mana']
+                card_xml = request.session['collection_card_card_list']
         except KeyError:
             search_term = request.session['collection_card_search_Term'] = ""
             selected_mana = request.session['collection_card_selected_mana'] = []
+            clear_search = request.session['collection_card_clear'] = False
             try:
-                card_xml = request.session['collection_card_card_base']
+                full_list = request.session['collection_card_card_full']
+                if not full_list:
+                    card_xml = request.session['collection_card_card_base']
             except KeyError:
                 card_xml = request.session['collection_card_card_list'] = CardIDList.get_xml()
                 request.session['collection_card_card_base'] = card_xml
-            clear_search = request.session['collection_card_clear'] = False
+                full_list = request.session['collection_card_card_full'] = False
 
-        mana_list = []
-        for init_mana in init_mana_list:
-            if init_mana.symbol in selected_mana:
-                mana_list.append(
-                    {'symbol': init_mana.symbol, 'checked': True, 'image_url': init_mana.image_url, 'id': init_mana.id})
-            else:
-                mana_list.append(
-                    {'symbol': init_mana.symbol, 'checked': False, 'image_url': init_mana.image_url, 'id': init_mana.id})
 
         card_list = []
-        try:
+        mana_list = []
+        if full_list:
+            card_list = CardIDList.get_card_face()
+        else :
+            for init_mana in init_mana_list:
+                if init_mana.symbol in selected_mana:
+                    mana_list.append(
+                        {'symbol': init_mana.symbol, 'checked': True, 'image_url': init_mana.image_url,
+                         'id': init_mana.id})
+                else:
+                    mana_list.append(
+                        {'symbol': init_mana.symbol, 'checked': False, 'image_url': init_mana.image_url,
+                         'id': init_mana.id})
+
             for obj in serializers.deserialize("xml", card_xml):
                 card_list.append(obj.object)
-        except:
-            help = ""
 
         page = request.GET.get('page', 1)
         paginator = Paginator(card_list, 20)
@@ -198,7 +214,8 @@ class Card_Database(View):
         font_family = UserProfile.get_font(request.user)
         should_translate = UserProfile.get_translate(request.user)
         context = {'font_family': font_family, 'should_translate': should_translate, 'pages': cards,
-                   'search_Term': search_term, 'mana_list': mana_list, 'clearSearch': clear_search}
+                   'search_Term': search_term, 'mana_list': mana_list, 'clearSearch': clear_search,
+                   'full_list': full_list}
         return render(request, 'Collection/collection_display.html', context)
 
 class User_Cards(View):

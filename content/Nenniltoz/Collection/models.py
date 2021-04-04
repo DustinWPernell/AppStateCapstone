@@ -48,6 +48,18 @@ class CardIDList(models.Model):
         return CardIDList.objects.all().order_by('card_name')
 
     @staticmethod
+    def get_card_face():
+        card_id_list_full = CardIDList.get_cards()
+        full_card_list_all = []
+
+        for card_list_obj in card_id_list_full:
+            full_card_list_all.append(card_list_obj.card_id)
+
+        return CardFace.objects.select_related().filter(
+            Q(legal__card_obj__card_id__in=full_card_list_all)
+        ).order_by('name')
+
+    @staticmethod
     def get_card_by_oracle(oracle_id):
         return CardIDList.objects.get(oracle_id=oracle_id)
         # .get(oracle_id=oracle_id)
@@ -628,7 +640,7 @@ class Symbol(models.Model):
 
 class QuickResult(models.Model):
     search = models.CharField(max_length=500)
-    last_update = models.DateField(default=datetime.datetime.now().date())
+    last_update = models.DateField(default='django.utils.timezone.now')
     result = models.TextField(default='{}')
 
     def __str__(self):
@@ -654,7 +666,7 @@ class QuickResult(models.Model):
                           '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}', '{14}', '{15}',
                           '{16}', '{17}', '{18}', '{19}', '{20}', '{100}', '{1000000}', '{P}']
 
-        card_id_list_full = CardIDList.get_cards()
+        card_id_list_full = CardIDList.get_cards()[0:5000]
         full_card_list_all = []
 
         for card_list_obj in card_id_list_full:

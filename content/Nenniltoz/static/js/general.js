@@ -53,3 +53,7 @@ function numValidate(evt) {
 function googleTranslateElementInit() {
   new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
 }
+
+function show_page_load(){
+    document.getElementById("page_loading").classList.toggle("show");
+}
