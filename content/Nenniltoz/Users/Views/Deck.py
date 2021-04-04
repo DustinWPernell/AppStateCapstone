@@ -8,14 +8,97 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import render, redirect
 from django.views import View
 
-from Collection.models import CardFace, Deck, DeckType, DeckCards
+from Collection.models import CardFace, Deck, DeckType, DeckCards, Symbol
 from Users.models import UserProfile, UserCards
 
 logger = logging.getLogger(__name__)
 
 class Manage_Cards(View):
+    def post(self, request, user_id, deck_id):
+        user_profile_obj = UserProfile.get_profile_by_user(user_id)
+
+#region Page numbers
+
+        try:
+            card_page = request.GET.get('user_card_page', -1)
+            if card_page == -1:
+                card_page = request.session['user_card_page']
+        except KeyError:
+            card_page = request.GET.get('user_card_page', 1)
+            request.session['user_card_page'] = card_page
+
+        try:
+            all_card_page = request.GET.get('all_card_page', -1)
+            if all_card_page == -1:
+                all_card_page = request.session['all_card_page']
+        except KeyError:
+            all_card_page = request.GET.get('all_card_page', 1)
+            request.session['all_card_page'] = all_card_page
+
+        try:
+            wish_card_page = request.GET.get('wish_card_page', -1)
+            if wish_card_page == -1:
+                wish_card_page = request.session['wish_card_page']
+        except KeyError:
+            wish_card_page = request.GET.get('wish_card_page', 1)
+            request.session['wish_card_page'] = wish_card_page
+
+#endregion
+
+        if 'user_deck_card_clear' in request.POST:
+            del request.session['user_deck_card_search_term']
+            del request.session['user_deck_card_search_list']
+            request.session['user_deck_card_search_clear'] = False
+        elif 'user_deck_search_card' in request.POST:
+            search_term = request.POST.get('user_deck_card_search_term')
+            user_card_obj_term = UserCards.get_user_card_term(user_profile_obj.user, search_term, False)
+            card_id_list = []
+            for card_list_obj in user_card_obj_term:
+                if card_list_obj.card.legal.card_obj.card_id not in card_id_list:
+                    card_id_list.append(card_list_obj.card.legal.card_obj.oracle_id)
+
+            request.session['user_deck_card_search_term'] = search_term
+            request.session['user_deck_card_search_list'] = card_id_list
+            request.session['user_deck_card_search_clear'] = True
+        elif 'user_all_card_clear' in request.POST:
+            del request.session['user_all_card_search_term']
+            del request.session['user_all_card_search_list']
+            request.session['user_all_card_search_clear'] = False
+        elif 'user_all_search_card' in request.POST:
+            search_term = request.POST.get('user_all_card_search_term')
+            user_card_obj_term = UserCards.get_user_card_term(user_profile_obj.user, search_term, True)
+            card_id_list = []
+            for card_list_obj in user_card_obj_term:
+                if card_list_obj.card.legal.card_obj.card_id not in card_id_list:
+                    card_id_list.append(card_list_obj.card.legal.card_obj.oracle_id)
+            request.session['user_all_card_search_term'] = search_term
+            request.session['user_all_card_search_list'] = card_id_list
+            request.session['user_all_card_search_clear'] = True
+        elif 'user_wish_card_clear' in request.POST:
+            del request.session['user_wish_card_search_term']
+            del request.session['user_wish_card_search_list']
+            request.session['user_wish_card_search_clear'] = False
+        elif 'user_wish_search_card' in request.POST:
+            search_term = request.POST.get('user_wish_card_search_term')
+            user_card_obj_term = UserCards.get_user_card_term(user_profile_obj.user, search_term, True)
+            card_id_list = []
+            for card_list_obj in user_card_obj_term:
+                if card_list_obj.card.legal.card_obj.card_id not in card_id_list:
+                    card_id_list.append(card_list_obj.card.legal.card_obj.oracle_id)
+            request.session['user_wish_card_search_term'] = search_term
+            request.session['user_wish_card_search_list'] = card_id_list
+            request.session['user_wish_card_search_clear'] = True
+        elif 'save_cards' in request.POST:
+            card_list = request.SESSION['user_card_selected_list'] = request.POST.get('user_card_selected_list')
+
+
+
+        return redirect('../' + str(user_id) + '?user_card_page=' +
+                        str(card_page) + '&all_card_page=' + str(all_card_page) + '&wish_card_page=' + str(
+            wish_card_page))
+
     @login_required
-    def get(self, request, user_id):
+    def get(self, request, user_id, deck_id):
 
         user_profile_obj = UserProfile.get_profile_by_user(user_id)
 
@@ -46,74 +129,6 @@ class Manage_Cards(View):
             request.session['wish_card_page'] = wish_card_page
 
         # endregion
-
-        if request.method == 'POST':
-            deck_name = request.session['deck_name'] = request.POST.get('deck_name')
-            is_private = request.session['is_private'] = request.POST.get('is_private')
-            image_url = request.session['image_url'] = request.POST.get('image_url')
-            description = request.session['description'] = request.POST.get('description')
-            deck_type = request.session['deck_type'] = request.POST.get('deck_type')
-            commander = request.session['commander'] = request.POST.get('commander')
-
-            if 'user_clear_user_card_search' in request.POST:
-                del request.session['user_search_card_term']
-                del request.session['user_cards']
-                request.session['user_clear_card_search'] = False
-
-            elif 'user_search_user_card' in request.POST:
-                search_term = request.POST.get('user_search_card_term')
-                user_card_obj_term = UserCards.get_user_card_term(user_profile_obj.user, search_term, False)
-                card_id_list = []
-                for card_list_obj in user_card_obj_term:
-                    if card_list_obj.card.legal.card_obj.card_id not in card_id_list:
-                        card_id_list.append(card_list_obj.card.legal.card_obj.oracle_id)
-
-                request.session['user_search_card_term'] = search_term
-                request.session['user_cards'] = card_id_list
-                request.session['user_clear_card_search'] = True
-
-            elif 'user_clear_all_card_search' in request.POST:
-                del request.session['user_search_all_term']
-                del request.session['user_all_cards']
-                request.session['user_clear_all_search'] = False
-
-            elif 'user_search_all_card' in request.POST:
-                search_term = request.POST.get('user_search_all_term')
-                user_card_obj_term = UserCards.get_user_card_term(user_profile_obj.user, search_term, True)
-                card_id_list = []
-                for card_list_obj in user_card_obj_term:
-                    if card_list_obj.card.legal.card_obj.card_id not in card_id_list:
-                        card_id_list.append(card_list_obj.card.legal.card_obj.oracle_id)
-
-                request.session['user_search_all_term'] = search_term
-                request.session['user_all_cards'] = card_id_list
-                request.session['user_clear_all_search'] = True
-
-            elif 'user_clear_wish_card_search' in request.POST:
-                del request.session['user_search_wish_term']
-                del request.session['user_wish_cards']
-                request.session['user_clear_wish_search'] = False
-
-            elif 'user_search_wish_card' in request.POST:
-                search_term = request.POST.get('user_search_wish_term')
-                user_card_obj_term = UserCards.get_user_card_term(user_profile_obj.user, search_term, True)
-                card_id_list = []
-                for card_list_obj in user_card_obj_term:
-                    if card_list_obj.card.legal.card_obj.card_id not in card_id_list:
-                        card_id_list.append(card_list_obj.card.legal.card_obj.oracle_id)
-
-                request.session['user_search_wish_term'] = search_term
-                request.session['user_wish_cards'] = card_id_list
-                request.session['user_clear_wish_search'] = True
-
-            elif 'save_cards' in request.POST:
-                card_list = request.SESSION['deck_card_list'] = request.POST.get('hid_deck_card_list')
-
-
-
-            return redirect('../' + str(user_id) + '?user_card_page=' +
-                            str(card_page) + '&all_card_page=' + str(all_card_page) + '&wish_card_page=' + str(
-                wish_card_page))
 
         # region Cards from sessions
 
@@ -189,7 +204,43 @@ class Manage_Cards(View):
         }
         return render(request, 'Users/Profile/ProfileDecks/modify_cards_deck.html', context)
 
+
 class Manage_Deck(View):
+    def create_copy(self, request, deck_obj):
+#region Copy Deck
+        new_deck = Deck.objects.create(
+            name=deck_obj.name,
+            deck_type=deck_obj.deck_type,
+            is_private=UserProfile.get_deck_private(request.user),
+            image_url=deck_obj.image_url,
+            description=deck_obj.description,
+            commander_id=deck_obj.commander_id,
+            commander_name=deck_obj.commander_name,
+            commander_file=deck_obj.commander_file,
+            commander_oracle=deck_obj.commander_oracle,
+            color_id=deck_obj.color_id,
+            created_by=deck_obj.created_by,
+            deck_user=request.user.id,
+            is_pre_con=False
+        )
+#endregion
+
+#region Copy Cards
+        deck_cards = DeckCards.deck_card_by_deck_user()
+
+        for card in deck_cards:
+            DeckCards.objects.create(
+                deck=new_deck,
+                card_oracle = card.card_oracle,
+                card_name = card.card_name,
+                card_file = card.card_file,
+                card_search = card.card_search,
+                quantity = card.quantity,
+                sideboard = card.sideboard,
+            )
+#endregion
+        return new_deck
+
     @login_required
     def get(self, request, user_id, deck_id):
         """Displays new deck page
@@ -200,78 +251,15 @@ class Manage_Deck(View):
 
         :todo: Finish new deck page
         """
-        user_profile_obj = UserProfile.get_profile_by_user(user_id)
 
-        if request.method == 'POST':
-            deck_name = request.session['deck_name'] = request.POST.get('deck_name')
-            is_private = request.session['is_private'] = request.POST.get('is_private')
-            image_url = request.session['image_url'] = request.POST.get('image_url')
-            description = request.session['description'] = request.POST.get('description')
-            deck_type = request.session['deck_type'] = request.POST.get('deck_type')
-            commander = request.session['commander'] = request.POST.get('commander')
-
-            if 'create_deck' in request.POST:
-                # todo make deck
-                # js to load selected cards into deck / sideboard
-
-                deck_type_obj = DeckType.get_deck_type_by_type(deck_type)
-
-                if deck_type_obj.has_commander:
-                    try:
-                        commander_obj = CardFace.get_face_by_card(commander)
-                    except CardFace.DoesNotExist:
-                        commander_obj = None
-                        messages.error(request, "Commander not found. Leaving blank")
-                else:
-                    commander_obj = None
-
-                Deck.objects.create(
-                    deck_name=deck_name,
-                    deck_type=deck_type_obj,
-                    is_private=is_private == 'True',
-                    image_url=image_url,
-                    description=description,
-                    commander=commander_obj,
-                    color_id="",
-                    created_by=request.user.id,
-                    is_pre_con=request.user.username == "Preconstructed"
-                )
-
-            elif 'update_deck' in request.POST:
-                # todo make deck
-                # js to load selected cards into deck / sideboard
-
-                try:
-                    deck_id = request.POST.get('deck_id')
-                    deck_obj = Deck.get_deck_by_deck(deck_id)
-                    deck_type_obj = DeckType.get_deck_type_by_type(deck_type)
-
-                    if deck_type_obj.has_commander:
-                        try:
-                            commander_obj = CardFace.get_face_by_card(commander)
-                        except CardFace.DoesNotExist:
-                            commander_obj = None
-                            messages.error(request, "Commander not found. Leaving blank")
-                    else:
-                        commander_obj = None
-
-                    deck_obj.deck_name = deck_name
-                    deck_obj.deck_type = deck_type_obj
-                    deck_obj.is_private = is_private == 'True'
-                    deck_obj.image_url = image_url
-                    deck_obj.description = description
-                    deck_obj.commander = commander_obj
-                    deck_obj.save()
-                except DeckType.DoesNotExist:
-                    messages.error(request, "Deck type not defined. Deck not modified.")
-                except Deck.DoesNotExist:
-                    messages.error(request, "Deck not found. Deck not modified.")
-
-            return redirect('../' + str(user_id))
-
-        if int(deck_id) > -1:
+        try:
             deck_obj = Deck.get_deck_by_deck(deck_id)
-        else:
+
+            if deck_obj.deck_user is not user_id:
+                deck_obj = self.create_copy(request, deck_obj)
+                messages.success(request, "Deck copied to your profile.")
+
+        except Deck.DoesNotExist:
             deck_obj = "new"
 
         font_family = UserProfile.get_font(request.user)
@@ -281,3 +269,98 @@ class Manage_Deck(View):
             'deck_obj': deck_obj,
         }
         return render(request, 'Users/Profile/ProfileDecks/modify_deck.html', context)
+
+
+class Save_Deck(View):
+    def post(self, request, user_id, deck_id):
+        deck_name = request.session['deck_name'] = request.POST.get('deck_name')
+        is_private = request.session['is_private'] = request.POST.get('is_private')
+        image_url = request.session['image_url'] = request.POST.get('image_url')
+        description = request.session['description'] = request.POST.get('description')
+        deck_type = request.session['deck_type'] = request.POST.get('deck_type')
+        commander = request.session['commander'] = request.POST.get('commander')
+
+        if 'create_deck' in request.POST:
+            deck_type_obj = DeckType.get_deck_type_by_type(deck_type)
+            color_id = ''
+            if deck_type_obj.has_commander:
+                try:
+                    commander_obj = CardFace.get_face_by_card(commander)
+                    commander_id = commander_obj.legal.card_obj.card_id
+                    commander_name=commander_obj.name
+                    commander_file=commander_obj.image_file
+                    commander_oracle=commander_obj.legal.card_obj.oracle_id
+                    for sym in Symbol.objects.all():
+                        color_id = color_id + sym.symbol
+                except CardFace.DoesNotExist:
+                    commander_id= None
+                    commander_name= None
+                    commander_file= None
+                    commander_oracle= None
+                    messages.error(request, "Commander not found. Leaving blank")
+            else:
+                commander_id = None
+                commander_name = None
+                commander_file = None
+                commander_oracle = None
+
+            new_deck = Deck.objects.create(
+                name=deck_name,
+                deck_type=deck_type_obj,
+                is_private=is_private == 'True',
+                image_url=image_url,
+                description=description,
+                commander_id=commander_id,
+                commander_name=commander_name,
+                commander_file=commander_file,
+                commander_oracle=commander_oracle,
+                color_id=color_id,
+                created_by=request.user.id,
+                deck_user=request.user.id,
+                is_pre_con=(request.user.username == "Preconstructed")
+            )
+            deck_id = new_deck.id
+        elif 'update_deck' in request.POST:
+            try:
+                deck_obj = Deck.get_deck_by_deck(deck_id)
+                deck_type_obj = DeckType.get_deck_type_by_type(deck_type)
+
+                color_id = ''
+                if deck_type_obj.has_commander:
+                    try:
+                        commander_obj = CardFace.get_face_by_card(commander)
+                        commander_id = commander_obj.legal.card_obj.card_id
+                        commander_name = commander_obj.name
+                        commander_file = commander_obj.image_file
+                        commander_oracle = commander_obj.legal.card_obj.oracle_id
+                        for sym in Symbol.objects.all():
+                            color_id = color_id + sym.symbol
+                    except CardFace.DoesNotExist:
+                        commander_id = None
+                        commander_name = None
+                        commander_file = None
+                        commander_oracle = None
+                        messages.error(request, "Commander not found. Leaving blank")
+                else:
+                    commander_id = None
+                    commander_name = None
+                    commander_file = None
+                    commander_oracle = None
+
+                deck_obj.deck_name = deck_name
+                deck_obj.deck_type = deck_type_obj
+                deck_obj.is_private = is_private == 'True'
+                deck_obj.image_url = image_url
+                deck_obj.description = description
+                deck_obj.commander_id=commander_id,
+                deck_obj.commander_name=commander_name,
+                deck_obj.commander_file=commander_file,
+                deck_obj.commander_oracle=commander_oracle,
+                deck_obj.color_id=color_id,
+                deck_obj.save()
+            except DeckType.DoesNotExist:
+                messages.error(request, "Deck type not defined. Deck not modified.")
+            except Deck.DoesNotExist:
+                messages.error(request, "Deck not found. Deck not modified.")
+
+        return redirect('Users/user_profile/' + str(user_id) + '/manage_deck/' + str(deck_id) + '/')

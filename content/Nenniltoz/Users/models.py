@@ -156,6 +156,14 @@ class UserProfile(models.Model):
         else:
             return 'notranslate'
 
+    @staticmethod
+    def get_deck_private(user):
+        if user.is_authenticated:
+            up = UserProfile.objects.get(user=user)
+            return up.deck_view
+        else:
+            return False
+
 
 class UserCards(models.Model):
     """

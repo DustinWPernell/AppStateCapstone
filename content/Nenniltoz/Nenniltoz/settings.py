@@ -163,6 +163,9 @@ LOGIN_REDIRECT_URL = '/Users'
 EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
 EMAIL_FILE_PATH = str(BASE_DIR.joinpath('sent_emails'))
 
+
+SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

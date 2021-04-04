@@ -9,13 +9,13 @@
     <form action="card_database" method="post">
         {% csrf_token %}
         {% if clearSearch %}
-        <input class="{{ font_family }}" name="SearchTerm" value="{{ SearchTerm }}">
+        <input class="{{ font_family }}" name="collection_card_search_Term" value="{{ search_Term }}">
         {% else %}
-        <input class="{{ font_family }}" name="SearchTerm" placeholder="Search">
+        <input class="{{ font_family }}" name="collection_card_search_Term" placeholder="Search">
         {% endif %}
         <input class="{{ font_family }}" type="submit" value="Search">
         {% if clearSearch %}
-        <input class="{{ font_family }}" name="clearSearch" type="submit" value="Clear Search">
+        <input class="{{ font_family }}" name="collection_card_clear_search" type="submit" value="Clear Search">
         {% endif %}
         <a class="advFilterA clickable colorText" onclick="advFilterFunc();">Advanced Search</a>
         <div class="cardAdvFilter" id="advFilter">
@@ -38,7 +38,7 @@
     {% for card_obj in pages %}
     <div class="cardObj">
         <a class="cardDirection" href="/Collection/card/{{ card_obj.legal.card_obj.oracle_id }}/">
-            <img alt="Avatar" class="cardImg" src="{{ card_obj.get_remote_image }}">
+            <img alt="Avatar" class="cardImg" src="{{ card_obj.image_url }}">
             <div class="cardObjText {{ should_translate }}">
                 {{ card_obj.name }}
             </div>

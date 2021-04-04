@@ -13,6 +13,7 @@ from Management.models import Settings
 from Users.models import UserProfile
 from static.python.api_import import card_import_job, oracle_import_job, rule_import_job, set_import_job, \
     symbol_import_job, card_image_job
+from static.python.result_updates import update_oracles_results
 from worker import conn
 
 logger = logging.getLogger("logger")
@@ -34,6 +35,24 @@ def admin_index(request):
     context = {'font_family': font_family}
     return render(request, 'Management/admin_land.html', context)
 
+@staff_member_required
+def quick_search_update(request):
+    """Displays API import options.
+
+    Shows the Scryfall import option implemented. As import processes data, updates display progress.
+    Warning: Processing takes a long time when importing cards an rules.
+
+    @param request:
+
+    :todo: None
+    """
+    logger.info("Params: " + json.dumps(request.GET.dict()))
+    settings_list = Settings.objects.all()
+
+    font_family = UserProfile.get_font(request.user)
+    context = {'font_family': font_family, 'settings_list': settings_list, }
+    return render(request, 'Management/quick_search_update.html', context)
+
 
 @staff_member_required
 def api_import(request):
@@ -53,6 +72,18 @@ def api_import(request):
     context = {'font_family': font_family, 'settings_list': settings_list, }
     return render(request, 'Management/api_import.html', context)
 
+#region Searches
+
+@staff_member_required
+def oracle_search(request):
+    logger.info("Params: " + json.dumps(request.GET.dict()))
+    q = Queue(connection=conn)
+    q.enqueue(update_oracles_results, 'http://heroku.com', job_timeout=20000)
+    return HttpResponse("Added to queue")
+
+#endregion
+
+#region Imports
 
 @staff_member_required
 def card_update(request):
@@ -133,3 +164,5 @@ def symbol_update(request):
     q = Queue(connection=conn)
     q.enqueue(symbol_import_job, 'http://heroku.com', job_timeout=20000)
     return HttpResponse("Added to queue")
+
+#endregion

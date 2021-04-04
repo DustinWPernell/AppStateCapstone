@@ -1,3 +1,26 @@
+function runSearche(type){
+    showLoad();
+    RetrieveSearch(type);
+}
+
+function RetrieveSearch(type){
+    if(type == "oracles"){
+        OraclesSearch();
+    }
+}
+
+function OraclesSearch(){
+    var request_data = "Oracle";
+    $.ajax({
+        url: "../Management/oracle_search",
+        data : {request: request_data},
+        success : function(json) {
+            printToList("Added Oracle Search To Queue");
+            showLoad();
+        }
+    })
+}
+
 function runImport(type){
     showLoad();
     RetrieveAPI(type);
@@ -22,14 +45,15 @@ function RetrieveAPI(type){
         url: "../Management/retrieveAPI",
         data : {request: request_data},
         success : function(json) {
-            printToList("Added API To Queue");
             if(type == "card"){
                 CardImport();
+            } else if(type == "images"){
+                CardImages();
             } else if(type == "oracle"){
                 OracleImport();
-            }else if(type == "set"){
+            } else if(type == "set"){
                 SetImport();
-            }else if(type == "rule"){
+            } else if(type == "rule"){
                 RuleImport();
             } else if(type == "symbol"){
                 SymbolImport();
@@ -39,7 +63,6 @@ function RetrieveAPI(type){
 }
 
 function OracleImport(){
-    printToList("Running Oracle Import");
     var request_data = "Oracle";
     $.ajax({
         url: "../Management/oracleUpdate",
@@ -53,7 +76,6 @@ function OracleImport(){
 
 
 function SetImport(){
-    printToList("Running set Import");
     var request_data = "Sets";
     $.ajax({
         url: "../Management/setUpdate",
@@ -66,20 +88,18 @@ function SetImport(){
 }
 
 function CardImport(){
-    printToList("Running Card Import");
     var request_data = "Cards";
     $.ajax({
         url: "../Management/cardUpdate",
         data : {request: request_data},
         success : function(json) {
             printToList("Added Card To Queue");
-            showLoad();
+            CardImages();
         }
     })
 }
 
-function CardImport(){
-    printToList("Running Card Image Import");
+function CardImages(){
     var request_data = "Cards";
     $.ajax({
         url: "../Management/cardUpdate",
@@ -92,7 +112,6 @@ function CardImport(){
 }
 
 function RuleImport(){
-    printToList("Running Rule Import");
     var request_data = "Rules";
     $.ajax({
         url: "../Management/ruleUpdate",
@@ -105,7 +124,6 @@ function RuleImport(){
 }
 
 function SymbolImport(){
-    printToList("Running Symbol Import");
     var request_data = "Symbols";
     $.ajax({
         url: "../Management/symbolUpdate",

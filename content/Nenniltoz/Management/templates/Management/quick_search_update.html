@@ -1,0 +1,27 @@
+{% extends "base_generic.html" %}
+{% load static %}
+{% block css %}
+<link href="{% static 'css\admin.css' %}" rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% block content %}
+<div class="APIButtons show" id="APIButtons">
+    <div>
+        <button class="APIBtn" onclick="runSearche('oracles',this);">
+            Update Oracles
+        </button>
+    </div>
+</div>
+
+<div class="APIDataRun">
+    <div class="loadCircle" id="APILoader"></div>
+    <ul class="APIProgress" id="APIProgress">
+
+    </ul>
+</div>
+
+{% endblock %}
+
+{% block custom_scripts %}
+<script src="{% static 'js\admin.js' %}"></script>
+{% endblock %}

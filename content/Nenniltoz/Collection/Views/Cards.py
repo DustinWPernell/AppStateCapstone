@@ -2,6 +2,7 @@ import json
 import logging
 
 from django.contrib import messages
+from django.core import serializers
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import render, redirect
 from django.views import View
@@ -70,6 +71,79 @@ class Card_Display(View):
             return render(request, 'error.html', context)
 
 class Card_Database(View):
+    def post(self, request):
+        logger.info("Run: collection_display; Params: " + json.dumps(request.GET.dict()))
+        init_mana_list = Symbol.get_base_symbols()
+        card_id_list_full = CardIDList.get_cards()
+        full_card_list_all = []
+        for card_list_obj in card_id_list_full:
+            full_card_list_all.append(card_list_obj.card_id)
+
+        if 'collection_card_clear_search' in request.POST:
+            del request.session['collection_card_search_Term']
+            del request.session['collection_card_selected_mana']
+            request.session['collection_card_card_list'] = request.session['collection_card_card_base']
+            request.session['collection_card_clear'] = False
+        else:
+            text = request.POST.get('collection_card_search_Term')
+            search_term = text
+            selected_mana = []
+            for selected in init_mana_list:
+                mana_ele = request.POST.get("mana-" + str(selected.id))
+                if mana_ele == '':
+                    selected_mana.append(selected.symbol)
+                    if selected.symbol == '{W}':
+                        alt_mana = Symbol.get_white()
+                    elif selected.symbol == '{U}':
+                        alt_mana = Symbol.get_blue()
+                    elif selected.symbol == '{B}':
+                        alt_mana = Symbol.get_black()
+                    elif selected.symbol == '{R}':
+                        alt_mana = Symbol.get_red()
+                    elif selected.symbol == '{G}':
+                        alt_mana = Symbol.get_green()
+                    elif selected.symbol == '{C}':
+                        alt_mana = Symbol.get_colorless()
+                    else:
+                        alt_mana = []
+
+                    for am in alt_mana:
+                        if am.symbol not in selected_mana:
+                            selected_mana.append(am.symbol)
+
+            if len(selected_mana) > 0:
+                colorless = ['{C}', '', '{X}', '{Y}', '{Z}', '{0}', '{1/2}', '{1}', '{2}', '{3}', '{4}', '{5}',
+                             '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}', '{14}', '{15}',
+                             '{16}', '{17}', '{18}', '{19}', '{20}', '{100}', '{1000000}', '{P}']
+
+                has_colorless = any(item in selected_mana for item in colorless)
+                if has_colorless:
+                    filtered_card_list = CardFace.card_face_filter_by_card_color_term_colorless(
+                        full_card_list_all, selected_mana, search_term
+                    )
+                else:
+                    filtered_card_list = CardFace.card_face_filter_by_card_term(
+                        full_card_list_all, selected_mana, search_term
+                    )
+            else:
+                list_of_colors = ['{W}', '{W/U}', '{W/B}', '{R/W}', '{G/W}', '{2/W}', '{W/P}', '{HW}',
+                                  '{U}', '{U/B}', '{U/R}', '{G/U}', '{2/U}', '{U/P}', '{HU}',
+                                  '{B}', '{B/R}', '{B/G}', '{2/B}', '{B/P}', '{HB}',
+                                  '{R}', '{R/G}', '{2/R}', '{R/P}', '{HR}',
+                                  '{G}', '{2/G}', '{G/P}', '{HG}',
+                                  '{C}', '', '{X}', '{Y}', '{Z}', '{0}', '{1/2}', '{1}', '{2}', '{3}', '{4}', '{5}',
+                                  '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}', '{14}', '{15}',
+                                  '{16}', '{17}', '{18}', '{19}', '{20}', '{100}', '{1000000}', '{P}']
+                filtered_card_list = CardFace.card_face_filter_by_card_term(
+                    full_card_list_all, list_of_colors, search_term
+                )
+
+            request.session['collection_card_search_Term'] = search_term
+            request.session['collection_card_selected_mana'] = selected_mana
+            request.session['collection_card_card_list'] = filtered_card_list
+            request.session['collection_card_clear'] = True
+        return redirect('card_database')
+
     def get(self, request):
         """Display entire card database.
 
@@ -81,91 +155,20 @@ class Card_Database(View):
         """
         logger.info("Run: collection_display; Params: " + json.dumps(request.GET.dict()))
         init_mana_list = Symbol.get_base_symbols()
-        card_id_list_full = CardIDList.get_card_ids()
-        full_card_list_all = []
-        for card_list_obj in card_id_list_full:
-            full_card_list_all.append(card_list_obj.card_id)
-
-        selected_mana = []
-        search_term = 'Search'
-        if request.method == 'POST':
-            if 'clearSearch' in request.POST:
-                del request.session['search']
-                del request.session['searchTerm']
-                del request.session['selected_mana']
-                del request.session['card_id_list']
-            else:
-                text = request.POST.get('SearchTerm')
-                search_term = text
-
-                selected_mana = []
-
-                for selected in init_mana_list:
-                    mana_ele = request.POST.get("mana-" + str(selected.id))
-                    if mana_ele == '':
-                        selected_mana.append(selected.symbol)
-                        if selected.symbol == '{W}':
-                            alt_mana = Symbol.get_white()
-                        elif selected.symbol == '{U}':
-                            alt_mana = Symbol.get_blue()
-                        elif selected.symbol == '{B}':
-                            alt_mana = Symbol.get_black()
-                        elif selected.symbol == '{R}':
-                            alt_mana = Symbol.get_red()
-                        elif selected.symbol == '{G}':
-                            alt_mana = Symbol.get_green()
-                        elif selected.symbol == '{C}':
-                            alt_mana = Symbol.get_colorless()
-                        else:
-                            alt_mana = []
-
-                        for am in alt_mana:
-                            if am.symbol not in selected_mana:
-                                selected_mana.append(am.symbol)
-
-                if len(selected_mana) > 0:
-                    card_id_list = []
-                    colorless = ['{C}', '', '{X}', '{Y}', '{Z}', '{0}', '{1/2}', '{1}', '{2}', '{3}', '{4}', '{5}',
-                                 '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}', '{14}', '{15}',
-                                 '{16}', '{17}', '{18}', '{19}', '{20}', '{100}', '{1000000}', '{P}']
-
-                    has_colorless = any(item in selected_mana for item in colorless)
-                    if has_colorless:
-                        filtered_card_list = CardFace.card_face_filter_by_card_color_term_colorless(
-                            full_card_list_all, selected_mana, search_term
-                        )
-                    else:
-                        filtered_card_list = CardFace.card_face_filter_by_card_color_term(
-                            full_card_list_all, selected_mana, search_term
-                        )
-
-                    for card_list_obj in filtered_card_list:
-                        if card_list_obj.legal.card_obj.card_id not in card_id_list:
-                            card_id_list.append(card_list_obj.legal.card_obj.card_id)
-                else:
-                    filtered_card_list = CardFace.card_face_filter_by_card_term(
-                        full_card_list_all, search_term
-                    )
-
-                    card_id_list = []
-                    for card_list_obj in filtered_card_list:
-                        if card_list_obj.legal.card_obj.card_id not in card_id_list:
-                            card_id_list.append(card_list_obj.legal.card_obj.card_id)
-
-                request.session['search'] = True
-                request.session['searchTerm'] = search_term
-                request.session['selected_mana'] = selected_mana
-                request.session['card_id_list'] = card_id_list
-            return redirect('card_database')
-        else:
+        try:
+            search_term = request.session['collection_card_search_Term']
+            selected_mana = request.session['collection_card_selected_mana']
+            card_xml = request.session['collection_card_card_list']
+            clear_search = request.session['collection_card_clear']
+        except KeyError:
+            search_term = request.session['collection_card_search_Term'] = ""
+            selected_mana = request.session['collection_card_selected_mana'] = []
             try:
-                search_term = request.session['searchTerm']
-                selected_mana = request.session['selected_mana']
-                card_id_list = request.session['card_id_list']
-                clear_search = True
+                card_xml = request.session['collection_card_card_base']
             except KeyError:
-                card_id_list = full_card_list_all
-                clear_search = False
+                card_xml = request.session['collection_card_card_list'] = CardIDList.get_xml()
+                request.session['collection_card_card_base'] = card_xml
+            clear_search = request.session['collection_card_clear'] = False
 
         mana_list = []
         for init_mana in init_mana_list:
@@ -176,10 +179,14 @@ class Card_Database(View):
                 mana_list.append(
                     {'symbol': init_mana.symbol, 'checked': False, 'image_url': init_mana.image_url, 'id': init_mana.id})
 
-        card_list = CardFace.get_face_list_by_card(card_id_list)
+        card_list = []
+        try:
+            for obj in serializers.deserialize("xml", card_xml):
+                card_list.append(obj.object)
+        except:
+            help = ""
 
         page = request.GET.get('page', 1)
-
         paginator = Paginator(card_list, 20)
         try:
             cards = paginator.page(page)
@@ -191,7 +198,7 @@ class Card_Database(View):
         font_family = UserProfile.get_font(request.user)
         should_translate = UserProfile.get_translate(request.user)
         context = {'font_family': font_family, 'should_translate': should_translate, 'pages': cards,
-                   'SearchTerm': search_term, 'mana_list': mana_list, 'clearSearch': clear_search}
+                   'search_Term': search_term, 'mana_list': mana_list, 'clearSearch': clear_search}
         return render(request, 'Collection/collection_display.html', context)
 
 class User_Cards(View):

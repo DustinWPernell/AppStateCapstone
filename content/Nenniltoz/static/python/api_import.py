@@ -1,4 +1,5 @@
 import os
+from itertools import islice
 
 import boto3
 from decouple import config
@@ -168,25 +169,38 @@ def rule_import_job(param):
     Rule.objects.all().delete()
 
     objects = list(ijson.items(urlopen(api_rule), 'item'))
-    for obj in objects:
-        if 'oracle_id' in obj:
-            oracle_id = obj['oracle_id']
-        else:
-            oracle_id = ""
-        if 'published_at' in obj:
-            published_at = obj['published_at']
-        else:
-            published_at = ""
-        if 'comment' in obj:
-            comment = obj['comment']
-        else:
-            comment = ""
 
-        Rule.objects.create(
-            oracle_id=oracle_id,
-            pub_date=published_at,
-            comment=comment,
-        )
+    batch_size = 100
+    rule_obj = (Rule(oracle_id='%s' % i['oracle_id'],
+                     pub_date='%s' % i['published_at'],
+                     comment='%s' % i['comment']
+                     ) for i in objects)
+    while True:
+        batch = list(islice(rule_obj, batch_size))
+        if not batch:
+            break
+        Rule.objects.bulk_create(batch, batch_size)
+
+
+    #for obj in objects:
+    #   if 'oracle_id' in obj:
+    #        oracle_id = obj['oracle_id']
+    #    else:
+    #        oracle_id = ""
+    #    if 'published_at' in obj:
+    #        published_at = obj['published_at']
+    #    else:
+    #        published_at = ""
+    #    if 'comment' in obj:
+    #        comment = obj['comment']
+    #    else:
+    #        comment = ""
+
+    #    Rule.objects.create(
+    #        oracle_id=oracle_id,
+    #        pub_date=published_at,
+    #        comment=comment,
+    #    )
     return HttpResponse("Finished")
 
 
@@ -199,12 +213,26 @@ def oracle_import_job(param):
 
     f = urlopen(api_sing_card)
     objects = list(ijson.items(f, 'item'))
-    for obj in objects:
-        CardIDList.objects.create(
-            card_id=obj['id'],
-            oracle_id=obj['oracle_id'],
-            card_name=obj['name']
-        )
+
+    batch_size = 100
+    rule_obj = (Rule(card_id='%s' % i['id'],
+                     oracle_id='%s' % i['oracle_id'],
+                     card_name='%s' % i['name'],
+                     card_file='%s' % i['image_uris']['png'],
+                     ) for i in objects)
+    while True:
+        batch = list(islice(rule_obj, batch_size))
+        if not batch:
+            break
+        Rule.objects.bulk_create(batch, batch_size)
+
+    #for obj in objects:
+    #    if check_card_obj(obj):
+    #        CardIDList.objects.create(
+    #            card_id=obj['id'],
+    #            oracle_id=obj['oracle_id'],
+    #            card_name=obj['name']
+    #        )
     return (HttpResponse("Finished"))
 
 

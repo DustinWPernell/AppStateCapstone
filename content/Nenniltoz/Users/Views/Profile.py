@@ -16,8 +16,9 @@ from Users.models import UserProfile, UserCards
 logger = logging.getLogger(__name__)
 
 class Settings_Update(View):
+    user = User
     @login_required
-    def get(self, request, user_id):
+    def post(self, request, user_id):
         """Updated setting
 
         Updates user settings in database
@@ -177,8 +178,9 @@ class User_Profile(View):
 
 
 class User_Profile_Search(View):
+    user = User
     @login_required
-    def get(self, request, user_id):
+    def post(self, request, user_id):
         logger.info("Run: user_profile; Params: " + json.dumps(request.GET.dict()))
         user_profile_obj = UserProfile.get_profile_by_user(user_id)
 
@@ -268,6 +270,7 @@ class User_Profile_Search(View):
 
 
 class Avatar_Picker(View):
+    user = User
     @login_required
     def get(self, request):
         """Displays list for selecting new avatar
@@ -320,8 +323,9 @@ class Avatar_Picker(View):
 
 
 class Save_Avatar(View):
+    user = User
     @login_required
-    def get(self, request):
+    def post(self, request):
         """Saves new avatar to user
 
         Sets new avatar image to selected URL returned by POST.

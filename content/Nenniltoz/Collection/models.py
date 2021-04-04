@@ -1,18 +1,21 @@
+import json
+import logging
 import operator
-from datetime import datetime
+import datetime
 from functools import reduce
 
 import boto3
 import requests
 from decouple import config
 from django.contrib.auth.models import User
+from django.core import serializers
 
 from django.db import models
 from django.db.models import Q
 
-
+logger = logging.getLogger("logger")
 # Create your models here.
-
+#region Cards
 
 class IgnoreCards(models.Model):
     """
@@ -27,8 +30,6 @@ class IgnoreCards(models.Model):
         return self.value
 
 
-#region Cards
-
 class CardIDList(models.Model):
     """
         Stores Unique card named objects
@@ -39,15 +40,25 @@ class CardIDList(models.Model):
     oracle_id = models.CharField(max_length=200)
     card_name = models.CharField(max_length=200)
     card_name.null = True
+    card_url = models.CharField(max_length=200)
+    card_url.null = True
 
     @staticmethod
-    def get_card_ids():
-        return CardIDList.objects.all()
+    def get_cards():
+        return CardIDList.objects.all().order_by('card_name')
 
     @staticmethod
     def get_card_by_oracle(oracle_id):
         return CardIDList.objects.get(oracle_id=oracle_id)
         # .get(oracle_id=oracle_id)
+
+    @staticmethod
+    def convert_to(obj_list):
+        return serializers.serialize('xml', obj_list)
+
+    @staticmethod
+    def get_xml():
+        return QuickResult.get_oracles()
 
 
 class CardLayout(models.Model):
@@ -78,7 +89,7 @@ class CardSets(models.Model):
     set_id = models.CharField(max_length=200, primary_key=True)
     code = models.CharField(max_length=5)
     name = models.CharField(max_length=100)
-    released_at = models.DateField(default=datetime.now)
+    released_at = models.DateField()
     icon_svg_uri = models.CharField(max_length=200)
     order = models.IntegerField()
 
@@ -230,7 +241,7 @@ class CardFace(models.Model):
 
     @staticmethod
     def get_face_by_card(card_id):
-        return CardFace.objects.select_related().filter(
+        return CardFace.objects.filter(
             Q(legal__card_obj__card_id=card_id)
         ).order_by('name')
 
@@ -272,6 +283,10 @@ class CardFace(models.Model):
         ).order_by('name')
 
     @staticmethod
+    def convert_to(obj_list):
+        return serializers.serialize('xml', obj_list)
+
+    @staticmethod
     def card_face_filter_by_card_color_term_colorless(card_ids, mana_color, term):
         list_of_colors = ['{W}', '{W/U}', '{W/B}', '{R/W}', '{G/W}', '{2/W}', '{W/P}', '{HW}',
                           '{U}', '{U/B}', '{U/R}', '{G/U}', '{2/U}', '{U/P}', '{HU}',
@@ -295,23 +310,51 @@ class CardFace(models.Model):
         ).order_by('name')
 
     @staticmethod
-    def card_face_filter_by_card_color_term(card_ids, mana_color, term):
-        return CardFace.objects.select_related().filter(
-            Q(legal__card_obj__card_id__in=card_ids) &
-            reduce(
-                operator.or_, (
-                    Q(mana_cost__contains=item) for item in mana_color
+    def card_face_filter_by_card_term(card_ids, mana_color, term):
+        list_of_colors = ['{W}', '{W/U}', '{W/B}', '{R/W}', '{G/W}', '{2/W}', '{W/P}', '{HW}',
+                          '{U}', '{U/B}', '{U/R}', '{G/U}', '{2/U}', '{U/P}', '{HU}',
+                          '{B}', '{B/R}', '{B/G}', '{2/B}', '{B/P}', '{HB}',
+                          '{R}', '{R/G}', '{2/R}', '{R/P}', '{HR}',
+                          '{G}', '{2/G}', '{G/P}', '{HG}',
+                          '{C}', '', '{X}', '{Y}', '{Z}', '{0}', '{1/2}', '{1}', '{2}', '{3}', '{4}', '{5}',
+                          '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}', '{14}', '{15}',
+                          '{16}', '{17}', '{18}', '{19}', '{20}', '{100}', '{1000000}', '{P}']
+        keywords = ["living weapon","jump-start","basic landcycling","commander ninjutsu","legendary landwalk",
+                    "nonbasic landwalk","totem armor","megamorph","haunt","forecast","graft","fortify","frenzy",
+                    "gravestorm","hideaway","level Up","infect","protection","reach","rampage","phasing","multikicker",
+                    "morph","provoke","modular","offering","ninjutsu","replicate","recover","poisonous","prowl","reinforce",
+                    "persist","retrace","rebound","miracle","overload","outlast","prowess","renown","myriad","shroud",
+                    "trample","vigilance","shadow","storm","soulshift","splice","transmute","ripple","suspend","vanishing",
+                    "transfigure","wither","unearth","undying","soulbond","unleash","ascend","assist","afterlife",
+                    "companion","fabricate","embalm","escape","fuse","menace","ingest","melee","improvise","mentor",
+                    "partner","mutate","scavenge","tribute","surge","skulk","undaunted","riot","spectacle","forestwalk",
+                    "islandwalk","mountainwalk","double strike","cumulative upkeep","first strike","encore","sunburst",
+                    "deathtouch","defender","foretell","amplify","affinity","bushido","convoke","bloodthirst","absorb",
+                    "aura swap","changeling","conspire","cascade","annihilator","battle Cry","cipher","bestow","dash","awaken",
+                    "crew","aftermath","afflict","equip","flanking","echo","fading","fear","eternalize","entwine","epic","dredge",
+                    "delve","evoke","exalted","evolve","extort","dethrone","exploit","devoid","emerge","escalate","flying",
+                    "haste","hexproof","indestructible","intimidate","lifelink","horsemanship","kicker","madness","hidden agenda",
+                    "swampwalk","desertwalk","wizardcycling","slivercycling","cycling","landwalk","plainswalk","champion","enchant",
+                    "plainscycling","islandcycling","swampcycling","mountaincycling","forestcycling","landcycling","yypecycling",
+                    "split second","flash","flashback","banding","augment","double agenda","partner with","hexproof from",
+                    "boast","devour","buyback","ward","meld","bolster","clash","fateseal","investigate","manifest","monstrosity",
+                    "populate","proliferate","scry","support","detain","explore","fight","amass","adapt","assemble","abandon",
+                    "activate","attach","exert","cast","counter","create","destroy","discard","double","exchange","exile",
+                    "play","regenerate","reveal","sacrifice","set in motion","shuffle","tap","untap","vote","transform","surveil",
+                    "goad","planeswalk","mill","learn"
+                    ]
+        if mana_color == list_of_colors and term.lower() in keywords:
+            return QuickResult.get_keyword(card_ids, term.lower())
+        else:
+            return CardFace.convert_to(CardFace.objects.select_related().filter(
+                Q(legal__card_obj__card_id__in=card_ids) &
+                Q(card_search__icontains=term) &
+                reduce(
+                    operator.or_, (
+                        Q(mana_cost__contains=item) for item in mana_color
+                    )
                 )
-            ) &
-            Q(card_searchs__icontains=term)
-        ).order_by('name')
-
-    @staticmethod
-    def card_face_filter_by_card_term(card_ids, term):
-        return CardFace.objects.select_related().filter(
-            Q(legal__card_obj__card_id__in=card_ids) &
-            Q(card_search__icontains=term)
-        ).order_by('name')
+            ).order_by('name'))
 
     @staticmethod
     def card_face_filter_by_name_term(term):
@@ -345,6 +388,17 @@ class CardFace(models.Model):
                          'card_image_two': 'NONE'})
 
         return set_info
+
+    @staticmethod
+    def build_json_from_card(card_objs):
+        json_obj = [] #{"oracle_id": , "name": , "image_url": }
+        for card in card_objs:
+            card_obj = {}
+            card_obj["card_oracle"] = card.oracle_id
+            card_obj["name"] = card.card_name
+            card_obj["image_url"] = card.image_url
+            json_obj.append(card_obj)
+        return json_obj
 
 
 class Rule(models.Model):
@@ -385,7 +439,6 @@ class Deck(models.Model):
     created_by = models.CharField(max_length=50)
     created_by.null = True
     deck_user = models.CharField(max_length=50)
-    created_by.null = True
     is_pre_con = models.BooleanField()
     is_private = models.BooleanField()
     image_url = models.CharField(max_length=200)
@@ -495,6 +548,12 @@ class DeckCards(models.Model):
         )
 
     @staticmethod
+    def deck_card_by_deck(deck_id):
+        return DeckCards.objects.filter(
+            Q(deck__id=deck_id)
+        )
+
+    @staticmethod
     def build_json_by_deck_user(deck_id, user_id, side):
         json_obj = []
         deck_cards = DeckCards.deck_card_by_deck_user(deck_id, user_id, side)
@@ -567,5 +626,74 @@ class Symbol(models.Model):
         return Symbol.objects.filter(
             symbol__in=['{W/U}', '{W/B}', '{R/W}', '{G/W}', '{2/W}', '{W/P}', '{HW}'])
 
+class QuickResult(models.Model):
+    search = models.CharField(max_length=500)
+    last_update = models.DateField(default=datetime.datetime.now().date())
+    result = models.TextField(default='{}')
 
+    def __str__(self):
+        return self.search
 
+    @staticmethod
+    def get_oracles():
+        date = datetime.datetime.now() - datetime.timedelta(days=7)
+        obj = QuickResult.objects.get(search='oracles')
+        if obj.last_update < date.date():
+            QuickResult.run_oracles()
+            obj = QuickResult.objects.get(search='oracles')
+        return obj.result
+
+    @staticmethod
+    def run_oracles():
+        list_of_colors = ['{W}', '{W/U}', '{W/B}', '{R/W}', '{G/W}', '{2/W}', '{W/P}', '{HW}',
+                          '{U}', '{U/B}', '{U/R}', '{G/U}', '{2/U}', '{U/P}', '{HU}',
+                          '{B}', '{B/R}', '{B/G}', '{2/B}', '{B/P}', '{HB}',
+                          '{R}', '{R/G}', '{2/R}', '{R/P}', '{HR}',
+                          '{G}', '{2/G}', '{G/P}', '{HG}',
+                          '{C}', '', '{X}', '{Y}', '{Z}', '{0}', '{1/2}', '{1}', '{2}', '{3}', '{4}', '{5}',
+                          '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}', '{14}', '{15}',
+                          '{16}', '{17}', '{18}', '{19}', '{20}', '{100}', '{1000000}', '{P}']
+
+        card_id_list_full = CardIDList.get_cards()
+        full_card_list_all = []
+
+        for card_list_obj in card_id_list_full:
+            full_card_list_all.append(card_list_obj.card_id)
+
+        filtered_card_list = CardFace.objects.select_related().filter(
+            Q(legal__card_obj__card_id__in=full_card_list_all)
+        ).order_by('name')
+
+        obj = QuickResult.objects.get(
+            search='oracles',
+        )
+        obj.last_update = datetime.datetime.now()
+        obj.result = CardIDList.convert_to(filtered_card_list)
+        obj.save()
+
+    @staticmethod
+    def get_keyword(card_ids, keyword):
+        try:
+            date = datetime.datetime.now() - datetime.timedelta(days=7)
+            obj = QuickResult.objects.get(search=keyword)
+            if obj.last_update < date.date():
+                QuickResult.run_keyword(card_ids, keyword)
+                obj = QuickResult.objects.get(search=keyword)
+        except QuickResult.DoesNotExist:
+            QuickResult.run_keyword(card_ids, keyword)
+            obj = QuickResult.objects.get(search=keyword)
+        return obj.result
+
+    @staticmethod
+    def run_keyword(card_ids, keyword):
+        filtered_card_list = CardFace.objects.select_related().filter(
+                Q(legal__card_obj__card_id__in=card_ids) &
+                Q(card_search__icontains=keyword)
+            ).order_by('name')
+
+        obj, created = QuickResult.objects.get_or_create(
+            search=keyword,
+        )
+        obj.last_update = datetime.datetime.now()
+        obj.result = CardFace.convert_to(filtered_card_list)
+        obj.save()
