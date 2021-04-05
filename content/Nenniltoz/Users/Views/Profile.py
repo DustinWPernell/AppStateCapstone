@@ -15,8 +15,10 @@ from Users.models import UserProfile, UserCards
 
 logger = logging.getLogger(__name__)
 
+
 class Settings_Update(View):
     user = User
+
     @login_required
     def post(self, request, user_id):
         """Updated setting

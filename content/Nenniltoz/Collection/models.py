@@ -535,7 +535,7 @@ class Deck(models.Model):
     @staticmethod
     def get_deck_by_deck(deck_id):
         return Deck.objects.select_related().get(
-            Q(id__in=deck_id)
+            Q(id=deck_id)
         )
 
 

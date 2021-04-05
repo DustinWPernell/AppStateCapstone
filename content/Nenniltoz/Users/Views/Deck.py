@@ -3,6 +3,7 @@ import logging
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from django.shortcuts import render, redirect
@@ -13,11 +14,14 @@ from Users.models import UserProfile, UserCards
 
 logger = logging.getLogger(__name__)
 
+
 class Manage_Cards(View):
+    user = User
+
     def post(self, request, user_id, deck_id):
         user_profile_obj = UserProfile.get_profile_by_user(user_id)
 
-#region Page numbers
+# region Page numbers
 
         try:
             card_page = request.GET.get('user_card_page', -1)
@@ -206,8 +210,10 @@ class Manage_Cards(View):
 
 
 class Manage_Deck(View):
+    user = User
+
     def create_copy(self, request, deck_obj):
-#region Copy Deck
+# region Copy Deck
         new_deck = Deck.objects.create(
             name=deck_obj.name,
             deck_type=deck_obj.deck_type,
@@ -253,7 +259,7 @@ class Manage_Deck(View):
         """
 
         try:
-            deck_obj = Deck.get_deck_by_deck(deck_id)
+            deck_obj = Deck.get_deck_by_deck(int(deck_id))
 
             if deck_obj.deck_user is not user_id:
                 deck_obj = self.create_copy(request, deck_obj)
