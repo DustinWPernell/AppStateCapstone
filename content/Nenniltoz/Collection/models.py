@@ -444,6 +444,10 @@ class DeckType(models.Model):
     def get_deck_type_by_type(type):
         return DeckType.objects.get(name__icontains=type)
 
+    @staticmethod
+    def get_types():
+        return DeckType.objects.all()
+
 
 class Deck(models.Model):
     name = models.CharField(max_length=200)
