@@ -47,7 +47,7 @@ class Manage_Cards(View):
             wish_card_page = request.GET.get('wish_card_page', 1)
             request.session['wish_card_page'] = wish_card_page
 
-#endregion
+# endregion
 
         if 'user_deck_card_clear' in request.POST:
             del request.session['user_deck_card_search_term']
@@ -106,7 +106,7 @@ class Manage_Cards(View):
 
         user_profile_obj = UserProfile.get_profile_by_user(user_id)
 
-        # region Page numbers
+# region Page numbers
 
         try:
             card_page = request.GET.get('user_card_page', -1)
@@ -132,9 +132,9 @@ class Manage_Cards(View):
             wish_card_page = request.GET.get('wish_card_page', 1)
             request.session['wish_card_page'] = wish_card_page
 
-        # endregion
+# endregion
 
-        # region Cards from sessions
+# region Cards from sessions
 
         try:
             card_list = request.SESSION['deck_card_list']
@@ -171,9 +171,9 @@ class Manage_Cards(View):
             search_wish_term = "Search"
             user_clear_wish_search = request.session['user_clear_wish_search'] = False
 
-        # endregion
+# endregion
 
-        # region Paginators
+# region Paginators
 
         card_paginator = Paginator(user_cards, 20)
         try:
@@ -199,7 +199,7 @@ class Manage_Cards(View):
         except EmptyPage:
             wish_cards = wish_paginator.page(wish_paginator.num_pages)
 
-        # endregion
+# endregion
 
         font_family = UserProfile.get_font(request.user)
         should_translate = UserProfile.get_translate(request.user)
@@ -229,9 +229,9 @@ class Manage_Deck(View):
             deck_user=request.user.id,
             is_pre_con=False
         )
-#endregion
+# endregion
 
-#region Copy Cards
+# region Copy Cards
         deck_cards = DeckCards.deck_card_by_deck_user()
 
         for card in deck_cards:
@@ -244,7 +244,7 @@ class Manage_Deck(View):
                 quantity = card.quantity,
                 sideboard = card.sideboard,
             )
-#endregion
+# endregion
         return new_deck
 
     @login_required
@@ -268,11 +268,13 @@ class Manage_Deck(View):
         except Deck.DoesNotExist:
             deck_obj = "new"
 
+        deck_types = DeckType.get_types()
+
         font_family = UserProfile.get_font(request.user)
         should_translate = UserProfile.get_translate(request.user)
         context = {
             'font_family': font_family, 'should_translate': should_translate,
-            'deck_obj': deck_obj,
+            'deck_obj': deck_obj, 'deck_types': deck_types,
         }
         return render(request, 'Users/Profile/ProfileDecks/modify_deck.html', context)
 
