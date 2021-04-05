@@ -1,0 +1,12 @@
+<div class="CommanderImage">
+    {% if deck.deck_type.has_commander %}
+    <!-- If the type of deck is Commander, this function will pull from static/img/cards.
+      That directory holds images of every card.-->
+    <hr class="CommanderHr">
+        <div class="CommanderObj">
+            <h3>Commander:</h3>
+            <img alt="{{ deck.name }}" class="CommanderImg"
+                 src="{{ deck.commander.get_remote_image }}">
+        </div>
+    {% endif %}
+</div>

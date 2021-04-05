@@ -1,0 +1,38 @@
+{% load cardLayout %}
+{% load replaceValues %}
+<form method="post">
+    <div class="deckHead">
+        <label for="deck_name_field">Name:</label>
+        <!-- Determining the value of the deck and whether it should translate. -->
+        <input class="deckValue {{ font_family }}" id="deck_name_field" name="deck_name_field"
+                type="text">
+
+        <span class="deckAttributeLabel">Mana Colors:</span>
+        <!-- Determining the value of the deck and whether it should translate. -->
+        <div class="deckValue {{ should_translate }}">
+            <!-- This checks DeckCards in models and pulls the deck colors -->
+            {{ deck.color_id|replaceMana|safe }}
+        </div>
+
+        <span class="deckAttributeLabel">Created By:</span>
+        <!-- Determining the value of the deck and whether it should translate. -->
+        <div class="deckValue {{ should_translate }}">
+            <!-- This checks DeckCards in models and pulls the creator of the deck -->
+            {{ user_profile.user.username }}
+        </div>
+
+        <label class="deck_type_field">Deck Type:</label>
+        <!-- Determining the value of the deck and whether it should translate. -->
+        <select class="deckValue {{ font_family }}" id="deck_type_field" name="deck_type_field">
+            {% for deck_type in deck_types %}
+                <option value="{{ deck_type.id }}">{{ deck_type.name }}</option>
+            {% endfor %}
+        </select>
+
+        <label class="deck_description_field">Description:</label>
+        <!-- Determining the value of the deck and whether it should translate. -->
+        <input class="deckValue {{ font_family }}" id="deck_description_field" name="deck_description_field"
+                type="textarea">
+        </div>
+    </div>
+</form>

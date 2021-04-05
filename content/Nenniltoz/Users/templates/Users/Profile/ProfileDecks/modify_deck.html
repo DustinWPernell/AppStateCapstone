@@ -9,3 +9,20 @@
     deck_type : will be id passed in with name in context
     commander : can be null / Hide if commander not selected (use JS)
 -->
+
+<!-- Extends uses base_generic.html as a base, then loads the blocks within the specific html. -->
+{% extends "base_generic.html" %}
+{% load static %}
+
+
+{% block content %}
+<div class="DeckBody" id="deck">
+    <!-- Include takes the html in the file and pastes it into the file.  -->
+    {% include "./deck_info.html" %}
+    {% include "./commander.html" %}
+</div>
+{% endblock %}
+
+{% block custom_scripts %}
+<!-- <script src="{% static 'js\deck.js' %}"></script> -->
+{% endblock %}
