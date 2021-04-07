@@ -21,6 +21,6 @@ urlpatterns = [
     path('user_profile/<user_id>/update_settings/', Settings_Update.as_view(), name='update_settings'),
     path('select_avatar', Avatar_Picker.as_view(), name='select_avatar'),
     path('save_avatar', Save_Avatar.as_view(), name='save_avatar'),
-    path('user_profile/<user_id>/manage_deck/<deck_id>/', Manage_Deck.as_view(), name='manage_deck'),
+    path('user_profile/<user_id>/modify_deck/<deck_id>/', Manage_Deck.as_view(), name='modify_deck'),
     # path("password_reset", views.password_reset_request, name="password_reset")
 ]

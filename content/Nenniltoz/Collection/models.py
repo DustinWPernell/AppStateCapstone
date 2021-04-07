@@ -217,7 +217,7 @@ class CardFace(models.Model):
 
     def __str__(self):
         return '{"oracle_id": "' + str(self.legal.card_obj.oracle_id) + '", "card_name": "' + str(self.name).replace('"', '&#34;').replace('\'', '&#39;') + \
-               '", "card_url": "' + str(self.image_url) + '", "card_id": "' + str(self.legal.card_obj.card_id) + '"}},'
+               '", "card_url": "' + str(self.image_url) + '", "card_id": "' + str(self.legal.card_obj.card_id) + '"}'
 
     def get_remote_avatar(self):
         session = boto3.Session(
@@ -270,7 +270,9 @@ class CardFace(models.Model):
         card_json_list = ""
         for card in filtered_card_list:
             card_json_list = card_json_list + card.__str__()
-        return card_json_list
+            if len(filtered_card_list) > 1:
+                card_json_list = card_json_list + '}, '
+        return card_json_list.__str__()
 
     @staticmethod
     def card_face_filter_by_card_term(card_ids, mana_color, term):
@@ -324,7 +326,10 @@ class CardFace(models.Model):
             card_json_list = ""
             for card in filtered_card_list:
                 card_json_list = card_json_list + card.__str__()
-            return card_json_list
+                if len(filtered_card_list) > 1:
+                    card_json_list = card_json_list + '}, '
+
+            return card_json_list.__str__()
 
     @staticmethod
     def card_face_commander_filter_by_card_term(card_ids, mana_color, term):
@@ -652,6 +657,8 @@ class QuickResult(models.Model):
         card_json_list = ""
         for card in filtered_card_list:
             card_json_list = card_json_list + card.__str__()
+            if len(filtered_card_list) > 1:
+                card_json_list = card_json_list + '}, '
 
         if limit:
             obj, created = QuickResult.objects.get_or_create(
@@ -686,6 +693,8 @@ class QuickResult(models.Model):
         card_json_list = ""
         for card in filtered_card_list:
             card_json_list = card_json_list + card.__str__()
+            if len(filtered_card_list) > 1:
+                card_json_list = card_json_list + '}, '
 
         obj, created = QuickResult.objects.get_or_create(
             search=keyword,
@@ -726,6 +735,8 @@ class QuickResult(models.Model):
         card_json_list = ""
         for card in filtered_card_list:
             card_json_list = card_json_list + card.__str__()
+            if len(filtered_card_list) > 1:
+                card_json_list = card_json_list + '}, '
 
         obj, created = QuickResult.objects.get_or_create(
             search=color_term,
