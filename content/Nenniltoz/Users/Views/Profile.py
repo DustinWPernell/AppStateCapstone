@@ -273,6 +273,23 @@ class User_Profile_Search(View):
 
 class Avatar_Picker(View):
     user = User
+
+    def post(self, request):
+        if 'clearSearch' in request.POST:
+            del request.session['avatar_search_term']
+            del request.session['avatar_clear_search']
+            search_term = ''
+            card_list = CardFace.objects.all().order_by('name')
+            clear_search = False
+        else:
+            search_term = request.POST.get('avatarSearchTerm')
+            card_list = CardFace.card_face_filter_by_name_term(search_term).order_by('name')
+            clear_search = True
+
+        request.session['avatar_search_term'] = search_term
+        request.session['avatar_card_list'] = card_list
+        request.session['avatar_clear_search'] = clear_search
+
     @login_required
     def get(self, request):
         """Displays list for selecting new avatar
@@ -284,28 +301,13 @@ class Avatar_Picker(View):
         :todo: None
         """
         search_term = 'Search'
-        if request.method == 'POST':
-            if 'clearSearch' in request.POST:
-                del request.session['avatar_search_term']
-                del request.session['avatar_clear_search']
-                card_list = CardFace.objects.all().order_by('name')
-                search_term = ''
-                clear_search = False
-            else:
-                search_term = request.POST.get('avatarSearchTerm')
-
-                card_list = CardFace.card_face_filter_by_name_term(search_term).order_by('name')
-
-                request.session['avatar_search_term'] = search_term
-                request.session['avatar_clear_search'] = clear_search = True
-        else:
-            try:
-                search_term = request.session['avatar_search_term']
-                card_list = CardFace.card_face_filter_by_name_term(search_term).order_by('name')
-                clear_search = True
-            except KeyError:
-                card_list = CardFace.objects.all().order_by('name')
-                clear_search = False
+        try:
+            search_term = request.session['avatar_search_term']
+            card_list = CardFace.card_face_filter_by_name_term(search_term).order_by('name')
+            clear_search = True
+        except KeyError:
+            card_list = CardFace.objects.all().order_by('name')
+            clear_search = False
 
         page = request.GET.get('page', 1)
 

@@ -1,8 +1,17 @@
+import json
+
 from django import template
 
 from Collection.models import Symbol
 
 register = template.Library()
+
+@register.filter
+def convert_to_json(data):
+    if isinstance(data, dict):
+        return data
+    else:
+        return json.loads(data)
 
 
 @register.filter
@@ -16,8 +25,8 @@ def replaceMana(val):
 
 @register.filter
 def replacePeriod(val):
-    val = val.replace(". ", ". \\n ")
-    val = val.replace(".) ", ".) \\n ")
+    val = val.replace(". ", ". <br> ")
+    val = val.replace(".) ", ".) <br> ")
     return val
 
 

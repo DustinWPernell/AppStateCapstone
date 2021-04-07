@@ -2,6 +2,7 @@ import json
 import logging
 import operator
 import datetime
+from collections import Iterable
 from functools import reduce
 
 import boto3
@@ -12,6 +13,7 @@ from django.core import serializers
 
 from django.db import models
 from django.db.models import Q
+from django.http import JsonResponse
 
 logger = logging.getLogger("logger")
 # Create your models here.
@@ -69,8 +71,11 @@ class CardIDList(models.Model):
         return serializers.serialize('xml', obj_list)
 
     @staticmethod
-    def get_xml():
-        return QuickResult.get_oracles()
+    def get_json(limit):
+        if (limit):
+            return QuickResult.get_oracles(limit)
+        else:
+            return QuickResult.run_oracles(limit)
 
 
 class CardLayout(models.Model):
@@ -210,27 +215,9 @@ class CardFace(models.Model):
     legal = models.ForeignKey(Legality, on_delete=models.CASCADE, related_name='face_legal')
     card_search = models.CharField(max_length=2000)
 
-    def __int__(self):
-        return self.id
-
-    def get_remote_image(self):
-        session = boto3.Session(
-            aws_access_key_id=config('AWS_ACCESS_KEY_ID'),
-            aws_secret_access_key=config('AWS_SECRET_ACCESS_KEY'),
-        )
-        s3 = session.client('s3')
-
-        if self.image_url and not self.image_file:
-            filename = "cards/image_%s" % self.legal.card_obj.card_id + '.png'
-            image_data = requests.get(self.image_url, stream=True)
-            try:
-                s3.upload_fileobj(image_data.raw, config('AWS_STORAGE_BUCKET_NAME'), filename)
-                self.image_file = filename
-                self.save()
-            except Exception as e:
-                return e
-
-        return config('AWS_S3_CUSTOM_DOMAIN') + '/' + self.image_file
+    def __str__(self):
+        return '{"oracle_id": "' + str(self.legal.card_obj.oracle_id) + '", "card_name": "' + str(self.name).replace('"', '&#34;').replace('\'', '&#39;') + \
+               '", "card_url": "' + str(self.image_url) + '", "card_id": "' + str(self.legal.card_obj.card_id) + '"}},'
 
     def get_remote_avatar(self):
         session = boto3.Session(
@@ -258,54 +245,13 @@ class CardFace(models.Model):
         ).order_by('name')
 
     @staticmethod
-    def get_face_list_by_card(card_id_list):
-        return CardFace.objects.select_related().filter(
-            Q(legal__card_obj__card_id__in=card_id_list)
-        ).order_by('name')
-
-    @staticmethod
-    def card_face_by_card_and_oracle(card_id, oracle_id):
-        return CardFace.objects.select_related().filter(
-            Q(legal__card_obj__card_id__in=card_id) &
-            Q(legal__card_obj__oracle_id__in=oracle_id)
-        ).order_by('name')
-
-    @staticmethod
-    def card_face_by_card(card_id):
-        return CardFace.objects.select_related().filter(
-            Q(legal__card_obj__card_id__in=card_id)
-        ).order_by('name')
-
-    @staticmethod
-    def card_face_filter_by_card_oracle_term(card_id, oracle_id, term):
-        return CardFace.objects.select_related().filter(
-            Q(legal__card_obj__card_id__in=card_id) &
-            Q(legal__card_obj__oracle_id__in=oracle_id) &
-            Q(card_search__icontains=term)
-        ).order_by('name')
-
-    @staticmethod
-    def card_face_filter_by_card_oracle_term_notes(card_id, oracle_id, notes_terms, term):
-        return CardFace.objects.select_related().filter(
-            Q(legal__card_obj__card_id__in=card_id) &
-            Q(legal__card_obj__oracle_id__in=oracle_id) & (
-                    Q(card_search__icontains=term) |
-                    Q(legal__card_obj__oracle_id__in=notes_terms)
-            )
-        ).order_by('name')
-
-    @staticmethod
-    def convert_to(obj_list):
-        return serializers.serialize('xml', obj_list)
-
-    @staticmethod
     def card_face_filter_by_card_color_term_colorless(card_ids, mana_color, term):
         list_of_colors = ['{W}', '{W/U}', '{W/B}', '{R/W}', '{G/W}', '{2/W}', '{W/P}', '{HW}',
                           '{U}', '{U/B}', '{U/R}', '{G/U}', '{2/U}', '{U/P}', '{HU}',
                           '{B}', '{B/R}', '{B/G}', '{2/B}', '{B/P}', '{HB}',
                           '{R}', '{R/G}', '{2/R}', '{R/P}', '{HR}',
                           '{G}', '{2/G}', '{G/P}', '{HG}']
-        return CardFace.objects.select_related().filter(
+        filtered_card_list =  CardFace.objects.select_related().filter(
             Q(legal__card_obj__card_id__in=card_ids) & (
                     reduce(
                         operator.or_, (
@@ -320,6 +266,11 @@ class CardFace(models.Model):
             ) &
             Q(card_search__icontains=term)
         ).order_by('name')
+
+        card_json_list = ""
+        for card in filtered_card_list:
+            card_json_list = card_json_list + card.__str__()
+        return card_json_list
 
     @staticmethod
     def card_face_filter_by_card_term(card_ids, mana_color, term):
@@ -357,8 +308,10 @@ class CardFace(models.Model):
                     ]
         if mana_color == list_of_colors and term.lower() in keywords:
             return QuickResult.get_keyword(card_ids, term.lower())
+        elif len(mana_color) > 0 and term is "":
+            return QuickResult.get_color(card_ids, mana_color)
         else:
-            return CardFace.convert_to(CardFace.objects.select_related().filter(
+            filtered_card_list = CardFace.objects.select_related().filter(
                 Q(legal__card_obj__card_id__in=card_ids) &
                 Q(card_search__icontains=term) &
                 reduce(
@@ -366,13 +319,41 @@ class CardFace(models.Model):
                         Q(mana_cost__contains=item) for item in mana_color
                     )
                 )
-            ).order_by('name'))
+            ).order_by('name')
+
+            card_json_list = ""
+            for card in filtered_card_list:
+                card_json_list = card_json_list + card.__str__()
+            return card_json_list
+
+    @staticmethod
+    def card_face_commander_filter_by_card_term(card_ids, mana_color, term):
+        filtered_card_list = CardFace.objects.select_related().filter(
+            Q(legal__card_obj__card_id__in=card_ids) &
+            Q(card_search__icontains=term) &
+            Q(legal__card_obj__keywords__icontains="legendary") &
+            reduce(
+                operator.or_, (
+                    Q(mana_cost__contains=item) for item in mana_color
+                )
+            )
+        ).order_by('name')
+
+        card_json_list = ""
+        for card in filtered_card_list:
+            card_json_list = card_json_list + card.__str__()
+        return card_json_list
 
     @staticmethod
     def card_face_filter_by_name_term(term):
-        return CardFace.objects.select_related().filter(
+        filtered_card_list = CardFace.objects.select_related().filter(
             Q(name__icontains=term)
         ).order_by('name')
+
+        card_json_list = ""
+        for card in filtered_card_list:
+            card_json_list = card_json_list + card.__str__()
+        return card_json_list
 
     @staticmethod
     def get_card_sets(oracle_id):
@@ -390,27 +371,16 @@ class CardFace(models.Model):
                     set_info.append(
                         {'set_name': card_set_obj.legal.card_obj.set_obj.name,
                          'set_image': card_set_obj.legal.card_obj.set_obj.icon_svg_uri,
-                         'card_image_one': card_set_obj.get_remote_image(),
-                         'card_image_two': card_set_obj.legal.face_legal.all()[1].get_remote_image()})
+                         'card_image_one': card_set_obj.image_url,
+                         'card_image_two': card_set_obj.legal.face_legal.all()[1].image_url})
                 else:
                     set_info.append(
                         {'set_name': card_set_obj.legal.card_obj.set_obj.name,
                          'set_image': card_set_obj.legal.card_obj.set_obj.icon_svg_uri,
-                         'card_image_one': card_set_obj.get_remote_image(),
+                         'card_image_one': card_set_obj.image_url,
                          'card_image_two': 'NONE'})
 
         return set_info
-
-    @staticmethod
-    def build_json_from_card(card_objs):
-        json_obj = [] #{"oracle_id": , "name": , "image_url": }
-        for card in card_objs:
-            card_obj = {}
-            card_obj["card_oracle"] = card.oracle_id
-            card_obj["name"] = card.card_name
-            card_obj["image_url"] = card.image_url
-            json_obj.append(card_obj)
-        return json_obj
 
 
 class Rule(models.Model):
@@ -644,35 +614,29 @@ class Symbol(models.Model):
 
 class QuickResult(models.Model):
     search = models.CharField(max_length=500)
-    last_update = models.DateField(default='django.utils.timezone.now')
+    last_update = models.DateField(default=datetime.datetime.now())
     result = models.TextField(default='{}')
 
     def __str__(self):
         return self.search
 
     @staticmethod
-    def get_oracles():
+    def get_oracles(limit):
         date = datetime.datetime.now() - datetime.timedelta(days=7)
         obj = QuickResult.objects.get(search='oracles')
         if obj.last_update < date.date():
-            QuickResult.run_oracles()
+            QuickResult.run_oracles(limit)
             obj = QuickResult.objects.get(search='oracles')
         return obj.result
 
     @staticmethod
-    def run_oracles():
-        list_of_colors = ['{W}', '{W/U}', '{W/B}', '{R/W}', '{G/W}', '{2/W}', '{W/P}', '{HW}',
-                          '{U}', '{U/B}', '{U/R}', '{G/U}', '{2/U}', '{U/P}', '{HU}',
-                          '{B}', '{B/R}', '{B/G}', '{2/B}', '{B/P}', '{HB}',
-                          '{R}', '{R/G}', '{2/R}', '{R/P}', '{HR}',
-                          '{G}', '{2/G}', '{G/P}', '{HG}',
-                          '{C}', '', '{X}', '{Y}', '{Z}', '{0}', '{1/2}', '{1}', '{2}', '{3}', '{4}', '{5}',
-                          '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}', '{14}', '{15}',
-                          '{16}', '{17}', '{18}', '{19}', '{20}', '{100}', '{1000000}', '{P}']
+    def run_oracles(limit):
+        if limit:
+            card_id_list_full = CardIDList.get_cards()[0:5000]
+        else:
+            card_id_list_full = CardIDList.get_cards()
 
-        card_id_list_full = CardIDList.get_cards()[0:5000]
         full_card_list_all = []
-
         for card_list_obj in card_id_list_full:
             full_card_list_all.append(card_list_obj.card_id)
 
@@ -680,12 +644,19 @@ class QuickResult(models.Model):
             Q(legal__card_obj__card_id__in=full_card_list_all)
         ).order_by('name')
 
-        obj = QuickResult.objects.get(
-            search='oracles',
-        )
-        obj.last_update = datetime.datetime.now()
-        obj.result = CardIDList.convert_to(filtered_card_list)
-        obj.save()
+        card_json_list = ""
+        for card in filtered_card_list:
+            card_json_list = card_json_list + card.__str__()
+
+        if limit:
+            obj, created = QuickResult.objects.get_or_create(
+                search='oracles',
+            )
+            obj.last_update = datetime.datetime.now()
+            obj.result = card_json_list.__str__()
+            obj.save()
+        else:
+            return card_json_list
 
     @staticmethod
     def get_keyword(card_ids, keyword):
@@ -707,9 +678,53 @@ class QuickResult(models.Model):
                 Q(card_search__icontains=keyword)
             ).order_by('name')
 
+        card_json_list = ""
+        for card in filtered_card_list:
+            card_json_list = card_json_list + card.__str__()
+
         obj, created = QuickResult.objects.get_or_create(
             search=keyword,
         )
         obj.last_update = datetime.datetime.now()
-        obj.result = CardFace.convert_to(filtered_card_list)
+        obj.result = card_json_list.__str__()
+        obj.save()
+
+    @staticmethod
+    def get_color(card_ids, color):
+        color_term = ""
+
+        for col in color:
+            color_term = color_term + col
+
+        try:
+            date = datetime.datetime.now() - datetime.timedelta(days=7)
+            obj = QuickResult.objects.get(search=color_term)
+            if obj.last_update < date.date():
+                QuickResult.run_color(card_ids, color_term, color_term)
+                obj = QuickResult.objects.get(search=color_term)
+        except QuickResult.DoesNotExist:
+            QuickResult.run_color(card_ids, color, color_term)
+            obj = QuickResult.objects.get(search=color_term)
+        return obj.result
+
+    @staticmethod
+    def run_color(card_ids, color, color_term):
+        filtered_card_list = CardFace.objects.select_related().filter(
+                Q(legal__card_obj__card_id__in=card_ids) &
+                reduce(
+                    operator.or_, (
+                        Q(mana_cost__icontains=item) for item in color
+                    )
+                )
+            ).order_by('name')
+
+        card_json_list = ""
+        for card in filtered_card_list:
+            card_json_list = card_json_list + card.__str__()
+
+        obj, created = QuickResult.objects.get_or_create(
+            search=color_term,
+        )
+        obj.last_update = datetime.datetime.now()
+        obj.result = card_json_list.__str__()
         obj.save()

@@ -372,3 +372,58 @@ class Save_Deck(View):
                 messages.error(request, "Deck not found. Deck not modified.")
 
         return redirect('Users/user_profile/' + str(user_id) + '/manage_deck/' + str(deck_id) + '/')
+
+
+class Commander_Picker(View):
+    user = User
+
+    def post(self, request):
+        if 'clearSearch' in request.POST:
+            del request.session['avatar_search_term']
+            del request.session['avatar_clear_search']
+            search_term = ''
+            card_list = CardFace.objects.all().order_by('name')
+            clear_search = False
+        else:
+            search_term = request.POST.get('avatarSearchTerm')
+            card_list = CardFace.card_face_commander_filter_by_name_term(search_term).order_by('name')
+            clear_search = True
+
+        request.session['avatar_search_term'] = search_term
+        request.session['avatar_card_list'] = card_list
+        request.session['avatar_clear_search'] = clear_search
+
+    @login_required
+    def get(self, request):
+        """Displays list for selecting new avatar
+
+        Displays full list of card art with search by name feature.
+
+        @param request:
+
+        :todo: None
+        """
+        search_term = 'Search'
+        try:
+            search_term = request.session['avatar_search_term']
+            card_list = CardFace.card_face_commander_filter_by_name_term(search_term).order_by('name')
+            clear_search = True
+        except KeyError:
+            card_list = CardFace.objects.all().order_by('name')
+            clear_search = False
+
+        page = request.GET.get('page', 1)
+
+        paginator = Paginator(card_list, 50)
+        try:
+            cards = paginator.page(page)
+        except PageNotAnInteger:
+            cards = paginator.page(1)
+        except EmptyPage:
+            cards = paginator.page(paginator.num_pages)
+
+        font_family = UserProfile.get_font(request.user)
+        should_translate = UserProfile.get_translate(request.user)
+        context = {'font_family': font_family, 'should_translate': should_translate, 'pages': cards,
+                   'SearchTerm': search_term, 'clearSearch': clear_search}
+        return render(request, 'Users/Profile/select_avatar.html', context)

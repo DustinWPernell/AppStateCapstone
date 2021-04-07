@@ -29,7 +29,7 @@
     {% for card_obj in cardPager %}
     <tr>
         <td class="{{ should_translate }}">
-            {{ card_obj.card_name }}
+            {{ card_obj.card_name|safe }}
         </td>
         <td>
             {{ card_obj.quantity }}
@@ -41,8 +41,8 @@
             {{ card_obj.notes|remove_bracket|safe }}
         </td>
         <td>
-            <a class="cardDirection" onclick="show_page_load();" href="/Collection/Card/{{ card_obj.card_oracle }}/">
-                <img alt="Avatar" class="smallCardImg" src="{{ card_obj.card.get_remote_avatar }}">
+            <a class="cardDirection" onclick="show_page_load();" href="/Collection/card/{{ card_obj.card_oracle }}">
+                <img alt="Avatar" class="smallCardImg" src="{{ card_obj.card_file }}">
             </a>
         </td>
     </tr>
