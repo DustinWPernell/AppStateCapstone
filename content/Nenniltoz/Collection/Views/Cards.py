@@ -210,19 +210,21 @@ class Card_Database(View):
             full_card_list_all.append(card_list_obj.card_id)
 
         if 'collection_card_clear_search' in request.POST:
-            del request.session['collection_card_search_Term']
-            del request.session['collection_card_selected_mana']
-            request.session['collection_card_card_full_list'] = ""
-            request.session['collection_card_card_list'] = request.session['collection_card_card_base']
+            request.session['collection_card_search_Term'] = ""
+            request.session['collection_card_selected_mana'] = []
+            request.session['collection_card_card_list'] = CardIDList.get_json(True)
             request.session['collection_card_clear'] = False
             request.session['collection_card_card_full'] = False
         elif 'collection_card_full_list' in request.POST:
-            request.session['collection_card_card_full'] = True
-            request.session['collection_card_clear'] = True
             request.session['collection_card_search_Term'] = "Full List"
-            request.session['collection_card_card_full_list'] = CardIDList.get_json(False)
+            request.session['collection_card_selected_mana'] = []
+            request.session['collection_card_card_list'] = CardIDList.get_json(False)
+            request.session['collection_card_clear'] = True
+            request.session['collection_card_card_full'] = True
         else:
             text = request.POST.get('collection_card_search_Term')
+            if text == "Full List":
+                text = request.session['collection_card_search_Term'] = ""
             search_term = text
             selected_mana = []
             for selected in init_mana_list:
@@ -274,13 +276,11 @@ class Card_Database(View):
                 filtered_card_list = CardFace.card_face_filter_by_card_term(
                     full_card_list_all, list_of_colors, search_term
                 )
-
             request.session['collection_card_search_Term'] = search_term
             request.session['collection_card_selected_mana'] = selected_mana
             request.session['collection_card_card_list'] = filtered_card_list
             request.session['collection_card_clear'] = True
             request.session['collection_card_card_full'] = False
-            request.session['collection_card_card_full_list'] = ""
         return redirect('card_database')
 
     def get(self, request):
@@ -294,31 +294,18 @@ class Card_Database(View):
         """
         logger.info("Run: collection_display; Params: " + json.dumps(request.GET.dict()))
         init_mana_list = Symbol.get_base_symbols()
-        selected_mana = []
-        card_list = ""
         try:
-            full_list = request.session['collection_card_card_full']
-            clear_search = request.session['collection_card_clear']
             search_term = request.session['collection_card_search_Term']
-            if not full_list:
-                selected_mana = request.session['collection_card_selected_mana']
-                card_list = request.session['collection_card_card_list']
-            else:
-                card_list = request.session['collection_card_card_full_list']
+            selected_mana = request.session['collection_card_selected_mana']
+            card_list = request.session['collection_card_card_list']
+            clear_search = request.session['collection_card_clear']
+            full_list = request.session['collection_card_card_full']
         except KeyError:
             search_term = request.session['collection_card_search_Term'] = ""
             selected_mana = request.session['collection_card_selected_mana'] = []
+            card_list = request.session['collection_card_card_list'] = CardIDList.get_json(True)
             clear_search = request.session['collection_card_clear'] = False
-            try:
-                full_list = request.session['collection_card_card_full']
-                if not full_list:
-                    card_list = request.session['collection_card_card_base']
-                else:
-                    card_list = request.session['collection_card_card_full_list']
-            except KeyError:
-                card_list = request.session['collection_card_card_list'] = CardIDList.get_json(True)
-                request.session['collection_card_card_base'] = card_list
-                full_list = request.session['collection_card_card_full'] = False
+            full_list = request.session['collection_card_card_full'] = False
 
 
         mana_list = []

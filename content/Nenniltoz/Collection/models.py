@@ -331,7 +331,12 @@ class CardFace(models.Model):
         filtered_card_list = CardFace.objects.select_related().filter(
             Q(legal__card_obj__card_id__in=card_ids) &
             Q(card_search__icontains=term) &
-            Q(legal__card_obj__keywords__icontains="legendary") &
+            Q(type_line__icontains="legendary") & (
+                Q(type_line__icontains="creature") | (
+                    Q(type_line__icontains="planeswalker") &
+                    Q(text__icontains="can be your commander")
+                )
+            ) &
             reduce(
                 operator.or_, (
                     Q(mana_cost__contains=item) for item in mana_color
@@ -700,7 +705,7 @@ class QuickResult(models.Model):
             date = datetime.datetime.now() - datetime.timedelta(days=7)
             obj = QuickResult.objects.get(search=color_term)
             if obj.last_update < date.date():
-                QuickResult.run_color(card_ids, color_term, color_term)
+                QuickResult.run_color(card_ids, color, color_term)
                 obj = QuickResult.objects.get(search=color_term)
         except QuickResult.DoesNotExist:
             QuickResult.run_color(card_ids, color, color_term)

@@ -7,16 +7,17 @@
 
 {% block content %}
 <div class="cardFilter">
-    <form action="card_database" method="post">
+    <form action="card_database" method="post" id="search_form">
         {% csrf_token %}
-        {% if clearSearch %}
-        <input class="{{ font_family }}" name="collection_card_search_Term" value="{{ search_Term }}">
-        {% else %}
+        {% if search_Term is "" %}
         <input class="{{ font_family }}" name="collection_card_search_Term" placeholder="Search">
+        {% else %}
+        <input class="{{ font_family }}" name="collection_card_search_Term" placeholder="Search" value="{{ search_Term }}">
         {% endif %}
         <input class="{{ font_family }}" type="submit" onclick="show_page_load();" value="Search">
         {% if clearSearch %}
-        <input class="{{ font_family }}" name="collection_card_clear_search" type="submit" onclick="show_page_load();" value="Clear Search">
+        <input class="{{ font_family }}" name="collection_card_clear_search" type="button"
+               onclick="show_page_load(); document.getElementById('search_form').submit();" value="Clear Search">
         {% endif %}
         <a class="advFilterA clickable colorText" onclick="advFilterFunc();">Advanced Search</a>
         <div class="cardAdvFilter" id="adv_mana_filter">
@@ -33,7 +34,8 @@
         </div>
         {% if not full_list %}
         <div class="cardAdvFilter" id="adv_full_filter">
-            <input class="{{ font_family }}" name="collection_card_full_list" type="submit" onclick="show_page_load();" value="Full List">
+            <input class="{{ font_family }}" name="collection_card_full_list" type="button"
+                   onclick="show_page_load(); document.getElementById('search_form').submit();" value="Full List">
         </div>
         {% endif %}
     </form>
