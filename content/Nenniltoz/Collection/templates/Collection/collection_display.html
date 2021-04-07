@@ -16,8 +16,8 @@
         {% endif %}
         <input class="{{ font_family }}" type="submit" onclick="show_page_load();" value="Search">
         {% if clearSearch %}
-        <input class="{{ font_family }}" name="collection_card_clear_search" type="button"
-               onclick="show_page_load(); document.getElementById('search_form').submit();" value="Clear Search">
+        <input class="{{ font_family }}" name="collection_card_clear_search" type="submit"
+               onclick="show_page_load();" value="Clear Search">
         {% endif %}
         <a class="advFilterA clickable colorText" onclick="advFilterFunc();">Advanced Search</a>
         <div class="cardAdvFilter" id="adv_mana_filter">
@@ -34,8 +34,8 @@
         </div>
         {% if not full_list %}
         <div class="cardAdvFilter" id="adv_full_filter">
-            <input class="{{ font_family }}" name="collection_card_full_list" type="button"
-                   onclick="show_page_load(); document.getElementById('search_form').submit();" value="Full List">
+            <input class="{{ font_family }}" name="collection_card_full_list" type="submit"
+                   onclick="show_page_load();" value="Full List">
         </div>
         {% endif %}
     </form>
@@ -62,4 +62,14 @@
 
 {% block custom_scripts %}
 <script src="{% static 'js\card.js' %}"></script>
+<script>
+    $(document).keypress(
+        function(event){
+            if (event.which == '13') {
+                event.preventDefault();
+            }
+        }
+    );
+    //document.getElementById('search_form').submit();
+</script>
 {% endblock %}
