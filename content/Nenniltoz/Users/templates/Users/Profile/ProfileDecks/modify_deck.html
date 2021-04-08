@@ -14,6 +14,10 @@
 {% extends "base_generic.html" %}
 {% load static %}
 
+{% block css %}
+    <link href="{% static 'css\profile_decks.css' %}" rel="stylesheet" type="text/css">
+{% endblock %}
+
 
 {% block content %}
 <div class="DeckBody" id="deck">

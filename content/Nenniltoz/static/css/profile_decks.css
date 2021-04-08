@@ -1,0 +1,85 @@
+.desc_area {
+    min-height: 5em;
+	max-height: 50vh;
+	width: 100%;
+}
+
+.deckDirection {
+    color: white;
+    text-decoration: none;
+}
+
+.deckHead {
+    display: grid;
+    grid-template-columns: 150px auto;
+    column-gap: 2%;
+    row-gap: 20px;
+    grid-auto-rows: minmax(min-content, max-content);
+    text-transform: capitalize;
+}
+
+
+.CommanderObj {
+    width: 60%;
+    margin-top: 8px;
+    max-width: 325px;
+}
+
+.CommanderImg {
+    border-radius: 23px;
+    border-color: white;
+    border-style: solid;
+    width: 90%;
+    max-width: 350px;
+    min-width: 200px;
+}
+
+
+
+.cardGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    column-gap: 20px;
+    row-gap: 20px;
+}
+
+.cardDirection {
+    color: white;
+    text-decoration: none;
+}
+
+.cardObj {
+    width: 200px;
+    margin-top: 8px;
+    vertical-align: middle;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    border-radius: 23px;
+    transition: 0.3s;
+}
+
+.cardObjText {
+    padding: 2px 16px;
+}
+
+.cardImg {
+    border-radius: 23px;
+    border-color: white;
+    border-style: solid;
+    width: 95%;
+    height: auto;
+}
+
+@media screen and (min-width: 1000px) {
+.DeckBody {
+    display: grid;
+    grid-template-columns: 49% 49%;
+    column-gap: 2%;
+    row-gap: 20px;
+}
+.CommanderObj {
+    float: right;
+}
+.CommanderHr {
+    display: none;
+}
+}

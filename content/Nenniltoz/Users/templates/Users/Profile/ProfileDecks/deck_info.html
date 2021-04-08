@@ -21,13 +21,13 @@
         <!-- Determining the value of the deck and whether it should translate. -->
         <input class="deckValue {{ font_family }}" id="deck_description_field_new" name="deck_description_field"
                 type="textarea">
-        </div>
+    </div>
     {% else %}
     <div class="deckHead">
         <label for="deck_name_field">Name:</label>
         <!-- Determining the value of the deck and whether it should translate. -->
         <input class="deckValue {{ font_family }}" id="deck_name_field" name="deck_name_field"
-                type="text" value="{{ deck_obj.name }}">
+                type="text" value="{{ deck_obj.name }}" placeholder="Enter Deck Name">
 
 
         <label class="deck_type_field">Deck Type:</label>
@@ -44,8 +44,9 @@
 
         <label class="deck_description_field">Description:</label>
         <!-- Determining the value of the deck and whether it should translate. -->
-        <input class="deckValue {{ font_family }}" id="deck_description_field" name="deck_description_field"
-                type="textarea" value="{{ deck_obj.description }}">
-        </div>
+            <textarea class="desc_area" cols="40"
+                      name="desc" placeholder="Description of the Deck"
+                      rows="1">{% if has_desc %}{{ deck_obj.description }}{% endif %}</textarea>
+    </div>
     {% endif %}
 </form>
