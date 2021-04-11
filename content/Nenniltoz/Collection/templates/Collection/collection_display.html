@@ -44,16 +44,18 @@
 {% include "./pager.html" %}
 <div class="cardGrid" id="cardGrid">
     {% for card_obj in pages %}
-    {% with card_obj|convert_to_json as card_json %}
-    <div class="cardObj">
-        <a class="cardDirection" onclick="show_page_load();" href='/Collection/card/{{ card_json.oracle_id }}/'>
-            <img alt="Avatar" class="cardImg" src='{{ card_json.card_url }}'>
-            <div class="cardObjText {{ should_translate }}">
-                {{ card_json.card_name|safe }}
+        {% if card_obj is not ' ' %}
+            {% with card_obj|convert_to_json as card_json %}
+            <div class="cardObj">
+                <a class="cardDirection" onclick="show_page_load();" href='/Collection/card/{{ card_json.oracle_id }}/'>
+                    <img alt="Avatar" class="cardImg" src='{{ card_json.card_url }}'>
+                    <div class="cardObjText {{ should_translate }}">
+                        {{ card_json.card_name|check_safe }}
+                    </div>
+                </a>
             </div>
-        </a>
-    </div>
-    {% endwith %}
+            {% endwith %}
+        {% endif %}
     {% endfor %}
 </div>
 {% include "./pager.html" %}

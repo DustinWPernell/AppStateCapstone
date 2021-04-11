@@ -15,7 +15,7 @@
     <div class="{{faces.0.legal.card_obj.layout.multi_face|cardMultiFace}}">
         {% for face in faces %}
         <div class="singCardInValue">
-            {{ face.mana_cost|replaceMana|safe }}
+            {{ face.mana_cost|replaceMana|check_safe }}
         </div>
         {% endfor %}
     </div>
@@ -60,7 +60,7 @@
     <div class="{{faces.0.legal.card_obj.layout.multi_face|cardMultiFace}}">
         {% for face in faces %}
         <div class="singCardInValue">
-            <p style="white-space: pre-line;">{{ face.text|replaceTextMana|replacePeriod|safe }}</p>
+            <p style="white-space: pre-line;">{{ face.text|replaceTextMana|replacePeriod|check_safe }}</p>
         </div>
         {% endfor %}
     </div>

@@ -1,6 +1,9 @@
+import html
 import json
 
 from django import template
+from django.utils.safestring import mark_safe
+import bleach
 
 from Collection.models import Symbol
 
@@ -44,3 +47,13 @@ def remove_bracket(val):
     val = val.replace("{", '<span style="color: lightgreen">')
     val = val.replace("}", '</span>')
     return val
+
+
+_ALLOWED_ATTRIBUTES = {
+        'span': ['style'],
+}
+_ALLOWED_TAGS = ['span']
+
+@register.filter()
+def check_safe(text):
+    return mark_safe(bleach.clean(text, tags=_ALLOWED_TAGS, attributes=_ALLOWED_ATTRIBUTES))

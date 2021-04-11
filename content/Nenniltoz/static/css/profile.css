@@ -75,8 +75,8 @@
 
 .tab {
   overflow: hidden;
-  border: 1px solid #000;
-  background-color: rgba(0, 0, 0, 0.7);
+  border: 1px solid #fff;
+  background-color: rgba(255, 255, 255, 0.7);
 }
 
 .tab button {
@@ -87,26 +87,50 @@
   cursor: pointer;
   padding: 14px 16px;
   transition: 0.3s;
-  color: white;
 }
 
 .tab button:hover {
-  background-color: #222
+  background-color: #222;
+  color: white;
 }
 
 .tab button.active {
   background-color: #222;
+  color: white;
 }
 
 .tabcontent {
   display: none;
   padding: 6px 12px;
-  border: 1px solid #000;
+  border: 1px solid #fff;
   border-top: none;
 }
 
 .cardTable{
-    width:100%;
+    display: grid;
+    grid-template-rows: 50px auto;
+    padding: 10px;
+    grid-gap: 10px;
+}
+
+.innerCardTableHead{
+    padding: 5px;
+    display: grid;
+    grid-gap: 1%;
+    grid-template-columns: minmax(100px, 20%) minmax(100px, 10%) minmax(100px, 15%) minmax(100px, 40%) minmax(100px, 10%);
+}
+
+.innerCardTable{
+    border-top-style: solid;
+    border-top-width: 1px;
+    padding: 10px;
+    display: grid;
+    grid-gap: 1%;
+    grid-template-columns: minmax(100px, 20%) minmax(100px, 10%) minmax(100px, 15%) minmax(100px, 40%) minmax(100px, 10%);
+}
+
+.profile_table{
+    overflow-wrap: break-word;
 }
 
 .smallCardImg{

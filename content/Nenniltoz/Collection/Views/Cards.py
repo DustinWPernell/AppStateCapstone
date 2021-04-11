@@ -1,5 +1,7 @@
+import html
 import json
 import logging
+from json import JSONDecodeError
 
 from django.contrib import messages
 from django.core import serializers
@@ -10,6 +12,7 @@ from django.views import View
 
 from Collection.models import CardFace, Symbol, CardIDList, Rule
 from Users.models import UserCards, UserProfile
+from static.python.session_manager import SessionManager
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +31,7 @@ class Card_Display(View):
         if 'addCards' in request.POST:
             card_quantity = int(request.POST['quantity'])
             user_card_id = request.POST['user_card_id']
-            card_notes = request.POST['notes']
+            card_notes = html.escape(request.POST['notes'])
             if card_quantity <= 0:
                 card_quantity = 1
             if user_card_id == '':
@@ -75,7 +78,7 @@ class Card_Display(View):
         elif 'wishCards' in request.POST:
             card_quantity = int(request.POST['quantity'])
             user_card_id = request.POST['user_card_id']
-            card_notes = request.POST['notes']
+            card_notes = html.escape(request.POST['notes'])
             if card_quantity <= 0:
                 card_quantity = 1
             if user_card_id == '':
@@ -129,15 +132,17 @@ class Card_Display(View):
             messages.error(request, 'Removed card(s) from collection.')
         elif 'update' in request.POST:
             user_card_id = request.POST['user_card_id']
+            card_notes = html.escape(request.POST['notes'])
             card_quantity = request.POST['quantity']
             user_card = UserCards.objects.get(id=str(user_card_id))
             user_card.quantity = card_quantity
+            user_card.notes = card_notes
             user_card.save()
 
             messages.success(request, 'Updated quantity of cards.')
         elif 'notes_button' in request.POST:
             user_card_id = request.POST['user_card_id']
-            card_notes = request.POST['notes']
+            card_notes = html.escape(request.POST['notes'])
             user_card = UserCards.objects.get(id=str(user_card_id))
             user_card.notes = card_notes
             user_card.save()
@@ -293,6 +298,8 @@ class Card_Database(View):
         :todo: Loading image for long searches
         """
         logger.info("Run: collection_display; Params: " + json.dumps(request.GET.dict()))
+        SessionManager.clear_other_session_data(request, SessionManager.Search)
+
         init_mana_list = Symbol.get_base_symbols()
         try:
             search_term = request.session['collection_card_search_Term']
@@ -330,9 +337,23 @@ class Card_Database(View):
         except EmptyPage:
             cards = paginator.page(paginator.num_pages)
 
-        font_family = UserProfile.get_font(request.user)
-        should_translate = UserProfile.get_translate(request.user)
-        context = {'font_family': font_family, 'should_translate': should_translate, 'pages': cards,
-                   'search_Term': search_term, 'mana_list': mana_list, 'clearSearch': clear_search,
-                   'full_list': full_list}
-        return render(request, 'Collection/collection_display.html', context)
+
+        try:
+            font_family = UserProfile.get_font(request.user)
+            should_translate = UserProfile.get_translate(request.user)
+            context = {'font_family': font_family, 'should_translate': should_translate, 'pages': cards,
+                       'search_Term': search_term, 'mana_list': mana_list, 'clearSearch': clear_search,
+                       'full_list': full_list}
+            return render(request, 'Collection/collection_display.html', context)
+        except JSONDecodeError:
+            request.session['collection_card_search_Term'] = ""
+            request.session['collection_card_selected_mana'] = []
+            request.session['collection_card_card_list'] = CardIDList.get_json(True)
+            request.session['collection_card_clear'] = False
+            request.session['collection_card_card_full'] = False
+
+            message = "Invalid search. Please try again."
+            font_family = UserProfile.get_font(request.user)
+            should_translate = UserProfile.get_translate(request.user)
+            context = {'font_family': font_family, 'should_translate': should_translate, 'message': message}
+            return render(request, 'error.html', context)

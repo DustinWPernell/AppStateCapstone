@@ -184,6 +184,11 @@ class UserCards(models.Model):
     wish = models.BooleanField(default=False)
     notes = models.CharField(max_length=1000, default="")
 
+    def __str__(self):
+        return '{"oracle_id": "' + str(self.card_oracle) + '", "name": "' + str(self.card_name).replace('"', '&#34;').replace('\'', '&#39;') + \
+               '", "image_url": "' + str(self.card_file) + '", "mana": "' + str(self.card_mana) + '", "quantity": "' + str(self.quantity) + \
+               '", "notes": "' + str(self.notes) + '"}'
+
     @staticmethod
     def get_user_card(user, wish):
         return UserCards.objects.values('oracle_id').filter(
@@ -193,7 +198,7 @@ class UserCards(models.Model):
 
     @staticmethod
     def get_user_card_term(user, term, wish):
-        return UserCards.objects.select_related().filter(
+        filtered_card_list = UserCards.objects.select_related().filter(
             Q(user=user) &
             Q(wish=wish) &
             Q(quantity__gt=0) & (
@@ -201,6 +206,17 @@ class UserCards(models.Model):
                     Q(notes__icontains='{' + term + '}')
             )
         ).order_by('card_name')
+
+        card_json_list = ""
+        i = 0
+        for card in filtered_card_list:
+            card_json_list = card_json_list + card.__str__()
+            if len(filtered_card_list) > 1 and i + 1 < len(filtered_card_list):
+                card_json_list = card_json_list + '}, '
+                i += 1
+        return card_json_list.__str__()
+
+
 
     @staticmethod
     def get_user_card_by_oracle(oracle_id, user):
@@ -211,10 +227,19 @@ class UserCards(models.Model):
 
     @staticmethod
     def get_user_card_by_oracle_list(oracle_ids, user):
-        return UserCards.objects.select_related().filter(
+        filtered_card_list =  UserCards.objects.select_related().filter(
             Q(card_oracle__in=oracle_ids) &
             Q(user=user)
         )
+
+        card_json_list = ""
+        i = 0
+        for card in filtered_card_list:
+            card_json_list = card_json_list + card.__str__()
+            if len(filtered_card_list) > 1 and i + 1 < len(filtered_card_list):
+                card_json_list = card_json_list + '}, '
+                i += 1
+        return card_json_list.__str__()
 
 
 class News(models.Model):

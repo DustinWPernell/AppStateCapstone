@@ -18,7 +18,6 @@ from django.http import JsonResponse
 logger = logging.getLogger("logger")
 # Create your models here.
 #region Cards
-
 class IgnoreCards(models.Model):
     """
         Stores cards that should be ignored during import
@@ -352,7 +351,9 @@ class CardFace(models.Model):
         card_json_list = ""
         for card in filtered_card_list:
             card_json_list = card_json_list + card.__str__()
-        return card_json_list
+            if len(filtered_card_list) > 1:
+                card_json_list = card_json_list + '}, '
+        return card_json_list.__str__()
 
     @staticmethod
     def card_face_filter_by_name_term(term):
@@ -363,7 +364,9 @@ class CardFace(models.Model):
         card_json_list = ""
         for card in filtered_card_list:
             card_json_list = card_json_list + card.__str__()
-        return card_json_list
+            if len(filtered_card_list) > 1:
+                card_json_list = card_json_list + '}, '
+        return card_json_list.__str__()
 
     @staticmethod
     def get_card_sets(oracle_id):
@@ -406,11 +409,9 @@ class Rule(models.Model):
 
     def __str__(self):
         return self.oracle_id
-
 #endregion
 
 #region Decks
-
 class DeckType(models.Model):
     name = models.CharField(max_length=50)
     desc = models.CharField(max_length=50)
@@ -419,14 +420,33 @@ class DeckType(models.Model):
     side_board_size = models.IntegerField(default=15)
     card_copy_limit = models.IntegerField(default=4)
     has_commander = models.BooleanField(default=False)
+    def __str__(self):
+        return '{"type_id": "' + str(self.id) + '", "type_name": "' + str(self.name) + '", "desc": "' + str(self.desc) + \
+                '", "min_deck_size": "' + str(self.min_deck_size) + '", "max_deck_size": "' + str(self.max_deck_size) + \
+                '", "side_board_size": "' + str(self.side_board_size) + '", "card_copy_limit": "' + str(self.card_copy_limit) + \
+                '", "has_commander": "' + str(self.has_commander) + '"}'
 
     @staticmethod
     def get_deck_type_by_type(type):
-        return DeckType.objects.get(name__icontains=type)
+        type_list = DeckType.objects.filter(name__icontains=type)
+        type_json_list = ""
+        for type in type_list:
+            type_json_list = type_json_list + type.__str__()
+            if len(type_list) > 1:
+                type_json_list = type_json_list + '}, '
+
+        return type_json_list.__str__()
 
     @staticmethod
     def get_types():
-        return DeckType.objects.all()
+        type_list = DeckType.objects.all()
+        type_json_list = ""
+        for type in type_list:
+            type_json_list = type_json_list + type.__str__()
+            if len(type_list) > 1:
+                type_json_list = type_json_list + '}, '
+
+        return type_json_list.__str__()
 
 
 class Deck(models.Model):
@@ -449,6 +469,12 @@ class Deck(models.Model):
     commander_file.null = True
     commander_oracle.null = True
 
+    def __str__(self):
+        return '{"deck_id": "' + str(self.id) + '", "deck_name": "' + str(self.name).replace('"', '&#34;').replace('\'', '&#39;') + \
+                '", "color_id": "' + str(self.color_id) + '", "created_by": "' + str(self.created_by) + '", "deck_user": "' + str(self.deck_user) +\
+                '", "is_pre_con": "' + str(self.is_pre_con) + '", "is_private": "' + str(self.is_private) +  \
+                '", "description": "' + str(self.description) + '", "deck_type": "' + str(self.deck_type.__str__()) + '"}'
+
     def get_created_by(self):
         return User.objects.get(id=self.created_by)
 
@@ -464,7 +490,7 @@ class Deck(models.Model):
         return Deck.objects.select_related().filter(
             (
                     Q(is_private=False) |
-                    Q(deck_user=user.id)
+                    Q(deck_user=user)
             ) &
             Q(name__icontains=term) & (
                     reduce(
@@ -487,28 +513,40 @@ class Deck(models.Model):
         return Deck.objects.select_related().filter(
             (
                     Q(is_private=False) |
-                    Q(deck_user=user.id)
+                    Q(deck_user=user)
             ) &
             reduce(
                 operator.or_, (
                     Q(mana_cost__contains=item) for item in mana
                 )
             ) &
-            Q(colorId__contains=mana) &
-            Q(name__icontains=term)
+            Q(colorId__contains=mana) & (
+                    Q(name__icontains=term) |
+                    Q(decsription__icontains='{' + term + '}')
+            )
         ).order_by('name')
 
     @staticmethod
-    def deck_filter_by_term(user, term):
+    def get_deck_by_user_term(user, term):
         # Retrieve all decks that are not private and colorId contains the selected colors,
         # or name contains the search term
-        return Deck.objects.select_related().filter(
+        filtered_deck_list = Deck.objects.select_related().filter(
             (
                     Q(is_private=False) |
-                    Q(deck_user=user.id)
-            ) &
-            Q(name__icontains=term)
+                    Q(deck_user=user)
+            ) & (
+                    Q(name__icontains=term) |
+                    Q(description__icontains='{' + term + '}')
+            )
         ).order_by('name')
+
+        deck_json_list = ""
+        for deck in filtered_deck_list:
+            deck_json_list = deck_json_list + deck.__str__()
+            if len(filtered_deck_list) > 1:
+                deck_json_list = deck_json_list + '}, '
+
+        return deck_json_list.__str__()
 
     @staticmethod
     def get_deck_by_deck_list(deck_ids):
@@ -562,7 +600,6 @@ class DeckCards(models.Model):
             json_obj.append(card_obj)
 
         return json_obj
-
 #endregion
 
 class Symbol(models.Model):
@@ -655,10 +692,12 @@ class QuickResult(models.Model):
         ).order_by('name')
 
         card_json_list = ""
+        i = 0
         for card in filtered_card_list:
             card_json_list = card_json_list + card.__str__()
-            if len(filtered_card_list) > 1:
+            if len(filtered_card_list) > 1 and i + 1 < len(filtered_card_list):
                 card_json_list = card_json_list + '}, '
+                i += 1
 
         if limit:
             obj, created = QuickResult.objects.get_or_create(
@@ -691,10 +730,12 @@ class QuickResult(models.Model):
             ).order_by('name')
 
         card_json_list = ""
+        i = 0
         for card in filtered_card_list:
             card_json_list = card_json_list + card.__str__()
-            if len(filtered_card_list) > 1:
+            if len(filtered_card_list) > 1 and i + 1 < len(filtered_card_list):
                 card_json_list = card_json_list + '}, '
+                i += 1
 
         obj, created = QuickResult.objects.get_or_create(
             search=keyword,
@@ -733,10 +774,12 @@ class QuickResult(models.Model):
             ).order_by('name')
 
         card_json_list = ""
+        i = 0
         for card in filtered_card_list:
             card_json_list = card_json_list + card.__str__()
-            if len(filtered_card_list) > 1:
+            if len(filtered_card_list) > 1 and i + 1 < len(filtered_card_list):
                 card_json_list = card_json_list + '}, '
+                i += 1
 
         obj, created = QuickResult.objects.get_or_create(
             search=color_term,

@@ -10,8 +10,9 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views import View
 
-from Collection.models import CardFace
+from Collection.models import CardFace, Deck
 from Users.models import UserProfile, UserCards
+from static.python.session_manager import SessionManager
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +50,68 @@ class Settings_Update(View):
 
 class User_Profile(View):
     user = User
+
+    @login_required
+    def post(self, request, user_id):
+        logger.info("Run: user_profile; Params: " + json.dumps(request.GET.dict()))
+
+        # region Page numbers
+        try:
+            deck_page = request.GET.get('deck_page', -1)
+            if deck_page == -1:
+                deck_page = request.session['deck_page']
+        except KeyError:
+            deck_page = request.GET.get('deck_page', 1)
+            request.session['deck_page'] = deck_page
+
+        try:
+            card_page = request.GET.get('card_page', -1)
+            if card_page == -1:
+                card_page = request.session['card_page']
+        except KeyError:
+            card_page = request.GET.get('card_page', 1)
+            request.session['card_page'] = card_page
+
+        try:
+            wish_page = request.GET.get('wish_page', -1)
+            if wish_page == -1:
+                wish_page = request.session['wish_page']
+        except KeyError:
+            wish_page = request.GET.get('wish_page', 1)
+            request.session['wish_page'] = wish_page
+        # endregion
+
+        if 'user_clear_deck_search' in request.POST:
+             request.session['user_search_deck_term'] = ""
+             request.session['user_search_deck_cards'] = Deck.get_deck_by_user_term(user_id, "")
+             request.session['user_clear_deck_search'] = False
+        elif 'user_search_deck' in request.POST:
+            search_term = request.POST.get('user_search_deck_term')
+            request.session['user_search_deck_term'] = search_term
+            request.session['user_search_deck_cards'] = Deck.get_deck_by_user_term(user_id, search_term)
+            request.session['user_clear_deck_search'] = False
+        elif 'user_clear_card_search' in request.POST:
+             request.session['user_search_card_term'] = ""
+             request.session['user_search_card_cards'] = UserCards.get_user_card_term(user_id, "", False)
+             request.session['user_clear_card_search'] = False
+        elif 'user_search_card' in request.POST:
+            search_term = request.POST.get('user_search_card_term')
+            request.session['user_search_card_term'] = search_term
+            request.session['user_search_card_cards'] = UserCards.get_user_card_term(user_id, search_term, False)
+            request.session['user_clear_card_search'] = False
+        elif 'user_clear_wish_search' in request.POST:
+            request.session['user_search_wish_term'] = ""
+            request.session['user_search_wish_cards'] = UserCards.get_user_card_term(user_id, "", True)
+            request.session['user_clear_wish_search'] = False
+        elif 'user_search_wish' in request.POST:
+            search_term = request.POST.get('user_search_wish_term')
+            request.session['user_search_wish_term'] = search_term
+            request.session['user_search_wish_cards'] = UserCards.get_user_card_term(user_id, search_term, True)
+            request.session['user_clear_wish_search'] = False
+
+        return redirect('../' + str(user_id) + '?deck_page=' + str(deck_page) + '&card_page=' +
+                        str(card_page) + '&wish_page=' + str(wish_page))
+
     @login_required
     def get(self, request, user_id):
         """Display the profile of a user.
@@ -63,97 +126,91 @@ class User_Profile(View):
         logger.info("Run: user_profile; Params: " + json.dumps(request.GET.dict()))
         user_profile_obj = UserProfile.get_profile_by_user(user_id)
 
+        SessionManager.clear_other_session_data(request, SessionManager.Profile)
+
         # region Page numbers
-
         try:
-            deck_page = request.GET.get('deckPage', -1)
+            deck_page = request.GET.get('deck_page', -1)
             if deck_page == -1:
-                deck_page = request.session['deckPage']
+                deck_page = request.session['deck_page']
         except KeyError:
-            deck_page = request.GET.get('deckPage', 1)
-            request.session['deckPage'] = deck_page
+            deck_page = request.GET.get('deck_page', 1)
+            request.session['deck_page'] = deck_page
 
         try:
-            card_page = request.GET.get('cardPage', -1)
+            card_page = request.GET.get('card_page', -1)
             if card_page == -1:
-                card_page = request.session['cardPage']
+                card_page = request.session['card_page']
         except KeyError:
-            card_page = request.GET.get('cardPage', 1)
-            request.session['cardPage'] = card_page
+            card_page = request.GET.get('card_page', 1)
+            request.session['card_page'] = card_page
 
         try:
-            card_wish_page = request.GET.get('cardWishPage', -1)
-            if card_wish_page == -1:
-                card_wish_page = request.session['cardWishPage']
+            wish_page = request.GET.get('wish_page', -1)
+            if wish_page == -1:
+                wish_page = request.session['wish_page']
         except KeyError:
-            card_wish_page = request.GET.get('cardWishPage', 1)
-            request.session['cardWishPage'] = card_wish_page
-
+            wish_page = request.GET.get('wish_page', 1)
+            request.session['wish_page'] = wish_page
         # endregion
 
         # region Cards from session
-
         try:
-            search_deck_term = request.session['user_search_deck_term']
-            # user_deck_obj_list = request.session['user_decks']
-            # user_decks = CardFace.objects.filter(Q(id__in=user_deck_obj_list)).order_by('name'))
+            user_search_deck_term = request.session['user_search_deck_term']
+            user_search_deck_cards = request.session['user_search_deck_cards']
             user_clear_deck_search = request.session['user_clear_deck_search']
         except KeyError:
-            # user_deck_obj_list = []
-            user_decks = []
-            search_deck_term = "Search"
-            user_clear_deck_search = False
-            request.session['user_clear_deck_search'] = False
+            user_search_deck_term = request.session['user_search_deck_term'] = ""
+            user_search_deck_cards = request.session['user_search_deck_cards'] = Deck.get_deck_by_user_term(user_id, "")
+            user_clear_deck_search = request.session['user_clear_deck_search'] = False
 
         try:
-            search_card_term = request.session['user_search_card_term']
-            user_card_obj_list = request.session['user_cards']
-            user_cards = UserCards.get_user_card_by_oracle_list(user_card_obj_list, user_profile_obj.user)
+            user_search_card_term = request.session['user_search_card_term']
+            user_search_card_cards = request.session['user_search_card_cards']
             user_clear_card_search = request.session['user_clear_card_search']
         except KeyError:
-            user_cards = UserCards.get_user_card_term(user_profile_obj.user, "", False)
-            search_card_term = "Search"
+            user_search_card_term = request.session['user_search_card_term'] = ""
+            user_search_card_cards = request.session['user_search_card_cards'] = UserCards.get_user_card_term(user_id, "", False)
             user_clear_card_search = request.session['user_clear_card_search'] = False
 
         try:
-            search_wish_term = request.session['user_search_wish_term']
-            user_wish_card_obj_list = request.session['user_wish_cards']
-            user_wish_cards = UserCards.get_user_card_by_oracle_list(user_wish_card_obj_list, user_profile_obj.user)
+            user_search_wish_term = request.session['user_search_wish_term']
+            user_search_wish_cards = request.session['user_search_wish_cards']
             user_clear_wish_search = request.session['user_clear_wish_search']
         except KeyError:
-            user_wish_cards = UserCards.get_user_card_term(user_profile_obj.user, "", True)
-            search_wish_term = "Search"
+            user_search_wish_term = request.session['user_search_wish_term'] = ""
+            user_search_wish_cards = request.session['user_search_wish_cards'] = UserCards.get_user_card_term(user_id, "", True)
             user_clear_wish_search = request.session['user_clear_wish_search'] = False
-
         # endregion
 
         # region Paginators
-
-        deck_paginator = Paginator(user_decks, 10)
+        user_deck_list_split = list(user_search_deck_cards.split("},"))
+        deck_paginator = Paginator(user_deck_list_split, 10)
         try:
-            decks = deck_paginator.page(deck_page)
+            deck_list = deck_paginator.page(deck_page)
         except PageNotAnInteger:
-            decks = deck_paginator.page(1)
+            deck_list = deck_paginator.page(1)
         except EmptyPage:
-            decks = deck_paginator.page(deck_paginator.num_pages)
+            deck_list = deck_paginator.page(deck_paginator.num_pages)
 
-        card_paginator = Paginator(user_cards, 5)
+        user_card_list_split = list(user_search_card_cards.split("},"))
+        card_paginator = Paginator(user_card_list_split, 5)
         try:
-            cards = card_paginator.page(card_page)
+            card_list = card_paginator.page(card_page)
         except PageNotAnInteger:
-            cards = card_paginator.page(1)
+            card_list = card_paginator.page(1)
         except EmptyPage:
-            cards = card_paginator.page(card_paginator.num_pages)
+            card_list = card_paginator.page(card_paginator.num_pages)
 
-        wish_paginator = Paginator(user_wish_cards, 5)
+        user_wish_card_list_split = list(user_search_wish_cards.split("},"))
+        wish_paginator = Paginator(user_wish_card_list_split, 5)
         try:
-            wish_cards = wish_paginator.page(card_wish_page)
+            wish_list = wish_paginator.page(wish_page)
         except PageNotAnInteger:
-            wish_cards = wish_paginator.page(1)
+            wish_list = wish_paginator.page(1)
         except EmptyPage:
-            wish_cards = wish_paginator.page(wish_paginator.num_pages)
+            wish_list = wish_paginator.page(wish_paginator.num_pages)
         o_player = not str(request.user.id) == user_id
-
         # endregion
 
         friend_obj = user_profile_obj.get_user_friends()
@@ -169,107 +226,14 @@ class User_Profile(View):
             'has_pending': len(pending_obj) > 0, 'pending_obj': pending_obj,
             'has_follower': len(follower_obj) > 0, 'follower_obj': follower_obj,
             'o_player': o_player,
-            'deckPage': deck_page, 'deckPager': decks, 'search_deck_term': search_deck_term,
-            'clear_deck_search': user_clear_deck_search, 'deckShow': (deck_paginator.count > 0 or user_clear_deck_search),
-            'cardPage': card_page, 'cardPager': cards, 'search_card_term': search_card_term,
-            'clear_card_search': user_clear_card_search, 'cardShow': (card_paginator.count > 0 or user_clear_card_search),
-            'cardWishPage': card_wish_page, 'cardWishPager': wish_cards, 'search_wish_term': search_wish_term,
-            'clear_wish_search': user_clear_wish_search, 'wishShow': (wish_paginator.count > 0 or user_clear_wish_search),
+            'deckPage': deck_page, 'deck_list': deck_list, 'user_search_deck_term': user_search_deck_term,
+            'clear_deck_search': user_clear_deck_search, 'deckShow': (deck_paginator.count > 1 or user_clear_deck_search),
+            'cardPage': card_page, 'card_list': card_list, 'user_search_card_term': user_search_card_term,
+            'clear_card_search': user_clear_card_search, 'cardShow': (card_paginator.count > 1 or user_clear_card_search),
+            'wish_page': wish_page, 'wish_list': wish_list, 'user_search_wish_term': user_search_wish_term,
+            'clear_wish_search': user_clear_wish_search, 'wishShow': (wish_paginator.count > 1 or user_clear_wish_search),
         }
         return render(request, 'Users/user_profile.html', context)
-
-
-class User_Profile_Search(View):
-    user = User
-    @login_required
-    def post(self, request, user_id):
-        logger.info("Run: user_profile; Params: " + json.dumps(request.GET.dict()))
-        user_profile_obj = UserProfile.get_profile_by_user(user_id)
-
-        # region Page numbers
-
-        try:
-            deck_page = request.GET.get('deckPage', -1)
-            if deck_page == -1:
-                deck_page = request.session['deckPage']
-        except KeyError:
-            deck_page = request.GET.get('deckPage', 1)
-            request.session['deckPage'] = deck_page
-
-        try:
-            card_page = request.GET.get('cardPage', -1)
-            if card_page == -1:
-                card_page = request.session['cardPage']
-        except KeyError:
-            card_page = request.GET.get('cardPage', 1)
-            request.session['cardPage'] = card_page
-
-        try:
-            card_wish_page = request.GET.get('cardWishPage', -1)
-            if card_wish_page == -1:
-                card_wish_page = request.session['cardWishPage']
-        except KeyError:
-            card_wish_page = request.GET.get('cardWishPage', 1)
-            request.session['cardWishPage'] = card_wish_page
-
-        # endregion
-
-        if request.method == 'POST':
-            if 'user_clear_deck_search' in request.POST:
-                del request.session['user_search_deck_term']
-                del request.session['user_decks']
-                request.session['user_clear_deck_search'] = False
-
-            elif 'user_search_deck' in request.POST:
-                search_term = request.POST.get('user_search_deck_term')
-                filtered_card_list = CardFace.objects.card_face_filter_by_name_term(search_term)
-
-                card_id_list = []
-                for card_list_obj in filtered_card_list:
-                    if card_list_obj['card_id'] not in card_id_list:
-                        card_id_list.append(card_list_obj['card_id'])
-
-                request.session['user_search_deck_term'] = search_term
-                request.session['user_decks'] = card_id_list
-                request.session['user_clear_deck_search'] = True
-
-            elif 'user_clear_card_search' in request.POST:
-                del request.session['user_search_card_term']
-                del request.session['user_cards']
-                request.session['user_clear_card_search'] = False
-
-            elif 'user_search_card' in request.POST:
-                search_term = request.POST.get('user_search_card_term')
-                user_card_obj_term = UserCards.get_user_card_term(user_profile_obj.user, search_term, False)
-                card_id_list = []
-                for card_list_obj in user_card_obj_term:
-                    if card_list_obj.card.legal.card_obj.card_id not in card_id_list:
-                        card_id_list.append(card_list_obj.card.legal.card_obj.oracle_id)
-
-                request.session['user_search_card_term'] = search_term
-                request.session['user_cards'] = card_id_list
-                request.session['user_clear_card_search'] = True
-
-            elif 'user_clear_wish_search' in request.POST:
-                del request.session['user_search_wish_term']
-                del request.session['user_wish_cards']
-                request.session['user_clear_wish_search'] = False
-
-            elif 'user_search_wish' in request.POST:
-                search_term = request.POST.get('user_search_wish_term')
-                user_card_obj_term = UserCards.get_user_card_term(user_profile_obj.user, search_term, True)
-                card_id_list = []
-                for card_list_obj in user_card_obj_term:
-                    if card_list_obj.card.legal.card_obj.card_id not in card_id_list:
-                        card_id_list.append(card_list_obj.card.legal.card_obj.oracle_id)
-
-                request.session['user_search_wish_term'] = search_term
-                request.session['user_wish_cards'] = card_id_list
-                request.session['user_clear_wish_search'] = True
-
-            return redirect('../' + str(user_id) + '?deckPage=' + str(deck_page) + '&cardPage=' +
-                            str(card_page) + '&cardWishPage=' + str(card_wish_page))
-
 
 class Avatar_Picker(View):
     user = User

@@ -51,7 +51,7 @@
              If the deck is PreCon-->
             <div>{{ deck_obj.name }}</div>
             <!-- replaceMana is a template tag used for replacing mana text with it respective symbol. -->
-            <div>{{ deck_obj.color_id|replaceMana|safe }}</div>
+            <div>{{ deck_obj.color_id|replaceMana|check_safe }}</div>
             <div>Deck Type: {{ deck_obj.deck_type.name }}</div>
             <div>
                 {% if deck_obj.is_pre_con %}

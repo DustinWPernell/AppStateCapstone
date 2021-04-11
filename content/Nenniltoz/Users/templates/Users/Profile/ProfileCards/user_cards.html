@@ -1,7 +1,7 @@
 {% load replaceValues %}
 
+<h2>Cards</h2>
 {% if cardShow %}
-<h4>Cards</h4>
 <div class="cardFilter">
     <form action="user_profile" method="post">
         {% csrf_token %}
@@ -18,43 +18,45 @@
 </div>
 
 {% include "./card_pager.html" %}
-<table class="cardTable" id="cardGrid">
-    <tr>
-        <td style="width: 20%;">Name</td>
-        <td style="width: 20%;">Quantity</td>
-        <td style="width: 20%;">Mana Cost</td>
-        <td style="width: 20%;">Notes</td>
-        <td style="width: 20%;"></td>
-    </tr>
-    {% for card_obj in cardPager %}
-    <tr>
-        <td class="{{ should_translate }}">
-            {{ card_obj.card_name|safe }}
-        </td>
-        <td>
-            {{ card_obj.quantity }}
-        </td>
-        <td>
-            {{ card_obj.card_mana|replaceMana|safe }}
-        </td>
-        <td>
-            {{ card_obj.notes|remove_bracket|safe }}
-        </td>
-        <td>
-            <a class="cardDirection" onclick="show_page_load();" href="/Collection/card/{{ card_obj.card_oracle }}">
-                <img alt="Avatar" class="smallCardImg" src="{{ card_obj.card_file }}">
-            </a>
-        </td>
-    </tr>
+<div class="cardTable" id="cardGrid">
+    <div class="innerCardTableHead">
+        <div class="profile_table">Name</div>
+        <div class="profile_table">Quantity</div>
+        <div class="profile_table">Mana Cost</div>
+        <div class="profile_table">Notes</div>
+        <div class="profile_table"></div>
+    </div>
+    {% for card_obj in card_list %}
+        {% if card_obj is not ' ' %}
+            {% with card_obj|convert_to_json as card_json %}
+            <div class="innerCardTable">
+                <div class="profile_table {{ should_translate }}">
+                    {{ card_json.name|safe }}
+                </div>
+                <div class="profile_table">
+                    {{ card_json.quantity }}
+                </div>
+                <div class="profile_table">
+                    {{ card_json.mana|replaceMana|safe }}
+                </div>
+                <div class="profile_table">
+                    {{ card_json.notes|remove_bracket|check_safe }}
+                </div>
+                <div class="profile_table">
+                    <a class="cardDirection" onclick="show_page_load();" href="/Collection/card/{{ card_json.oracle_id }}">
+                        <img alt="{{ card_json.name|safe }}" class="smallCardImg" src="{{ card_json.image_url }}">
+                    </a>
+                </div>
+            </div>
+            {% endwith %}
+        {% endif %}
     {% endfor %}
-</table>
+</div>
 {% include "./card_pager.html" %}
 {% else %}
-<h4>Cards</h4>
 {% if o_player %}
 <h5>No cards added to account.</h5>
 {% else %}
 <h5>No cards added to account. Visit Card Database to add cards.</h5>
 {% endif %}
 {% endif %}
-<hr>

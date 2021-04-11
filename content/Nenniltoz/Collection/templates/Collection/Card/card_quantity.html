@@ -1,3 +1,5 @@
+{% load replaceValues %}
+
 <form action="card" method="post">
     {% csrf_token %}
     <div class="cardQuantity">
@@ -18,7 +20,7 @@
             {% if has_notes %}
             <textarea class="notes_area" cols="40"
                       name="notes" placeholder="Notes"
-                      rows="1">{{ user_card.notes }}</textarea>
+                      rows="1">{{ user_card.notes|check_safe }}</textarea>
             {% else %}
             <textarea class="notes_area" cols="40"
                       name="notes" placeholder="Notes"

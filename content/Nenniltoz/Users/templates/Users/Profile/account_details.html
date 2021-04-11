@@ -6,9 +6,11 @@
         {% include "./ProfileDecks/user_decks.html" %}
         {% endif %}
         {% if user_profile_obj.card_view %}
+        <br>
         {% include "./ProfileCards/user_cards.html" %}
         {% endif %}
         {% if user_profile_obj.card_view %}
+        <br>
         {% include "./ProfileCards/user_wish_cards.html" %}
         {% endif %}
     </div>
@@ -18,7 +20,9 @@
     <div class="">
         <h3>Welcome, <span class="{{ should_translate }}">{{ user_profile_obj.user.username }}</span></h3>
         {% include "./ProfileDecks/user_decks.html" %}
+        <br>
         {% include "./ProfileCards/user_cards.html" %}
+        <br>
         {% include "./ProfileCards/user_wish_cards.html" %}
     </div>
 </div>
