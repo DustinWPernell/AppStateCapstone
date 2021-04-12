@@ -338,7 +338,8 @@ class Manage_Deck(View):
             except Deck.DoesNotExist:
                 messages.error(request, "Deck not found. Deck not modified.")
 
-        return redirect('Users/user_profile/' + str(user_id) + '/manage_deck/' + str(deck_id) + '/')
+        return redirect('/')
+            # 'Users/user_profile/' + str(user_id) + '/manage_deck/' + str(deck_id) + '/')
 
     @login_required
     def get(self, request, user_id, deck_id):
