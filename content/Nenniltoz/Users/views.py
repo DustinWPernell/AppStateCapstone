@@ -16,7 +16,7 @@ from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
-from Collection.models import CardFace, Deck, DeckType, DeckCards
+from Collection.models import CardFace
 from static.python.mailers import send_password_reset
 from .forms import CreateUserForm
 from .models import News, UserProfile, Friends, PendingFriends, Followers, UserCards

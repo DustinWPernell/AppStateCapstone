@@ -9,7 +9,8 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import render, redirect
 from django.views import View
 
-from Collection.models import CardFace, Deck, DeckType, DeckCards, Symbol
+from Collection.models import CardFace, Symbol
+from Models.Deck import DeckManager
 from Users.models import UserProfile, UserCards
 
 logger = logging.getLogger(__name__)
@@ -259,16 +260,16 @@ class Manage_Deck(View):
         """
 
         try:
-            deck_obj = Deck.get_deck_by_deck(int(deck_id))
+            deck_obj = DeckManager.get_deck_by_deck(int(deck_id))
 
             if deck_obj.deck_user is not user_id:
                 deck_obj = self.create_copy(request, deck_obj)
                 messages.success(request, "Deck copied to your profile.")
 
-        except Deck.DoesNotExist:
+        except DeckManager.DoesNotExist:
             deck_obj = "new"
 
-        deck_types = DeckType.get_types()
+        deck_types = DeckManager.get_types()
 
         font_family = UserProfile.get_font(request.user)
         should_translate = UserProfile.get_translate(request.user)

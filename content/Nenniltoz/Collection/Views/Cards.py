@@ -298,7 +298,7 @@ class Card_Database(View):
         :todo: Loading image for long searches
         """
         logger.info("Run: collection_display; Params: " + json.dumps(request.GET.dict()))
-        SessionManager.clear_other_session_data(request, SessionManager.Search)
+        SessionManager.clear_other_session_data(request, SessionManager.Card)
 
         init_mana_list = Symbol.get_base_symbols()
         try:

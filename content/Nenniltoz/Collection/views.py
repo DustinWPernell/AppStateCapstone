@@ -1,13 +1,8 @@
 import json
 import logging
 
-from django.contrib import messages
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
 
-from Collection.models import CardFace, Symbol, CardIDList, Rule, Deck, DeckCards
-from Users.models import UserCards, UserProfile
 
 logger = logging.getLogger(__name__)
 

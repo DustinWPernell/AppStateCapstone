@@ -10,7 +10,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views import View
 
-from Collection.models import CardFace, Deck
+from Collection.models import CardFace
 from Users.models import UserProfile, UserCards
 from static.python.session_manager import SessionManager
 

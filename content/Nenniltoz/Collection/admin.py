@@ -1,7 +1,8 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import IgnoreCards, CardLayout, Card, Rule, Legality, Symbol, Deck, DeckCards
+from Models import Deck, DeckCards
+from .models import IgnoreCards, CardLayout, Card, Rule, Legality, Symbol
 
 admin.site.register(CardLayout)
 admin.site.register(IgnoreCards)
