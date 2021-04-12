@@ -269,12 +269,13 @@ class Manage_Deck(View):
             deck_obj = "new"
 
         deck_types = DeckType.get_types()
+        deck_type_split = list(deck_types.split("},"))
 
         font_family = UserProfile.get_font(request.user)
         should_translate = UserProfile.get_translate(request.user)
         context = {
             'font_family': font_family, 'should_translate': should_translate,
-            'deck_obj': deck_obj, 'deck_types': deck_types,
+            'deck_obj': deck_obj, 'deck_types': deck_type_split,
         }
         return render(request, 'Users/Profile/ProfileDecks/modify_deck.html', context)
 

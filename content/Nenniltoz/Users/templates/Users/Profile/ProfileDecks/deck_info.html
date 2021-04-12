@@ -1,44 +1,28 @@
 {% load cardLayout %}
 {% load replaceValues %}
 <form method="post">
-    {% if deck_obj is "new" %}
-    <div class="deckHead">
-        <label for="deck_name_field_new">Name:</label>
-        <!-- Determining the value of the deck and whether it should translate. -->
-        <input class="deckValue {{ font_family }}" id="deck_name_field_new" name="deck_name_field"
-                type="text">
-
-
-        <label class="deck_type_field_new">Deck Type:</label>
-        <!-- Determining the value of the deck and whether it should translate. -->
-        <select class="deckValue {{ font_family }}" id="deck_type_field_new" name="deck_type_field">
-            {% for deck_type in deck_types %}
-                <option value="{{ deck_type.id }}">{{ deck_type.desc }}</option>
-            {% endfor %}
-        </select>
-
-        <label class="deck_description_field_new">Description:</label>
-        <!-- Determining the value of the deck and whether it should translate. -->
-        <input class="deckValue {{ font_family }}" id="deck_description_field_new" name="deck_description_field"
-                type="textarea">
-    </div>
-    {% else %}
+    {% csrf_token %}
     <div class="deckHead">
         <label for="deck_name_field">Name:</label>
         <!-- Determining the value of the deck and whether it should translate. -->
         <input class="deckValue {{ font_family }}" id="deck_name_field" name="deck_name_field"
-                type="text" value="{{ deck_obj.name }}" placeholder="Enter Deck Name">
-
+                type="text" placeholder="Enter Deck Name">
+        {% if deck_obj != "new" %}
+            {{ deck_obj.name }}
+        {% endif %}
+        </input>
 
         <label class="deck_type_field">Deck Type:</label>
         <!-- Determining the value of the deck and whether it should translate. -->
         <select class="deckValue {{ font_family }}" id="deck_type_field" name="deck_type_field">
             {% for deck_type in deck_types %}
-            {% if deck_obj.deck_type is deck_type %}
-                <option value="{{ deck_type.id }}" selected>{{ deck_type.desc }}</option>
+            {% with deck_type|convert_to_json as deck_json %}
+            {% if deck_obj == "new" or deck_obj.deck_type.id is not deck_json.type_id %}
+                <option value="{{ deck_json.type_id }}">{{ deck_json.desc }}</option>
             {% else %}
-                <option value="{{ deck_type.id }}">{{ deck_type.desc }}</option>
+                <option value="{{ deck_json.type_id }}" selected>{{ deck_json.desc }}</option>
             {% endif %}
+            {% endwith %}
             {% endfor %}
         </select>
 
@@ -46,7 +30,13 @@
         <!-- Determining the value of the deck and whether it should translate. -->
             <textarea class="desc_area" cols="40"
                       name="desc" placeholder="Description of the Deck"
-                      rows="1">{% if has_desc %}{{ deck_obj.description }}{% endif %}</textarea>
+                      rows="1">{% if deck_obj != "new" or has_desc %}{{ deck_obj.description }}{% endif %}</textarea>
+        <button class="clickable {{ font_family }}" name="submitDeck" type="submit">
+            {% if deck_obj == "new" %}
+                Create Deck
+            {% else %}
+                Save Deck
+            {% endif %}
+        </button>
     </div>
-    {% endif %}
 </form>

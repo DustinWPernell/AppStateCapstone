@@ -441,11 +441,12 @@ class DeckType(models.Model):
     def get_types():
         type_list = DeckType.objects.all()
         type_json_list = ""
-        for type in type_list:
-            type_json_list = type_json_list + type.__str__()
-            if len(type_list) > 1:
+        i = 0
+        for type_obj in type_list:
+            type_json_list = type_json_list + type_obj.__str__()
+            if len(type_list) > 1 and i + 1 < len(type_list):
                 type_json_list = type_json_list + '}, '
-
+                i += 1
         return type_json_list.__str__()
 
 
