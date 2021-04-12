@@ -5,6 +5,7 @@ import logging
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from django.shortcuts import render, redirect
@@ -141,7 +142,7 @@ class Manage_Cards(View):
         try:
             card_list = request.SESSION['deck_card_list']
         except KeyError:
-            card_list = DeckCards.build_json_by_deck_user()
+            card_list = DeckManager.build_json_by_deck_user()
 
         try:
             search_card_term = request.session['user_search_card_term']
@@ -213,42 +214,6 @@ class Manage_Cards(View):
 
 class Manage_Deck(View):
     user = User
-
-    def create_copy(self, request, deck_obj):
-# region Copy Deck
-        new_deck = Deck.objects.create(
-            name=deck_obj.name,
-            deck_type=deck_obj.deck_type,
-            is_private=UserProfile.get_deck_private(request.user),
-            image_url=deck_obj.image_url,
-            description=deck_obj.description,
-            commander_id=deck_obj.commander_id,
-            commander_name=deck_obj.commander_name,
-            commander_file=deck_obj.commander_file,
-            commander_oracle=deck_obj.commander_oracle,
-            color_id=deck_obj.color_id,
-            created_by=deck_obj.created_by,
-            deck_user=request.user.id,
-            is_pre_con=False
-        )
-# endregion
-
-# region Copy Cards
-        deck_cards = DeckCards.deck_card_by_deck_user()
-
-        for card in deck_cards:
-            DeckCards.objects.create(
-                deck=new_deck,
-                card_oracle = card.card_oracle,
-                card_name = card.card_name,
-                card_file = card.card_file,
-                card_search = card.card_search,
-                quantity = card.quantity,
-                sideboard = card.sideboard,
-            )
-# endregion
-        return new_deck
-
     def post(self, request, user_id, deck_id):
         # commander = request.session['commander'] = request.POST.get('commander')
         # image_url = request.session['image_url'] = request.POST.get('image_url')
@@ -259,29 +224,25 @@ class Manage_Deck(View):
             deck_type_field = request.session['deck_type_field'] = request.POST.get('deck_type_field')
             if deck_id == "-1":
                 try:
-                    deck_type_obj = DeckType.get_deck_type_by_type(int(deck_type_field))
+                    deck_type_obj = DeckManager.get_deck_type_by_type(int(deck_type_field))
                     color_id = '{C}'
 
-                    new_deck = Deck.objects.create(
-                        name=deck_name_field,
-                        deck_type=deck_type_obj,
-                        is_private=deck_privacy_field == 'True',
-                        description=deck_description_field,
-                        color_id=color_id,
-                        created_by=request.user.id,
-                        deck_user=request.user.id,
-                        is_pre_con=(request.user.username == "Preconstructed")
-                    )
-                    deck_id = new_deck.id
-                except DeckType.DoesNotExist:
+                    deck_id = DeckManager.deck_create(deck_name_field,
+                                                      deck_type_obj,
+                                                      deck_privacy_field,
+                                                      deck_description_field,
+                                                      color_id,
+                                                      request.user.id,
+                                                      request.user.username)
+                except ObjectDoesNotExist:
                     messages.error(request, "Deck type not defined. Deck not created.")
                 except ValueError:
                     messages.error(request, "Value Error. Deck not created.")
 
             else:
                 try:
-                    deck_obj = Deck.get_deck_by_deck(deck_id)
-                    deck_type_obj = DeckType.get_deck_type_by_type(deck_type_field)
+                    deck_obj = DeckManager.get_deck_by_deck(deck_id)
+                    deck_type_obj = DeckManager.get_deck_type_by_type(deck_type_field)
 
                     color_id = ''
                     deck_obj.deck_name = deck_name_field
@@ -290,9 +251,9 @@ class Manage_Deck(View):
                     deck_obj.description = deck_description_field
                     deck_obj.color_id=color_id,
                     deck_obj.save()
-                except DeckType.DoesNotExist:
+                except ObjectDoesNotExist :
                     messages.error(request, "Deck type not defined. Deck not modified.")
-                except Deck.DoesNotExist:
+                except ObjectDoesNotExist :
                     messages.error(request, "Deck not found. Deck not modified.")
 
         return redirect('../' + str(deck_id))
@@ -310,16 +271,16 @@ class Manage_Deck(View):
         """
 
         try:
-            deck_obj = Deck.get_deck_by_deck(int(deck_id))
+            deck_obj = DeckManager.get_deck_by_deck(int(deck_id))
 
             if deck_obj.deck_user is not user_id:
-                deck_obj = self.create_copy(request, deck_obj)
+                deck_obj = deck_obj.create_copy(deck_obj, request.user)
                 messages.success(request, "Deck copied to your profile.")
 
-        except Deck.DoesNotExist:
+        except ObjectDoesNotExist :
             deck_obj = "new"
 
-        deck_types = DeckType.get_types()
+        deck_types = DeckManager.get_types()
         deck_type_split = list(deck_types.split("},"))
 
         font_family = UserProfile.get_font(request.user)

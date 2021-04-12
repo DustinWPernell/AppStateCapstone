@@ -1,6 +1,13 @@
+import operator
+from functools import reduce
+from random import randint
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Q, Count
+
+from Users.models import UserProfile
+
 
 class DeckManager(models.Manager):
     @staticmethod
@@ -15,21 +22,13 @@ class DeckManager(models.Manager):
                 i += 1
         return type_json_list.__str__()
 
-
     @staticmethod
-    def get_deck_type_by_type(type):
-        type_list = DeckType.objects.filter(name__icontains=type)
-        type_json_list = ""
-        for type in type_list:
-            type_json_list = type_json_list + type.__str__()
-            if len(type_list) > 1:
-                type_json_list = type_json_list + '}, '
-
-        return type_json_list.__str__()
+    def get_deck_type_by_type(type_id):
+        return DeckType.objects.filter(id=type_id)
 
     @staticmethod
     def deck_filter_by_color_term_colorless(user, mana, term):
-        count = Deck.aggregate(count=Count('id'))['count']
+        count = DeckManager.aggregate(count=Count('id'))['count']
         random_index = randint(0, count - 1)
 
         list_of_colors = ['{W}', '{W/U}', '{W/B}', '{R/W}', '{G/W}', '{2/W}', '{W/P}', '{HW}',
@@ -129,7 +128,7 @@ class DeckManager(models.Manager):
     @staticmethod
     def build_json_by_deck_user(deck_id, user_id, side):
         json_obj = []
-        deck_cards = DeckCards.deck_card_by_deck_user(deck_id, user_id, side)
+        deck_cards = DeckManager.deck_card_by_deck_user(deck_id, user_id, side)
         for card in deck_cards:
             card_obj = {}
             card_obj["card_oracle"] = card.card_oracle
@@ -139,6 +138,21 @@ class DeckManager(models.Manager):
             json_obj.append(card_obj)
 
         return json_obj
+
+    @staticmethod
+    def deck_create(deck_name_field, deck_type_obj, deck_privacy_field, deck_description_field,
+                    color_id, user_id, username):
+        new_deck = Deck.objects.create(
+            name=deck_name_field,
+            deck_type=deck_type_obj,
+            is_private=deck_privacy_field == 'True',
+            description=deck_description_field,
+            color_id=color_id,
+            created_by=user_id,
+            deck_user=user_id,
+            is_pre_con=(username == "Preconstructed")
+        )
+        return new_deck.id
 
 
 class DeckType(models.Model):
@@ -154,10 +168,11 @@ class DeckType(models.Model):
         app_label = "Management"
 
     def __str__(self):
-        return '{"type_id": "' + str(self.id) + '", "type_name": "' + str(self.name) + '", "desc": "' + str(self.desc) + \
-                '", "min_deck_size": "' + str(self.min_deck_size) + '", "max_deck_size": "' + str(self.max_deck_size) + \
-                '", "side_board_size": "' + str(self.side_board_size) + '", "card_copy_limit": "' + str(self.card_copy_limit) + \
-                '", "has_commander": "' + str(self.has_commander) + '"}'
+        return '{"type_id": "' + str(self.id) + '", "type_name": "' + str(self.name) + '", "desc": "' + \
+               str(self.desc) + '", "min_deck_size": "' + str(self.min_deck_size) + '", "max_deck_size": "' + \
+               str(self.max_deck_size) + '", "side_board_size": "' + str(self.side_board_size) + \
+               '", "card_copy_limit": "' + str(self.card_copy_limit) + '", "has_commander": "' + \
+               str(self.has_commander) + '"}'
 
 
 class Deck(models.Model):
@@ -184,16 +199,53 @@ class Deck(models.Model):
         app_label = "Management"
 
     def __str__(self):
-        return '{"deck_id": "' + str(self.id) + '", "deck_name": "' + str(self.name).replace('"', '&#34;').replace('\'', '&#39;') + \
-                '", "color_id": "' + str(self.color_id) + '", "created_by": "' + str(self.created_by) + '", "deck_user": "' + str(self.deck_user) +\
-                '", "is_pre_con": "' + str(self.is_pre_con) + '", "is_private": "' + str(self.is_private) +  \
-                '", "description": "' + str(self.description) + '", "deck_type": "' + str(self.deck_type.__str__()) + '"}'
+        return '{"deck_id": "' + str(self.id) + '", "deck_name": "' + \
+                str(self.name).replace('"', '&#34;').replace('\'', '&#39;') + '", "color_id": "' + \
+                str(self.color_id) + '", "created_by": "' + str(self.created_by) + '", "deck_user": "' + \
+                str(self.deck_user) + '", "is_pre_con": "' + str(self.is_pre_con) + '", "is_private": "' + \
+                str(self.is_private) + '", "description": "' + str(self.description) + '", "deck_type": "' + \
+                str(self.deck_type.__str__()) + '"}'
 
     def get_created_by(self):
         return User.objects.get(id=self.created_by)
 
     def get_deck_user_by(self):
         return User.objects.get(id=self.deck_user)
+
+    def create_copy(self, user):
+        # region Copy Deck
+        new_deck = Deck.objects.create(
+            name=self.name,
+            deck_type=self.deck_type,
+            is_private=UserProfile.get_deck_private(user),
+            image_url=self.image_url,
+            description=self.description,
+            commander_id=self.commander_id,
+            commander_name=self.commander_name,
+            commander_file=self.commander_file,
+            commander_oracle=self.commander_oracle,
+            color_id=self.color_id,
+            created_by=self.created_by,
+            deck_user=user.id,
+            is_pre_con=False
+        )
+        # endregion
+
+        # region Copy Cards
+        deck_cards = DeckManager.deck_card_by_deck(self.id)
+
+        for card in deck_cards:
+            DeckCards.objects.create(
+                deck=new_deck,
+                card_oracle=card.card_oracle,
+                card_name=card.card_name,
+                card_file=card.card_file,
+                card_search=card.card_search,
+                quantity=card.quantity,
+                sideboard=card.sideboard,
+            )
+        # endregion
+        return new_deck
 
 
 class DeckCards(models.Model):

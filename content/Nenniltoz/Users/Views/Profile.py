@@ -11,13 +11,14 @@ from django.shortcuts import render, redirect
 from django.views import View
 
 from Collection.models import CardFace
+from Models.Deck import DeckManager
 from Users.models import UserProfile, UserCards
 from static.python.session_manager import SessionManager
 
 logger = logging.getLogger(__name__)
 
 
-class Settings_Update(View):
+class SettingsUpdate(View):
     user = User
 
     @login_required
@@ -41,14 +42,14 @@ class Settings_Update(View):
         elif value == 'true':
             value = True
 
-        custom_user_profile = UserProfile.objects.get(user=user_obj)
+        custom_user_profile = NenniUserProfile.objects.get(user=user_obj)
         setattr(custom_user_profile, setting, value)
         custom_user_profile.save()
         messages.success(request, 'Updated Settings.')
         return HttpResponse("Finished")
 
 
-class User_Profile(View):
+class NenniUserProfile(View):
     user = User
 
     @login_required
@@ -83,12 +84,12 @@ class User_Profile(View):
 
         if 'user_clear_deck_search' in request.POST:
              request.session['user_search_deck_term'] = ""
-             request.session['user_search_deck_cards'] = Deck.get_deck_by_user_term(user_id, "")
+             request.session['user_search_deck_cards'] = DeckManager.get_deck_by_user_term(user_id, "")
              request.session['user_clear_deck_search'] = False
         elif 'user_search_deck' in request.POST:
             search_term = request.POST.get('user_search_deck_term')
             request.session['user_search_deck_term'] = search_term
-            request.session['user_search_deck_cards'] = Deck.get_deck_by_user_term(user_id, search_term)
+            request.session['user_search_deck_cards'] = DeckManager.get_deck_by_user_term(user_id, search_term)
             request.session['user_clear_deck_search'] = False
         elif 'user_clear_card_search' in request.POST:
              request.session['user_search_card_term'] = ""
@@ -161,7 +162,7 @@ class User_Profile(View):
             user_clear_deck_search = request.session['user_clear_deck_search']
         except KeyError:
             user_search_deck_term = request.session['user_search_deck_term'] = ""
-            user_search_deck_cards = request.session['user_search_deck_cards'] = Deck.get_deck_by_user_term(user_id, "")
+            user_search_deck_cards = request.session['user_search_deck_cards'] = DeckManager.get_deck_by_user_term(user_id, "")
             user_clear_deck_search = request.session['user_clear_deck_search'] = False
 
         try:
@@ -235,7 +236,7 @@ class User_Profile(View):
         }
         return render(request, 'Users/user_profile.html', context)
 
-class Avatar_Picker(View):
+class AvatarPicker(View):
     user = User
 
     def post(self, request):
@@ -283,14 +284,14 @@ class Avatar_Picker(View):
         except EmptyPage:
             cards = paginator.page(paginator.num_pages)
 
-        font_family = UserProfile.get_font(request.user)
-        should_translate = UserProfile.get_translate(request.user)
+        font_family = NenniUserProfile.get_font(request.user)
+        should_translate = NenniUserProfile.get_translate(request.user)
         context = {'font_family': font_family, 'should_translate': should_translate, 'pages': cards,
                    'SearchTerm': search_term, 'clearSearch': clear_search}
         return render(request, 'Users/Profile/select_avatar.html', context)
 
 
-class Save_Avatar(View):
+class SaveAvatar(View):
     user = User
     @login_required
     def post(self, request):
@@ -306,7 +307,7 @@ class Save_Avatar(View):
         avatar = request.POST['newAvatar']
         user_obj = User.objects.get(id=request.user.id)
 
-        custom_user_profile = UserProfile.objects.get(user=user_obj)
+        custom_user_profile = NenniUserProfile.objects.get(user=user_obj)
 
         try:
             os.remove(custom_user_profile.avatar_file.name)

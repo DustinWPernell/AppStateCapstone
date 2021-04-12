@@ -157,9 +157,9 @@ class Deck_Display(View):
     def get(self, request, deck_id):
         logger.info("Run: deck_display; Params: " + json.dumps(request.GET.dict()))
         try:
-            deck = Deck.get_deck_by_deck(deck_id)
-            deck_cards = DeckCards.build_json_by_deck_user(deck_id, request.user.id, False)
-            side_cards = DeckCards.build_json_by_deck_user(deck_id, request.user.id, True)
+            deck = DeckManager.get_deck_by_deck(deck_id)
+            deck_cards = DeckManager.build_json_by_deck_user(deck_id, request.user.id, False)
+            side_cards = DeckManager.build_json_by_deck_user(deck_id, request.user.id, True)
             user_profile = UserProfile.get_profile_by_user(deck.deck_user)
             created_by = UserProfile.get_profile_by_user(deck.created_by)
             font_family = UserProfile.get_font(request.user)
@@ -170,7 +170,7 @@ class Deck_Display(View):
                        'user_profile': user_profile, 'created_by': created_by}
             return render(request, 'Collection/deck_display.html', context)
 
-        except DeckCards.DoesNotExist:
+        except DeckManager.DoesNotExist:
             message = "Deck ID incorrect.\nPlease check ID."
             font_family = UserProfile.get_font(request.user)
             should_translate = UserProfile.get_translate(request.user)
