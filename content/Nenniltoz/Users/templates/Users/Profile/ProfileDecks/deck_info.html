@@ -12,6 +12,18 @@
         {% endif %}
         </input>
 
+        <label class="deck_privacy_field">Privacy:</label>
+        <!-- Determining the value of the deck and whether it should translate. -->
+        <select class="deckValue {{ font_family }}" id="deck_privacy_field" name="deck_privacy_field">
+            {% if deck_private %}
+                <option value="True">Public</option>
+                <option value="False" selected>Private</option>
+            {% else %}
+                <option value="True" selected>Public</option>
+                <option value="False">Private</option>
+            {% endif %}
+        </select>
+
         <label class="deck_type_field">Deck Type:</label>
         <!-- Determining the value of the deck and whether it should translate. -->
         <select class="deckValue {{ font_family }}" id="deck_type_field" name="deck_type_field">
