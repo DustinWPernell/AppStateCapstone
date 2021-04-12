@@ -428,14 +428,7 @@ class DeckType(models.Model):
 
     @staticmethod
     def get_deck_type_by_type(type):
-        type_list = DeckType.objects.filter(name__icontains=type)
-        type_json_list = ""
-        for type in type_list:
-            type_json_list = type_json_list + type.__str__()
-            if len(type_list) > 1:
-                type_json_list = type_json_list + '}, '
-
-        return type_json_list.__str__()
+        return DeckType.objects.get(Q(id=type))
 
     @staticmethod
     def get_types():

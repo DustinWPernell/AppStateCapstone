@@ -79,8 +79,8 @@ class UserProfile(models.Model):
     """
     user = models.ForeignKey(User, related_name='user_profile', on_delete=models.CASCADE)
     card_view = models.BooleanField(default=False)
-    deck_view = models.BooleanField(default=True)
-    profile_view = models.BooleanField(default=True)
+    deck_view = models.BooleanField(default=False)
+    profile_view = models.BooleanField(default=False)
     avatar_img = models.CharField(max_length=200,
                                   default="https://c1.scryfall.com/file/scryfall-cards/art_crop/front/e/b/eba90d37-d7ac-4097-a04d-1f27e4c9e5de.jpg?1562702416")
     avatar_img.null = True

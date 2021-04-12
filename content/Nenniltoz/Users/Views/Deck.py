@@ -1,3 +1,4 @@
+import html
 import logging
 
 
@@ -248,97 +249,52 @@ class Manage_Deck(View):
         return new_deck
 
     def post(self, request, user_id, deck_id):
-        deck_name = request.session['deck_name'] = request.POST.get('deck_name')
-        is_private = request.session['is_private'] = request.POST.get('is_private')
-        description = request.session['description'] = request.POST.get('description')
-        deck_type = request.session['deck_type'] = request.POST.get('deck_type')
         # commander = request.session['commander'] = request.POST.get('commander')
         # image_url = request.session['image_url'] = request.POST.get('image_url')
-
-        if 'create_deck' in request.POST:
-            deck_type_obj = DeckType.get_deck_type_by_type(deck_type)
-            color_id = ''
-            if deck_type_obj.has_commander:
+        if 'submitDeck' in request.POST:
+            deck_name_field = request.session['deck_name_field'] = html.escape(request.POST.get('deck_name_field'))
+            deck_privacy_field = request.session['deck_privacy_field'] = request.POST.get('deck_privacy_field')
+            deck_description_field = request.session['deck_description_field'] = html.escape(request.POST.get('deck_description_field'))
+            deck_type_field = request.session['deck_type_field'] = request.POST.get('deck_type_field')
+            if deck_id == "-1":
                 try:
-                    commander_obj = CardFace.get_face_by_card(commander)
-                    commander_id = commander_obj.legal.card_obj.card_id
-                    commander_name=commander_obj.name
-                    commander_file=commander_obj.image_file
-                    commander_oracle=commander_obj.legal.card_obj.oracle_id
-                    for sym in Symbol.objects.all():
-                        color_id = color_id + sym.symbol
-                except CardFace.DoesNotExist:
-                    commander_id= None
-                    commander_name= None
-                    commander_file= None
-                    commander_oracle= None
-                    messages.error(request, "Commander not found. Leaving blank")
+                    deck_type_obj = DeckType.get_deck_type_by_type(int(deck_type_field))
+                    color_id = '{C}'
+
+                    new_deck = Deck.objects.create(
+                        name=deck_name_field,
+                        deck_type=deck_type_obj,
+                        is_private=deck_privacy_field == 'True',
+                        description=deck_description_field,
+                        color_id=color_id,
+                        created_by=request.user.id,
+                        deck_user=request.user.id,
+                        is_pre_con=(request.user.username == "Preconstructed")
+                    )
+                    deck_id = new_deck.id
+                except DeckType.DoesNotExist:
+                    messages.error(request, "Deck type not defined. Deck not created.")
+                except ValueError:
+                    messages.error(request, "Value Error. Deck not created.")
+
             else:
-                commander_id = None
-                commander_name = None
-                commander_file = None
-                commander_oracle = None
+                try:
+                    deck_obj = Deck.get_deck_by_deck(deck_id)
+                    deck_type_obj = DeckType.get_deck_type_by_type(deck_type_field)
 
-            new_deck = Deck.objects.create(
-                name=deck_name,
-                deck_type=deck_type_obj,
-                is_private=is_private == 'True',
-                image_url=image_url,
-                description=description,
-                commander_id=commander_id,
-                commander_name=commander_name,
-                commander_file=commander_file,
-                commander_oracle=commander_oracle,
-                color_id=color_id,
-                created_by=request.user.id,
-                deck_user=request.user.id,
-                is_pre_con=(request.user.username == "Preconstructed")
-            )
-            deck_id = new_deck.id
-        elif 'update_deck' in request.POST:
-            try:
-                deck_obj = Deck.get_deck_by_deck(deck_id)
-                deck_type_obj = DeckType.get_deck_type_by_type(deck_type)
+                    color_id = ''
+                    deck_obj.deck_name = deck_name_field
+                    deck_obj.deck_type = deck_type_obj
+                    deck_obj.is_private = deck_privacy_field == 'True'
+                    deck_obj.description = deck_description_field
+                    deck_obj.color_id=color_id,
+                    deck_obj.save()
+                except DeckType.DoesNotExist:
+                    messages.error(request, "Deck type not defined. Deck not modified.")
+                except Deck.DoesNotExist:
+                    messages.error(request, "Deck not found. Deck not modified.")
 
-                color_id = ''
-                if deck_type_obj.has_commander:
-                    try:
-                        commander_obj = CardFace.get_face_by_card(commander)
-                        commander_id = commander_obj.legal.card_obj.card_id
-                        commander_name = commander_obj.name
-                        commander_file = commander_obj.image_file
-                        commander_oracle = commander_obj.legal.card_obj.oracle_id
-                        for sym in Symbol.objects.all():
-                            color_id = color_id + sym.symbol
-                    except CardFace.DoesNotExist:
-                        commander_id = None
-                        commander_name = None
-                        commander_file = None
-                        commander_oracle = None
-                        messages.error(request, "Commander not found. Leaving blank")
-                else:
-                    commander_id = None
-                    commander_name = None
-                    commander_file = None
-                    commander_oracle = None
-
-                deck_obj.deck_name = deck_name
-                deck_obj.deck_type = deck_type_obj
-                deck_obj.is_private = is_private == 'True'
-                deck_obj.image_url = image_url
-                deck_obj.description = description
-                deck_obj.commander_id=commander_id,
-                deck_obj.commander_name=commander_name,
-                deck_obj.commander_file=commander_file,
-                deck_obj.commander_oracle=commander_oracle,
-                deck_obj.color_id=color_id,
-                deck_obj.save()
-            except DeckType.DoesNotExist:
-                messages.error(request, "Deck type not defined. Deck not modified.")
-            except Deck.DoesNotExist:
-                messages.error(request, "Deck not found. Deck not modified.")
-
-        return redirect('/')
+        return redirect('../' + str(deck_id))
             # 'Users/user_profile/' + str(user_id) + '/manage_deck/' + str(deck_id) + '/')
 
     @login_required
@@ -374,101 +330,6 @@ class Manage_Deck(View):
             'is_private': deck_private
         }
         return render(request, 'Users/Profile/ProfileDecks/modify_deck.html', context)
-
-
-class Save_Deck(View):
-    def post(self, request, user_id, deck_id):
-        deck_name = request.session['deck_name'] = request.POST.get('deck_name')
-        is_private = request.session['is_private'] = request.POST.get('is_private')
-        image_url = request.session['image_url'] = request.POST.get('image_url')
-        description = request.session['description'] = request.POST.get('description')
-        deck_type = request.session['deck_type'] = request.POST.get('deck_type')
-        commander = request.session['commander'] = request.POST.get('commander')
-
-        if 'create_deck' in request.POST:
-            deck_type_obj = DeckType.get_deck_type_by_type(deck_type)
-            color_id = ''
-            if deck_type_obj.has_commander:
-                try:
-                    commander_obj = CardFace.get_face_by_card(commander)
-                    commander_id = commander_obj.legal.card_obj.card_id
-                    commander_name=commander_obj.name
-                    commander_file=commander_obj.image_file
-                    commander_oracle=commander_obj.legal.card_obj.oracle_id
-                    for sym in Symbol.objects.all():
-                        color_id = color_id + sym.symbol
-                except CardFace.DoesNotExist:
-                    commander_id= None
-                    commander_name= None
-                    commander_file= None
-                    commander_oracle= None
-                    messages.error(request, "Commander not found. Leaving blank")
-            else:
-                commander_id = None
-                commander_name = None
-                commander_file = None
-                commander_oracle = None
-
-            new_deck = Deck.objects.create(
-                name=deck_name,
-                deck_type=deck_type_obj,
-                is_private=is_private == 'True',
-                image_url=image_url,
-                description=description,
-                commander_id=commander_id,
-                commander_name=commander_name,
-                commander_file=commander_file,
-                commander_oracle=commander_oracle,
-                color_id=color_id,
-                created_by=request.user.id,
-                deck_user=request.user.id,
-                is_pre_con=(request.user.username == "Preconstructed")
-            )
-            deck_id = new_deck.id
-        elif 'update_deck' in request.POST:
-            try:
-                deck_obj = Deck.get_deck_by_deck(deck_id)
-                deck_type_obj = DeckType.get_deck_type_by_type(deck_type)
-
-                color_id = ''
-                if deck_type_obj.has_commander:
-                    try:
-                        commander_obj = CardFace.get_face_by_card(commander)
-                        commander_id = commander_obj.legal.card_obj.card_id
-                        commander_name = commander_obj.name
-                        commander_file = commander_obj.image_file
-                        commander_oracle = commander_obj.legal.card_obj.oracle_id
-                        for sym in Symbol.objects.all():
-                            color_id = color_id + sym.symbol
-                    except CardFace.DoesNotExist:
-                        commander_id = None
-                        commander_name = None
-                        commander_file = None
-                        commander_oracle = None
-                        messages.error(request, "Commander not found. Leaving blank")
-                else:
-                    commander_id = None
-                    commander_name = None
-                    commander_file = None
-                    commander_oracle = None
-
-                deck_obj.deck_name = deck_name
-                deck_obj.deck_type = deck_type_obj
-                deck_obj.is_private = is_private == 'True'
-                deck_obj.image_url = image_url
-                deck_obj.description = description
-                deck_obj.commander_id=commander_id,
-                deck_obj.commander_name=commander_name,
-                deck_obj.commander_file=commander_file,
-                deck_obj.commander_oracle=commander_oracle,
-                deck_obj.color_id=color_id,
-                deck_obj.save()
-            except DeckType.DoesNotExist:
-                messages.error(request, "Deck type not defined. Deck not modified.")
-            except Deck.DoesNotExist:
-                messages.error(request, "Deck not found. Deck not modified.")
-
-        return redirect('Users/user_profile/' + str(user_id) + '/manage_deck/' + str(deck_id) + '/')
 
 
 class Commander_Picker(View):
