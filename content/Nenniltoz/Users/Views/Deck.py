@@ -235,7 +235,7 @@ class Manage_Deck(View):
                                                       request.user.id,
                                                       request.user.username)
                 except ObjectDoesNotExist:
-                    messages.error(request, "Deck type not defined. Deck not created.")
+                    messages.error(request, "Object does not exist. Deck not created.")
                 except ValueError:
                     messages.error(request, "Value Error. Deck not created.")
 
@@ -252,9 +252,7 @@ class Manage_Deck(View):
                     deck_obj.color_id=color_id,
                     deck_obj.save()
                 except ObjectDoesNotExist :
-                    messages.error(request, "Deck type not defined. Deck not modified.")
-                except ObjectDoesNotExist :
-                    messages.error(request, "Deck not found. Deck not modified.")
+                    messages.error(request, "Object does not exist. Deck not modified.")
 
         return redirect('../' + str(deck_id))
             # 'Users/user_profile/' + str(user_id) + '/manage_deck/' + str(deck_id) + '/')
