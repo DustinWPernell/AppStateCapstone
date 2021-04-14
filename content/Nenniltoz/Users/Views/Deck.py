@@ -272,6 +272,7 @@ class Manage_Deck(View):
 
         try:
             deck_obj = Deck.objects.get_deck(request.user.username, deck_id)
+            deck_type_obj = Deck.objects.get_deck_type(deck_id)
 
             if deck_obj.deck_user != request.user.username:
                 deck_obj = deck_obj.create_copy(request.user)
@@ -279,8 +280,8 @@ class Manage_Deck(View):
 
         except ObjectDoesNotExist :
             deck_obj = "new"
+            deck_type_obj = 1
 
-        deck_type = Deck.objects.get_deck_type(deck_id)
         deck_types = DeckType.objects.get_types()
         deck_type_split = list(deck_types.split("},"))
 
@@ -290,7 +291,7 @@ class Manage_Deck(View):
         context = {
             'font_family': font_family, 'should_translate': should_translate,
             'deck_obj': deck_obj, 'deck_types': deck_type_split, 'deck_id': deck_id,
-            'is_private': deck_private, 'deck_type': deck_type
+            'is_private': deck_private, 'deck_type_obj': deck_type_obj
         }
         return render(request, 'Users/Profile/ProfileDecks/modify_deck.html', context)
 

@@ -24,15 +24,17 @@
         <label class="deck_type_field" for="deck_type_field">Deck Type:</label>
         <!-- Determining the value of the deck and whether it should translate. -->
         <select class="deckValue {{ font_family }}" id="deck_type_field" name="deck_type_field">
+            {% with deck_type_obj|convert_to_json as deck_type_obj_json %}
             {% for deck_type in deck_types %}
-            {% with deck_type|convert_to_json as deck_json %}
-            {% if deck_obj == "new" or deck_obj.deck_type.id is not deck_json.type_id %}
-                <option value="{{ deck_json.type_id }}">{{ deck_json.desc }}</option>
+            {% with deck_type|convert_to_json as deck_type_json %}
+            {% if deck_type_obj_json.type_id != deck_type_json.type_id %}
+                <option value="{{ deck_type_json.type_id }}">{{ deck_type_json.desc }}</option>
             {% else %}
-                <option value="{{ deck_json.type_id }}" selected>{{ deck_json.desc }}</option>
+                <option value="{{ deck_type_json.type_id }}" selected>{{ deck_type_json.desc }}</option>
             {% endif %}
             {% endwith %}
             {% endfor %}
+            {% endwith %}
         </select>
 
         <label class="deck_description_field" for="deck_description_field">Description:</label>

@@ -107,7 +107,7 @@ class DeckManager(models.Manager):
     def get_deck_type(self, deck_id):
         return DeckType.objects.get_deck_type_by_type(
             Deck.objects.get(
-                Q(id=deck_id)
+                Q(id=int(deck_id))
             ).deck_type.id
         )
 

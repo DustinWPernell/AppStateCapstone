@@ -15,7 +15,7 @@ class DeckTypeManager(models.Manager):
 
     @staticmethod
     def get_deck_type_by_type(type_id):
-        return DeckType.objects.get(id=type_id)
+        return DeckType.objects.get(id=type_id).__str__()
 
 class DeckType(models.Model):
     name = models.CharField(max_length=50)
