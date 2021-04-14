@@ -44,27 +44,31 @@
 <div class="deckGrid" id="deckGrid">
     <!-- Loops through deck objects in pages -->
     {% for deck_obj in pages %}
-    <div class="deckObj">
-        <!-- deckDirection makes the deck object clickable -->
-        <a class="deckDirection" href="/Collection/deck/{{ deck_obj.id }}/">
-            <!-- This is the display for a deck. It will show the name, colors associated, game type, and name of the creator of the deck.
-             If the deck is PreCon-->
-            <div>{{ deck_obj.name }}</div>
-            <!-- replaceMana is a template tag used for replacing mana text with it respective symbol. -->
-            <div>{{ deck_obj.color_id|replaceMana|check_safe }}</div>
-            <div>Deck Type: {{ deck_obj.deck_type.name }}</div>
-            <div>
-                {% if deck_obj.is_pre_con %}
-                Pre-Constructed Deck
-                {% else %}
-                Created by: {{deck_obj.get_created_by}}
-                {% endif %}
+    {% if deck_obj is not '' %}
+            {% with deck_obj|convert_to_json as deck_json %}
+            <div class="deckObj">
+                <!-- deckDirection makes the deck object clickable -->
+                <a class="deckDirection" href="/Collection/deck/{{ deck_json.deck_id }}/">
+                    <!-- This is the display for a deck. It will show the name, colors associated, game type, and name of the creator of the deck.
+                     If the deck is PreCon-->
+                    <div>{{ deck_json.deck_name }}</div>
+                    <!-- replaceMana is a template tag used for replacing mana text with it respective symbol. -->
+                    <div>{{ deck_json.color_id|replaceMana|safe }}</div>
+                    <div>Deck Type: {{ deck_json.deck_type }}</div>
+                    <div>
+                        {% if deck_json.is_pre_con == "1" %}
+                        Pre-Constructed Deck
+                        {% else %}
+                        Created by: {{deck_json.created_by}}
+                        {% endif %}
+                    </div>
+                    <div>
+                        <img class="deck_image" src="../{{deck_json.image_url}}">
+                    </div>
+                </a>
             </div>
-            <div>
-                <img class="deck_image" src="{{deck_obj.image_url}}">
-            </div>
-        </a>
-    </div>
+            {% endwith %}
+        {% endif %}
     {% endfor %}
 </div>
 {% include "./pager.html" %}

@@ -2,12 +2,14 @@ import json
 import logging
 from json import JSONDecodeError
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import render, redirect
 from django.views import View
 
 from Collection.models import Symbol
-from Models.Deck import DeckManager
+from Models import Deck
+from Models.DeckCard import DeckCard
 from Users.models import UserProfile
 from static.python.session_manager import SessionManager
 
@@ -21,13 +23,13 @@ class Deck_Database(View):
         if 'collection_deck_clear_search' in request.POST:
             request.session['collection_deck_search_Term'] = ""
             request.session['collection_deck_selected_mana'] = []
-            request.session['collection_deck_deck_list'] = DeckManager.get_deck_list()
+            request.session['collection_deck_deck_list'] = Deck.objects.get_deck_list()
             request.session['collection_deck_clear'] = False
             request.session['collection_deck_deck_full'] = False
         elif 'collection_deck_full_list' in request.POST:
             request.session['collection_deck_search_Term'] = "Full List"
             request.session['collection_deck_selected_mana'] = []
-            request.session['collection_deck_deck_list'] = DeckManager.get_deck_full_list()
+            request.session['collection_deck_deck_list'] = Deck.objects.get_deck_full_list()
             request.session['collection_deck_clear'] = True
             request.session['collection_deck_deck_full'] = True
         else:
@@ -66,15 +68,15 @@ class Deck_Database(View):
 
                 has_colorless = any(item in selected_mana for item in colorless)
                 if has_colorless:
-                    filtered_deck_list = DeckManager.deck_filter_by_color_term_colorless(
+                    filtered_deck_list = Deck.objects.deck_filter_by_color_term_colorless(
                         selected_mana, search_term
                     )
                 else:
-                    filtered_deck_list = DeckManager.deck_filter_by_color_term(
+                    filtered_deck_list = Deck.objects.deck_filter_by_color_term(
                         selected_mana, search_term
                     )
             else:
-                filtered_deck_list = DeckManager.get_deck_by_term(
+                filtered_deck_list = Deck.objects.get_deck_by_term(
                     search_term
                 )
             request.session['collection_deck_search_Term'] = search_term
@@ -94,7 +96,7 @@ class Deck_Database(View):
         :todo: Loading image for long searches
         """
         logger.info("Run: collection_display; Params: " + json.dumps(request.GET.dict()))
-        SessionManager.clear_other_session_data(request, SessionManager.Deck_Search)
+        SessionManager.clear_other_session_data(request, SessionManager.Deck)
 
         init_mana_list = Symbol.get_base_symbols()
         try:
@@ -106,7 +108,7 @@ class Deck_Database(View):
         except KeyError:
             search_term = request.session['collection_deck_search_Term'] = ""
             selected_mana = request.session['collection_deck_selected_mana'] = []
-            deck_list = request.session['collection_deck_deck_list'] = DeckManager.get_deck_list()
+            deck_list = request.session['collection_deck_deck_list'] = Deck.objects.get_deck_list(request.user.username)
             clear_search = request.session['collection_deck_clear'] = False
             full_list = request.session['collection_deck_deck_full'] = False
 
@@ -140,11 +142,11 @@ class Deck_Database(View):
             context = {'font_family': font_family, 'should_translate': should_translate, 'pages': decks,
                        'search_Term': search_term, 'mana_list': mana_list, 'clearSearch': clear_search,
                        'full_list': full_list}
-            return render(request, 'Collection/collection_display.html', context)
+            return render(request, 'Collection/deck_list.html', context)
         except JSONDecodeError:
             request.session['collection_deck_search_Term'] = ""
             request.session['collection_deck_selected_mana'] = []
-            request.session['collection_deck_deck_list'] = DeckManager.get_deck_list()
+            request.session['collection_deck_deck_list'] = Deck.objects.get_deck_list(request.user.username)
             request.session['collection_deck_clear'] = False
             request.session['collection_deck_deck_full'] = False
             message = "Invalid search. Please try again."
@@ -156,22 +158,24 @@ class Deck_Database(View):
 class Deck_Display(View):
     def get(self, request, deck_id):
         logger.info("Run: deck_display; Params: " + json.dumps(request.GET.dict()))
+        SessionManager.clear_other_session_data(request, SessionManager.Deck)
+
         try:
-            deck = DeckManager.get_deck_by_deck(deck_id)
-            deck_cards = DeckManager.build_json_by_deck_user(deck_id, request.user.id, False)
-            side_cards = DeckManager.build_json_by_deck_user(deck_id, request.user.id, True)
-            user_profile = UserProfile.get_profile_by_user(deck.deck_user)
-            created_by = UserProfile.get_profile_by_user(deck.created_by)
+            deck = Deck.objects.get_deck(request.user.username, deck_id)
+            deck_cards = DeckCard.objects.deck_card_by_deck_side(deck_id, False)
+            side_cards = DeckCard.objects.deck_card_by_deck_side(deck_id, True)
+
             font_family = UserProfile.get_font(request.user)
             should_translate = UserProfile.get_translate(request.user)
             context = {'font_family': font_family, 'should_translate': should_translate,
                        'auth': request.user.is_authenticated,
                        'deck': deck, 'deck_cards': deck_cards, 'side_cards': side_cards,
-                       'user_profile': user_profile, 'created_by': created_by}
+                       'edit': request.user.username == deck.deck_user,}
             return render(request, 'Collection/deck_display.html', context)
 
-        except DeckManager.DoesNotExist:
+        except ObjectDoesNotExist:
             message = "Deck ID incorrect.\nPlease check ID."
+
             font_family = UserProfile.get_font(request.user)
             should_translate = UserProfile.get_translate(request.user)
             context = {'font_family': font_family, 'should_translate': should_translate, 'message': message}

@@ -11,7 +11,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 
 from Collection.models import CardFace
-from Models.Deck import DeckManager
+from Models.Deck import Deck
 from Users.models import UserProfile, UserCards
 from static.python.session_manager import SessionManager
 
@@ -84,12 +84,12 @@ class NenniUserProfile(View):
 
         if 'user_clear_deck_search' in request.POST:
              request.session['user_search_deck_term'] = ""
-             request.session['user_search_deck_cards'] = DeckManager.get_deck_by_user_term(user_id, "")
+             request.session['user_search_deck_cards'] = Deck.objects.get_deck_by_user_term(request.user.username, "")
              request.session['user_clear_deck_search'] = False
         elif 'user_search_deck' in request.POST:
             search_term = request.POST.get('user_search_deck_term')
             request.session['user_search_deck_term'] = search_term
-            request.session['user_search_deck_cards'] = DeckManager.get_deck_by_user_term(user_id, search_term)
+            request.session['user_search_deck_cards'] = Deck.objects.get_deck_by_user_term(request.user.username, search_term)
             request.session['user_clear_deck_search'] = False
         elif 'user_clear_card_search' in request.POST:
              request.session['user_search_card_term'] = ""
@@ -162,7 +162,7 @@ class NenniUserProfile(View):
             user_clear_deck_search = request.session['user_clear_deck_search']
         except KeyError:
             user_search_deck_term = request.session['user_search_deck_term'] = ""
-            user_search_deck_cards = request.session['user_search_deck_cards'] = DeckManager.get_deck_by_user_term(user_id, "")
+            user_search_deck_cards = request.session['user_search_deck_cards'] = Deck.objects.get_deck_by_user_term(request.user.username, "")
             user_clear_deck_search = request.session['user_clear_deck_search'] = False
 
         try:
@@ -186,6 +186,10 @@ class NenniUserProfile(View):
 
         # region Paginators
         user_deck_list_split = list(user_search_deck_cards.split("},"))
+        if user_deck_list_split[0] == '':
+            deck_show = False
+        else:
+            deck_show = len(user_deck_list_split) > 0 or user_clear_deck_search
         deck_paginator = Paginator(user_deck_list_split, 10)
         try:
             deck_list = deck_paginator.page(deck_page)
@@ -195,6 +199,10 @@ class NenniUserProfile(View):
             deck_list = deck_paginator.page(deck_paginator.num_pages)
 
         user_card_list_split = list(user_search_card_cards.split("},"))
+        if user_card_list_split[0] == '':
+            card_show = False
+        else:
+            card_show = len(user_card_list_split) > 0 or user_clear_card_search
         card_paginator = Paginator(user_card_list_split, 5)
         try:
             card_list = card_paginator.page(card_page)
@@ -204,6 +212,10 @@ class NenniUserProfile(View):
             card_list = card_paginator.page(card_paginator.num_pages)
 
         user_wish_card_list_split = list(user_search_wish_cards.split("},"))
+        if user_wish_card_list_split[0] == '':
+            wish_show = False
+        else:
+            wish_show = user_wish_card_list_split.__len__() > 0 or user_clear_wish_search
         wish_paginator = Paginator(user_wish_card_list_split, 5)
         try:
             wish_list = wish_paginator.page(wish_page)
@@ -228,11 +240,11 @@ class NenniUserProfile(View):
             'has_follower': len(follower_obj) > 0, 'follower_obj': follower_obj,
             'o_player': o_player,
             'deckPage': deck_page, 'deck_list': deck_list, 'user_search_deck_term': user_search_deck_term,
-            'clear_deck_search': user_clear_deck_search, 'deckShow': (deck_paginator.count > 1 or user_clear_deck_search),
+            'clear_deck_search': user_clear_deck_search, 'deckShow': deck_show,
             'cardPage': card_page, 'card_list': card_list, 'user_search_card_term': user_search_card_term,
-            'clear_card_search': user_clear_card_search, 'cardShow': (card_paginator.count > 1 or user_clear_card_search),
+            'clear_card_search': user_clear_card_search, 'cardShow': card_show,
             'wish_page': wish_page, 'wish_list': wish_list, 'user_search_wish_term': user_search_wish_term,
-            'clear_wish_search': user_clear_wish_search, 'wishShow': (wish_paginator.count > 1 or user_clear_wish_search),
+            'clear_wish_search': user_clear_wish_search, 'wishShow': wish_show,
         }
         return render(request, 'Users/user_profile.html', context)
 

@@ -138,6 +138,34 @@
     height: 50px;
 }
 
+.deckTable{
+    display: grid;
+    grid-template-rows: 50px auto;
+    padding: 10px;
+    grid-gap: 10px;
+}
+
+.innerDeckTableHead{
+    padding: 5px;
+    display: grid;
+    grid-gap: 1%;
+    grid-template-columns: minmax(50px, 20%) minmax(50px, 10%) minmax(50px, 10%) minmax(50px, 10%) minmax(50px, 40%) minmax(50px, 10%);
+}
+
+.innerDeckTable{
+    border-top-style: solid;
+    border-top-width: 1px;
+    padding: 10px;
+    display: grid;
+    grid-gap: 1%;
+    grid-template-columns: minmax(50px, 20%) minmax(50px, 10%) minmax(50px, 10%) minmax(50px, 10%) minmax(50px, 40%) minmax(50px, 10%);
+}
+
+.smallDeckImg{
+    width: auto;
+    height: 50px;
+}
+
 .avatar_btn a {
     color: white;
     display: block;

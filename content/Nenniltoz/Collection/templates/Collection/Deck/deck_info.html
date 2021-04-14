@@ -13,14 +13,21 @@
     <!-- Determining the value of the deck and whether it should translate. -->
     <div class="deckValue {{ should_translate }}">
         <!-- This checks DeckCards in models and pulls the deck colors -->
-        {{ deck.color_id|replaceMana|check_safe }}
+        {{ deck.color_id|replaceMana|safe }}
     </div>
 
-    <span class="deckAttributeLabel">Created By:</span>
+    <span class="deckAttributeLabel">Original Creator:</span>
     <!-- Determining the value of the deck and whether it should translate. -->
     <div class="deckValue {{ should_translate }}">
         <!-- This checks DeckCards in models and pulls the creator of the deck -->
-        {{ user_profile.user.username }}
+        {{ deck.created_by }}
+    </div>
+
+    <span class="deckAttributeLabel">Deck Owner:</span>
+    <!-- Determining the value of the deck and whether it should translate. -->
+    <div class="deckValue {{ should_translate }}">
+        <!-- This checks DeckCards in models and pulls the creator of the deck -->
+        {{ deck.deck_user }}
     </div>
 
     <span class="deckAttributeLabel">Deck Type:</span>
@@ -34,6 +41,6 @@
     <!-- Determining the value of the deck and whether it should translate. -->
     <div class="deckValue {{ should_translate }}">
         <!-- This checks DeckCards in models and pulls the description for the deck -->
-        {{ deck.description }}
+        {{ deck.description|remove_bracket|check_safe }}
     </div>
 </div>

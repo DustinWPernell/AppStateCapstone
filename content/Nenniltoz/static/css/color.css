@@ -35,3 +35,7 @@ html{
 .clickableCol:hover, .navDropBtn:focus {
     color: lightblue;
 }
+
+.searchable {
+    color: lightgreen;
+}

@@ -1,30 +1,68 @@
 {% load replaceValues %}
+
 <h2>Decks</h2>
-
 {% if deckShow %}
-<div class="cardFilter">
-    <form action="user_profile" method="post">
-        {% csrf_token %}
-        {% if clear_card_search %}
-        <input class="{{ font_family }}" name="user_search_deck_term" type="text" value="{{ search_deck_term }}">
-        {% else %}
-        <input class="{{ font_family }}" name="user_search_deck_term" placeholder="Search" type="text">
-        {% endif %}
-        <input class="{{ font_family }}" name="user_search_deck" type="submit" onclick="show_page_load();" value="Search">
-        {% if clear_card_search %}
-        <input class="{{ font_family }}" name="user_clear_deck_search" type="submit" onclick="show_page_load();" value="Clear Search">
-        {% endif %}
-    </form>
-</div>
+    <div class="deckFilter">
+        <form action="user_profile" method="post">
+            {% csrf_token %}
+            {% if clear_deck_search %}
+            <input class="{{ font_family }}" name="user_search_deck_term" type="text" value="{{ search_deck_term }}">
+            {% else %}
+            <input class="{{ font_family }}" name="user_search_deck_term" placeholder="Search" type="text">
+            {% endif %}
+            <input class="{{ font_family }}" name="user_search_deck" type="submit" onclick="show_page_load();" value="Search">
+            {% if clear_deck_search %}
+            <input class="{{ font_family }}" name="user_clear_deck_search" type="submit" onclick="show_page_load();" value="Clear Search">
+            {% endif %}
+        </form>
+    </div>
 
-<table>
-    <tr>
-        <th>Name</th>
-        <th>Color</th>
-        <th>Game Type</th>
-        <th>Public</th>
-    </tr>
-</table>
+    {% include "./deck_pager.html" %}
+    <div class="deckTable" id="deckGrid">
+        <div class="innerDeckTableHead">
+            <div class="profile_table">Name</div>
+            <div class="profile_table">Original Creator</div>
+            <div class="profile_table">Deck Owner</div>
+            <div class="profile_table">Mana Cost</div>
+            <div class="profile_table">Description</div>
+            <div class="profile_table"></div>
+        </div>
+        {% for deck_obj in deck_list %}
+            {% if deck_obj is not '' %}
+                {% with deck_obj|convert_to_json as deck_json %}
+                <div class="innerDeckTable">
+                    <div class="profile_table {{ should_translate }}">
+                        {{ deck_json.deck_name|safe }}
+                    </div>
+                    <div class="profile_table">
+                        {{ deck_json.created_by }}
+                    </div>
+                    <div class="profile_table">
+                        {{ deck_json.deck_user }}
+                    </div>
+                    <div class="profile_table">
+                        {{ deck_json.color_id|replaceMana|safe }}
+                    </div>
+                    <div class="profile_table">
+                        {{ deck_json.description|remove_bracket|check_safe }}
+                    </div>
+                    <div class="profile_table">
+                        <a class="deckDirection" onclick="show_page_load();" href="/Collection/deck/{{ deck_json.deck_id }}">
+                            <img alt="{{ deck_json.deck_name|safe }}" class="smallDeckImg" src="../../../{{ deck_json.image_url }}">
+                        </a>
+                    </div>
+                </div>
+                {% endwith %}
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% include "./deck_pager.html" %}
+{% else %}
+{% if o_player %}
+<h5>No decks added to account.</h5>
+{% else %}
+<h5>No decks added to account. Visit deck Database to add decks.</h5>
+{% endif %}
 {% endif %}
 <!-- -1 tells it to make a new deck -->
 <a class="colorText clickableCol" onclick="show_page_load();" href="modify_deck/-1">New Deck</a>

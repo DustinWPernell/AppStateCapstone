@@ -212,11 +212,9 @@ class UserCards(models.Model):
         for card in filtered_card_list:
             card_json_list = card_json_list + card.__str__()
             if len(filtered_card_list) > 1 and i + 1 < len(filtered_card_list):
-                card_json_list = card_json_list + '}, '
+                card_json_list = card_json_list + '},'
                 i += 1
         return card_json_list.__str__()
-
-
 
     @staticmethod
     def get_user_card_by_oracle(oracle_id, user):

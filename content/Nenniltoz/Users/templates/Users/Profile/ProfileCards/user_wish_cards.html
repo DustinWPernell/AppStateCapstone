@@ -26,7 +26,7 @@
         <div class="profile_table"></div>
     </div>
     {% for card_obj in wish_list %}
-        {% if card_obj is not ' ' %}
+        {% if card_obj is not '' %}
             {% with card_obj|convert_to_json as card_json %}
             <div class="innerCardTable">
                 <div class="profile_table {{ should_translate }}">

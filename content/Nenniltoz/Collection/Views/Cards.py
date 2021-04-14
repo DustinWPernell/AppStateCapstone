@@ -161,6 +161,8 @@ class Card_Display(View):
         :todo: Touch up data display/layout
         """
         logger.info("Run: card_display; Params: " + json.dumps(request.GET.dict()))
+        SessionManager.clear_other_session_data(request, SessionManager.Card)
+
         try:
             card_obj = CardIDList.get_card_by_oracle(oracle_id)
 
@@ -327,7 +329,8 @@ class Card_Database(View):
                      'id': init_mana.id})
 
         card_list_split = list(card_list.split("},"))
-
+        if card_list_split[0] == '':
+            card_list_split = []
         page = request.GET.get('page', 1)
         paginator = Paginator(card_list_split, 20)
         try:

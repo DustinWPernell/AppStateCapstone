@@ -44,13 +44,13 @@ def replaceTextMana(val):
 
 @register.filter
 def remove_bracket(val):
-    val = val.replace("{", '<span style="color: lightgreen">')
+    val = val.replace("{", '<span class="searchable">')
     val = val.replace("}", '</span>')
     return val
 
 
 _ALLOWED_ATTRIBUTES = {
-        'span': ['style'],
+        'span': ['class'],
 }
 _ALLOWED_TAGS = ['span']
 
