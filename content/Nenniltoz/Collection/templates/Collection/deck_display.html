@@ -15,6 +15,17 @@
         <hr>
     </div>
     {% include "./Deck/cards.html" %}
+    <div class ="deck_manage">
+         <form method="get" action="../../../Users/user_profile/{{ user_id }}/modify_deck/{{ deck.id }}">
+             <button type="submit">
+                 {% if edit %}
+                    Modify Deck
+                 {% else %}
+                    Copy Deck
+                 {% endif %}
+             </button>
+         </form>
+    </div>
 </div>
 {% endblock %}
 

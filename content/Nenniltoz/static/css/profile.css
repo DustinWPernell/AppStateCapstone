@@ -140,7 +140,7 @@
 
 .deckTable{
     display: grid;
-    grid-template-rows: 50px auto;
+    grid-template-rows: auto;
     padding: 10px;
     grid-gap: 10px;
 }

@@ -11,9 +11,11 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import render, redirect
 from django.views import View
 
-from Collection.models import CardFace, Symbol
-from Models.Deck import DeckManager
+from Collection.models import CardFace
+from Models import DeckType
+from Models.Deck import Deck
 from Users.models import UserProfile, UserCards
+from static.python.session_manager import SessionManager
 
 logger = logging.getLogger(__name__)
 
@@ -142,7 +144,7 @@ class Manage_Cards(View):
         try:
             card_list = request.SESSION['deck_card_list']
         except KeyError:
-            card_list = DeckManager.build_json_by_deck_user()
+            card_list = Deck.objects.build_json_by_deck_user()
 
         try:
             search_card_term = request.session['user_search_card_term']
@@ -224,15 +226,14 @@ class Manage_Deck(View):
             deck_type_field = request.session['deck_type_field'] = request.POST.get('deck_type_field')
             if deck_id == "-1":
                 try:
-                    deck_type_obj = DeckManager.get_deck_type_by_type(int(deck_type_field))
+                    deck_type_obj = DeckType.objects.get_deck_type_by_type(int(deck_type_field))
                     color_id = '{C}'
 
-                    deck_id = DeckManager.deck_create(deck_name_field,
+                    deck_id = Deck.objects.deck_create(deck_name_field,
                                                       deck_type_obj,
                                                       deck_privacy_field,
                                                       deck_description_field,
                                                       color_id,
-                                                      request.user.id,
                                                       request.user.username)
                 except ObjectDoesNotExist:
                     messages.error(request, "Object does not exist. Deck not created.")
@@ -241,15 +242,15 @@ class Manage_Deck(View):
 
             else:
                 try:
-                    deck_obj = DeckManager.get_deck_by_deck(deck_id)
-                    deck_type_obj = DeckManager.get_deck_type_by_type(deck_type_field)
+                    deck_obj = Deck.objects.get_deck(request.user.username, deck_id)
+                    deck_type_obj = DeckType.objects.get_deck_type_by_type(deck_type_field)
 
                     color_id = ''
                     deck_obj.deck_name = deck_name_field
                     deck_obj.deck_type = deck_type_obj
                     deck_obj.is_private = deck_privacy_field == 'True'
                     deck_obj.description = deck_description_field
-                    deck_obj.color_id=color_id,
+                    deck_obj.color_id = color_id,
                     deck_obj.save()
                 except ObjectDoesNotExist :
                     messages.error(request, "Object does not exist. Deck not modified.")
@@ -267,18 +268,20 @@ class Manage_Deck(View):
 
         :todo: Finish new deck page
         """
+        SessionManager.clear_other_session_data(request, SessionManager.All)
 
         try:
-            deck_obj = DeckManager.get_deck_by_deck(int(deck_id))
+            deck_obj = Deck.objects.get_deck(request.user.username, deck_id)
 
-            if deck_obj.deck_user is not user_id:
-                deck_obj = deck_obj.create_copy(deck_obj, request.user)
+            if deck_obj.deck_user != request.user.username:
+                deck_obj = deck_obj.create_copy(request.user)
                 messages.success(request, "Deck copied to your profile.")
 
         except ObjectDoesNotExist :
             deck_obj = "new"
 
-        deck_types = DeckManager.get_types()
+        deck_type = Deck.objects.get_deck_type(deck_id)
+        deck_types = DeckType.objects.get_types()
         deck_type_split = list(deck_types.split("},"))
 
         font_family = UserProfile.get_font(request.user)
@@ -287,7 +290,7 @@ class Manage_Deck(View):
         context = {
             'font_family': font_family, 'should_translate': should_translate,
             'deck_obj': deck_obj, 'deck_types': deck_type_split, 'deck_id': deck_id,
-            'is_private': deck_private
+            'is_private': deck_private, 'deck_type': deck_type
         }
         return render(request, 'Users/Profile/ProfileDecks/modify_deck.html', context)
 

@@ -104,6 +104,13 @@ class DeckManager(models.Manager):
             Q(id=deck_id)
         )
 
+    def get_deck_type(self, deck_id):
+        return DeckType.objects.get_deck_type_by_type(
+            Deck.objects.get(
+                Q(id=deck_id)
+            ).deck_type.id
+        )
+
     def deck_create(self, deck_name_field, deck_type_obj, deck_privacy_field, deck_description_field,
                     color_id, username):
         new_deck = Deck.objects.create(

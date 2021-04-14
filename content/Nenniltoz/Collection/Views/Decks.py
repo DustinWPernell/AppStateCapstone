@@ -168,7 +168,7 @@ class Deck_Display(View):
             font_family = UserProfile.get_font(request.user)
             should_translate = UserProfile.get_translate(request.user)
             context = {'font_family': font_family, 'should_translate': should_translate,
-                       'auth': request.user.is_authenticated,
+                       'auth': request.user.is_authenticated, 'user_id': request.user.id,
                        'deck': deck, 'deck_cards': deck_cards, 'side_cards': side_cards,
                        'edit': request.user.username == deck.deck_user,}
             return render(request, 'Collection/deck_display.html', context)
