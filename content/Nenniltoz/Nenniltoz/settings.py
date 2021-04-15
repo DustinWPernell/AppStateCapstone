@@ -154,6 +154,9 @@ AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
 AWS_S3_CUSTOM_DOMAIN = config('AWS_S3_CUSTOM_DOMAIN')
 
+TCG_PUBLIC = config('TCG_PUBLIC_KEY')
+TCG_PRIVATE = config('TCG_PRIVATE_KEY')
+
 DEFAULT_FILE_STORAGE = 'Nenniltoz.storage_backend.MediaStorage'
 
 # Redirect to home URL after login (Default redirects to /accounts/profile/)

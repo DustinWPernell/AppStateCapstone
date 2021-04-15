@@ -16,17 +16,15 @@ from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
-from Collection.models import CardFace
+from static.python.api_access import APIAccess
 from static.python.mailers import send_password_reset
 from .forms import CreateUserForm
-from .models import News, UserProfile, Friends, PendingFriends, Followers, UserCards
+from .models import News, UserProfile
 
 logger = logging.getLogger(__name__)
 
 
 def index(request):
-    latest_news_list = News.objects.order_by('eventDate', 'headline')[:5]
-    context = {'latest_news_list': latest_news_list, }
     """Display the home page.
 
     Retrieves the most recent news articles from the database and displays them on the page
@@ -36,7 +34,6 @@ def index(request):
     :todo: Set up expiration dates for news items
     """
     logger.info("Run: index; Params: " + json.dumps(request.GET.dict()))
-
     latest_news_list = News.get_next_5()
 
     font_family = UserProfile.get_font(request.user)

@@ -160,7 +160,7 @@ class UserProfile(models.Model):
     def get_deck_private(user):
         if user.is_authenticated:
             up = UserProfile.objects.get(user=user)
-            return up.deck_view
+            return not up.deck_view
         else:
             return False
 

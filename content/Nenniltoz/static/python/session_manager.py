@@ -12,7 +12,9 @@ class SessionManager:
 
     profile_session = ['user_search_deck_term', 'user_search_deck_cards', 'user_clear_deck_search',
                        'user_search_card_term', 'user_search_card_cards', 'user_clear_card_search',
-                       'user_search_wish_term', 'user_search_wish_cards', 'user_clear_wish_search']
+                       'user_search_wish_term', 'user_search_wish_cards', 'user_clear_wish_search',
+                       'user_view'
+                      ]
 
     card_session = ['collection_card_search_Term', 'collection_card_selected_mana', 'collection_card_card_list', 'collection_card_clear', 'collection_card_card_full']
 

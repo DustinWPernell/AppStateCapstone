@@ -6,7 +6,7 @@
     <form action="user_profile" method="post">
         {% csrf_token %}
         {% if clear_card_search %}
-        <input class="{{ font_family }}" name="user_search_card_term" type="text" value="{{ search_card_term }}">
+        <input class="{{ font_family }}" name="user_search_card_term" type="text" value="{{ user_search_card_term }}">
         {% else %}
         <input class="{{ font_family }}" name="user_search_card_term" placeholder="Search" type="text">
         {% endif %}

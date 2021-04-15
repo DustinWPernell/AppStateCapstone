@@ -5,8 +5,11 @@
 {% endblock %}
 
 {% block content %}
+{% include "./Card/card_price.html" %}
+<hr>
 {% if auth %}
 {% include "./Card/card_quantity.html" %}
+<hr>
 {% endif %}
 <div class="singCardBody" id="card">
     {% include "./Card/card_info.html" %}

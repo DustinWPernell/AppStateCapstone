@@ -64,14 +64,4 @@
 
 {% block custom_scripts %}
 <script src="{% static 'js\card.js' %}"></script>
-<script>
-    $(document).keypress(
-        function(event){
-            if (event.which == '13') {
-                event.preventDefault();
-            }
-        }
-    );
-    //document.getElementById('search_form').submit();
-</script>
 {% endblock %}

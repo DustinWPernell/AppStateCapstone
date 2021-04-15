@@ -280,7 +280,7 @@ class Manage_Deck(View):
 
         except ObjectDoesNotExist :
             deck_obj = "new"
-            deck_type_obj = 1
+            deck_type_obj = '{"type_id": "1"}'
 
         deck_types = DeckType.objects.get_types()
         deck_type_split = list(deck_types.split("},"))

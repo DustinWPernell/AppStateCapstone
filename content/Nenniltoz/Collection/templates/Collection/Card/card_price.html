@@ -1,0 +1,21 @@
+{% load replaceValues %}
+
+<div class="tcg_pricing">
+    <h3>TCG Market Price</h3>
+    {% if tcg_pricing == "Not listed" %}
+    <h4>Not listed</h4>
+    {% else %}
+        {% for price in tcg_pricing %}
+            {% with price|convert_to_json as price_json %}
+                <div class="tcg_price">
+                    <a class="link_objs" href='{{ price_json.url }}' target="_blank">
+                        {{ price_json.type_name }}: {{ price_json.market_price }}
+                    </a>
+                </div>
+            {% endwith %}
+
+        {% endfor %}
+    {% endif %}
+</div>
+
+

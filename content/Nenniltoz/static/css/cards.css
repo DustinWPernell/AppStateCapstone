@@ -72,8 +72,6 @@
 
 .outerCardLegal{
     grid-column: 1 / span 2;
-    display: grid;
-    grid-template-columns: 140px auto;
 }
 
 .innerCardLegal{

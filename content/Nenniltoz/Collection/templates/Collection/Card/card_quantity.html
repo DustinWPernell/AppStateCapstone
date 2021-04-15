@@ -2,6 +2,7 @@
 
 <form action="card" method="post">
     {% csrf_token %}
+    <h3>User Card Data</h3>
     <div class="cardQuantity">
         <div class="quantity_top">
             <input name="oracle_id" type="hidden" value="{{ faces.0.legal.card_obj.oracle_id }}">

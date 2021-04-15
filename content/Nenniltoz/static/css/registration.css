@@ -14,11 +14,6 @@
     vertical-align: text-top;
 }
 
-.link_objs {
-    color: white;
-    text-decoration: none;
-}
-
 @media screen and (min-width: 600px) {
     .login_div{
         margin-bottom:20px;

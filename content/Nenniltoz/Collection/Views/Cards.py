@@ -12,6 +12,7 @@ from django.views import View
 
 from Collection.models import CardFace, Symbol, CardIDList, Rule
 from Users.models import UserCards, UserProfile
+from static.python.api_access import APIAccess
 from static.python.session_manager import SessionManager
 
 logger = logging.getLogger(__name__)
@@ -173,6 +174,8 @@ class Card_Display(View):
 
             rulings_list = Rule.objects.filter(oracle_id=oracle_id).order_by('-pub_date')
 
+            tcg_pricing = CardIDList.get_tcg_price(oracle_id)
+
             font_family = UserProfile.get_font(request.user)
             should_translate = UserProfile.get_translate(request.user)
             if request.user.is_authenticated:
@@ -184,11 +187,12 @@ class Card_Display(View):
                                'faces': card_faces, 'set_info': card_set_list,
                                'has_card': True, 'user_card': user_card, 'has_notes': has_notes,
                                'rulings': rulings_list, 'has_rules': len(rulings_list) > 0,
+                               'tcg_pricing': tcg_pricing,
                                'auth': request.user.is_authenticated}
                 except UserCards.DoesNotExist:
                     context = {'font_family': font_family, 'should_translate': should_translate, 'card': card_faces,
                                'faces': card_faces, 'set_info': card_set_list,
-                               'has_card': False,
+                               'has_card': False, 'tcg_pricing': tcg_pricing,
                                'rulings': rulings_list, 'has_rules': len(rulings_list) > 0,
                                'auth': request.user.is_authenticated}
 
@@ -196,6 +200,7 @@ class Card_Display(View):
                 context = {'font_family': font_family, 'should_translate': should_translate, 'card': card_faces,
                            'faces': card_faces, 'set_info': card_set_list,
                            'rulings': rulings_list, 'has_rules': len(rulings_list) > 0,
+                           'tcg_pricing': tcg_pricing,
                            'auth': request.user.is_authenticated}
 
             return render(request, 'Collection/card_display.html', context)

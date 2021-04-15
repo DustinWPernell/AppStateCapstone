@@ -11,6 +11,8 @@ from django.core import serializers
 from django.db import models
 from django.db.models import Q
 
+from static.python.api_access import APIAccess
+
 logger = logging.getLogger("logger")
 # Create your models here.
 #region Cards
@@ -39,6 +41,47 @@ class CardIDList(models.Model):
     card_name.null = True
     card_url = models.CharField(max_length=200)
     card_url.null = True
+    tcg_price = models.CharField(max_length=1000)
+    tcg_set = models.BooleanField(default=False)
+    tcg_price_date = models.DateField(default=datetime.datetime.now())
+
+    @staticmethod
+    def get_tcg_price(oracle_id):
+        card = CardIDList.objects.get(
+            Q(oracle_id=oracle_id)
+        )
+        date = datetime.datetime.now() - datetime.timedelta(days=3)
+        tcg_pricing = ""
+        tcg_set = False
+        if not card.tcg_set or card.tcg_price_date < date.date():
+            tcg_card_list = APIAccess.run_post(
+                APIAccess.Relevance,
+                [{"value": [card.card_name], "name": "ProductName"}],
+                1,
+                0
+            ).json()
+            if int(tcg_card_list["totalItems"]) > 0:
+                tcg_pricing = ""
+                te = tcg_card_list["results"]
+                for price in APIAccess.run_pricing(te).json()["results"]:
+                    tcg_pricing = tcg_pricing + \
+                        '{' + \
+                            '"market_price":"' + str(price["marketPrice"]).replace(",","&#44;") + \
+                            '","type_name":"' + price["subTypeName"] + \
+                            '","url":"' + APIAccess.build_url(tcg_card_list["results"]) + \
+                        '"} ,}'
+                    tcg_set = True
+                tcg_pricing = tcg_pricing.strip(",}").strip(" ")
+            card.tcg_set = tcg_set
+            card.tcg_price = tcg_pricing
+            card.tcg_price_date = datetime.datetime.now()
+            card.save()
+
+        if card.tcg_set:
+            return card.tcg_price.split(",}")
+        else:
+            return "Not listed"
+
 
     @staticmethod
     def get_cards():
@@ -214,25 +257,6 @@ class CardFace(models.Model):
         return '{"oracle_id": "' + str(self.legal.card_obj.oracle_id) + '", "card_name": "' + str(self.name).replace('"', '&#34;').replace('\'', '&#39;') + \
                '", "card_url": "' + str(self.image_url) + '", "card_id": "' + str(self.legal.card_obj.card_id) + '"}'
 
-    def get_remote_avatar(self):
-        session = boto3.Session(
-            aws_access_key_id=config('AWS_ACCESS_KEY_ID'),
-            aws_secret_access_key=config('AWS_SECRET_ACCESS_KEY'),
-        )
-        s3 = session.client('s3')
-
-        if self.avatar_img and not self.avatar_file:
-            filename = "cards/avatar_%s" % self.legal.card_obj.card_id + '.png'
-            image_data = requests.get(self.avatar_img, stream=True)
-            try:
-                s3.upload_fileobj(image_data.raw, config('AWS_STORAGE_BUCKET_NAME'), filename)
-                self.avatar_file = filename
-                self.save()
-            except Exception as e:
-                return e
-
-        return config('AWS_S3_CUSTOM_DOMAIN') + '/' + self.avatar_file
-
     @staticmethod
     def get_face_by_card(card_id):
         return CardFace.objects.filter(
@@ -405,10 +429,6 @@ class Rule(models.Model):
 
     def __str__(self):
         return self.oracle_id
-#endregion
-
-#region Decks
-
 #endregion
 
 class Symbol(models.Model):

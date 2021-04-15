@@ -46,6 +46,11 @@ html{
     width: 13px;
 }
 
+.link_objs {
+    color: white;
+    text-decoration: none;
+}
+
 ::-webkit-scrollbar {
   width: 10px;
 }

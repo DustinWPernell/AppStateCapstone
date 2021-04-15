@@ -5,7 +5,7 @@
     <form action="user_profile" method="post">
         {% csrf_token %}
         {% if clear_wish_search %}
-        <input class="{{ font_family }}" name="user_search_wish_term" type="text" value="{{ search_wish_term }}">
+        <input class="{{ font_family }}" name="user_search_wish_term" type="text" value="{{ user_search_wish_term }}">
         {% else %}
         <input class="{{ font_family }}" name="user_search_wish_term" placeholder="Search" type="text">
         {% endif %}
