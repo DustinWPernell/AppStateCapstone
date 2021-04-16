@@ -221,16 +221,14 @@ class Manage_Deck(View):
         # image_url = request.session['image_url'] = request.POST.get('image_url')
         if 'submitDeck' in request.POST:
             deck_name_field = request.session['deck_name_field'] = html.escape(request.POST.get('deck_name_field'))
-            deck_privacy_field = request.session['deck_privacy_field'] = request.POST.get('deck_privacy_field')
+            deck_privacy_field = request.session['deck_privacy_field'] = request.POST.get('deck_privacy_field') == "True"
             deck_description_field = request.session['deck_description_field'] = html.escape(request.POST.get('deck_description_field'))
             deck_type_field = request.session['deck_type_field'] = request.POST.get('deck_type_field')
             if deck_id == "-1":
                 try:
-                    deck_type_obj = DeckType.objects.get_deck_type_by_type(int(deck_type_field))
                     color_id = '{C}'
-
-                    deck_id = Deck.objects.deck_create(deck_name_field,
-                                                      deck_type_obj,
+                    Deck.objects.deck_create(deck_name_field,
+                                                      int(deck_type_field),
                                                       deck_privacy_field,
                                                       deck_description_field,
                                                       color_id,
@@ -243,14 +241,12 @@ class Manage_Deck(View):
             else:
                 try:
                     deck_obj = Deck.objects.get_deck(request.user.username, deck_id)
-                    deck_type_obj = DeckType.objects.get_deck_type_by_type(deck_type_field)
+                    deck_type_obj = DeckType.objects.get(id=int(deck_type_field))
 
-                    color_id = ''
                     deck_obj.deck_name = deck_name_field
                     deck_obj.deck_type = deck_type_obj
-                    deck_obj.is_private = deck_privacy_field == 'True'
+                    deck_obj.is_private = deck_privacy_field
                     deck_obj.description = deck_description_field
-                    deck_obj.color_id = color_id,
                     deck_obj.save()
                 except ObjectDoesNotExist :
                     messages.error(request, "Object does not exist. Deck not modified.")
@@ -273,6 +269,7 @@ class Manage_Deck(View):
         try:
             deck_obj = Deck.objects.get_deck(request.user.username, deck_id)
             deck_type_obj = Deck.objects.get_deck_type(deck_id)
+            deck_private = deck_obj.is_private
 
             if deck_obj.deck_user != request.user.username:
                 deck_obj = deck_obj.create_copy(request.user)
@@ -281,12 +278,12 @@ class Manage_Deck(View):
         except ObjectDoesNotExist :
             deck_obj = "new"
             deck_type_obj = '{"type_id": "1"}'
+            deck_private = UserProfile.get_deck_private(request.user)
 
         deck_types = DeckType.objects.get_types()
         deck_type_split = list(deck_types.split("},"))
 
         font_family = UserProfile.get_font(request.user)
-        deck_private = UserProfile.get_deck_private(request.user)
         should_translate = UserProfile.get_translate(request.user)
         context = {
             'font_family': font_family, 'should_translate': should_translate,

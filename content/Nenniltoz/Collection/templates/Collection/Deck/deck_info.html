@@ -6,7 +6,7 @@
     <!-- Determining the value of the deck and whether it should translate. -->
     <div class="deckValue {{ should_translate }}">
         <!-- This checks DeckCards in models and pulls the deck name -->
-        {{ deck.name }}
+        {{ deck.name|check_safe }}
     </div>
 
     <span class="deckAttributeLabel">Mana Colors:</span>

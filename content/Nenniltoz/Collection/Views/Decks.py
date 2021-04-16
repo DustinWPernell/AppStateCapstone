@@ -2,6 +2,7 @@ import json
 import logging
 from json import JSONDecodeError
 
+from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import render, redirect
@@ -19,25 +20,28 @@ class Deck_Database(View):
     def post(self, request):
         logger.info("POST: collection_display;")
         init_mana_list = Symbol.get_base_symbols()
-
         if 'collection_deck_clear_search' in request.POST:
             request.session['collection_deck_search_Term'] = ""
             request.session['collection_deck_selected_mana'] = []
-            request.session['collection_deck_deck_list'] = Deck.objects.get_deck_list()
+            request.session['collection_deck_deck_list'] = Deck.objects.get_deck_list(request.user.username)
             request.session['collection_deck_clear'] = False
             request.session['collection_deck_deck_full'] = False
         elif 'collection_deck_full_list' in request.POST:
             request.session['collection_deck_search_Term'] = "Full List"
             request.session['collection_deck_selected_mana'] = []
-            request.session['collection_deck_deck_list'] = Deck.objects.get_deck_full_list()
+            request.session['collection_deck_deck_list'] = Deck.objects.get_deck_full_list(request.user.username)
             request.session['collection_deck_clear'] = True
             request.session['collection_deck_deck_full'] = True
         else:
             text = request.POST.get('collection_deck_search_Term')
             if text == "Full List":
                 text = request.session['collection_deck_search_Term'] = ""
+            elif text == None:
+                text = ""
             search_term = text
             selected_mana = []
+            has_colorless = False
+            has_color = False
             for selected in init_mana_list:
                 mana_ele = request.POST.get("mana-" + str(selected.id))
                 if mana_ele == '':
@@ -67,18 +71,12 @@ class Deck_Database(View):
                              '{16}', '{17}', '{18}', '{19}', '{20}', '{100}', '{1000000}', '{P}']
 
                 has_colorless = any(item in selected_mana for item in colorless)
-                if has_colorless:
-                    filtered_deck_list = Deck.objects.deck_filter_by_color_term_colorless(
-                        selected_mana, search_term
-                    )
-                else:
-                    filtered_deck_list = Deck.objects.deck_filter_by_color_term(
-                        selected_mana, search_term
-                    )
-            else:
-                filtered_deck_list = Deck.objects.get_deck_by_term(
-                    search_term
-                )
+                has_color = True
+
+            filtered_deck_list = Deck.objects.deck_filter_by_color_term(
+                request.user.username, selected_mana, search_term, has_colorless, has_color
+            )
+
             request.session['collection_deck_search_Term'] = search_term
             request.session['collection_deck_selected_mana'] = selected_mana
             request.session['collection_deck_deck_list'] = filtered_deck_list
@@ -149,11 +147,11 @@ class Deck_Database(View):
             request.session['collection_deck_deck_list'] = Deck.objects.get_deck_list(request.user.username)
             request.session['collection_deck_clear'] = False
             request.session['collection_deck_deck_full'] = False
-            message = "Invalid search. Please try again."
+            messages.error(request, "Invalid search, please try again.")
             font_family = UserProfile.get_font(request.user)
             should_translate = UserProfile.get_translate(request.user)
-            context = {'font_family': font_family, 'should_translate': should_translate, 'message': message}
-            return render(request, 'error.html', context)
+            context = {'font_family': font_family, 'should_translate': should_translate}
+            return render(request, 'Collection/deck_list.html', context)
 
 class Deck_Display(View):
     def get(self, request, deck_id):

@@ -82,14 +82,16 @@ class NenniUserProfile(View):
             request.session['wish_page'] = wish_page
         # endregion
 
+        show_private = int(user_id) == request.user.id
+
         if 'user_clear_deck_search' in request.POST:
              request.session['user_search_deck_term'] = ""
-             request.session['user_search_deck_cards'] = Deck.objects.get_deck_by_user_term(request.user.username, "")
+             request.session['user_search_deck_cards'] = Deck.objects.get_deck_by_user_term(request.user.username, show_private, "")
              request.session['user_clear_deck_search'] = False
         elif 'user_search_deck' in request.POST:
             search_term = request.POST.get('user_search_deck_term')
             request.session['user_search_deck_term'] = search_term
-            request.session['user_search_deck_cards'] = Deck.objects.get_deck_by_user_term(request.user.username, search_term)
+            request.session['user_search_deck_cards'] = Deck.objects.get_deck_by_user_term(request.user.username, show_private, search_term)
             request.session['user_clear_deck_search'] = True
         elif 'user_clear_card_search' in request.POST:
              request.session['user_search_card_term'] = ""
@@ -164,6 +166,8 @@ class NenniUserProfile(View):
             request.session['wish_page'] = wish_page
         # endregion
 
+        show_private = int(user_id) == request.user.id
+
         # region Cards from session
         try:
             user_search_deck_term = request.session['user_search_deck_term']
@@ -171,7 +175,7 @@ class NenniUserProfile(View):
             user_clear_deck_search = request.session['user_clear_deck_search']
         except KeyError:
             user_search_deck_term = request.session['user_search_deck_term'] = ""
-            user_search_deck_cards = request.session['user_search_deck_cards'] = Deck.objects.get_deck_by_user_term(user_profile.user.username, "")
+            user_search_deck_cards = request.session['user_search_deck_cards'] = Deck.objects.get_deck_by_user_term(user_profile.user.username, show_private, "")
             user_clear_deck_search = request.session['user_clear_deck_search'] = False
 
         try:

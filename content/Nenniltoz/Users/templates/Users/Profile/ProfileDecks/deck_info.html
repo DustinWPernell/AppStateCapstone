@@ -6,18 +6,18 @@
         <label for="deck_name_field">Name:</label>
         <!-- Determining the value of the deck and whether it should translate. -->
         <input class="deckValue {{ font_family }}" id="deck_name_field" name="deck_name_field"
-                type="text" placeholder="Enter Deck Name" value='{% if deck_obj != "new" %}{{ deck_obj.name }}{% endif %}'>
+                type="text" placeholder="Enter Deck Name" value='{% if deck_obj != "new" %}{{ deck_obj.name|check_safe }}{% endif %}'>
 
 
         <label class="deck_privacy_field" for="deck_privacy_field">Privacy:</label>
         <!-- Determining the value of the deck and whether it should translate. -->
         <select class="deckValue {{ font_family }}" id="deck_privacy_field" name="deck_privacy_field">
-            {% if deck_private %}
-                <option value="True">Public</option>
-                <option value="False" selected>Private</option>
+            {% if is_private %}
+                <option value="True" selected>Private</option>
+                <option value="False">Public</option>
             {% else %}
-                <option value="True" selected>Public</option>
-                <option value="False">Private</option>
+                <option value="True">Private</option>
+                <option value="False" selected>Public</option>
             {% endif %}
         </select>
 
@@ -41,7 +41,8 @@
         <!-- Determining the value of the deck and whether it should translate. -->
         <textarea class="deck_description_field" cols="40" id="deck_description_field"
                   name="deck_description_field" placeholder="Description of the Deck"
-                  rows="1">{% if deck_obj != "new" or has_desc %}{{ deck_obj.description }}{% endif %}</textarea>
+                  rows="1">{% if deck_obj != "new" or has_desc %}{{ deck_obj.description|check_safe }}{% endif %}</textarea>
+        <div></div><div class="default_font">* Use { } for searchable notes. <br>Example: {Agro}</div>
         <button class="clickable {{ font_family }}" name="submitDeck" type="submit">
             {% if deck_obj == "new" %}
                 Create Deck

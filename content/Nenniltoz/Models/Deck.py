@@ -3,27 +3,21 @@ from functools import reduce
 from random import randint
 
 from django.db import models
-from django.db.models import Q, Count
+from django.db.models import Q, Count, F
 
 from Models.DeckCard import DeckCard
 from Models.DeckType import DeckType
 from Users.models import UserProfile
 
 class DeckManager(models.Manager):
-    def deck_filter_by_color_term_colorless(self, current_username, mana, term):
-        count = DeckManager.aggregate(count=Count('id'))['count']
-        random_index = randint(0, count - 1)
-        list_of_colors = ['{W}', '{W/U}', '{W/B}', '{R/W}', '{G/W}', '{2/W}', '{W/P}', '{HW}',
-                          '{U}', '{U/B}', '{U/R}', '{G/U}', '{2/U}', '{U/P}', '{HU}',
-                          '{B}', '{B/R}', '{B/G}', '{2/B}', '{B/P}', '{HB}',
-                          '{R}', '{R/G}', '{2/R}', '{R/P}', '{HR}',
-                          '{G}', '{2/G}', '{G/P}', '{HG}']
-        return Deck.objects.select_related().filter(
-            (
-                    Q(is_private=False) |
-                    Q(deck_user=current_username)
-            ) &
-            Q(name__icontains=term) & (
+    def deck_filter_by_color_term(self, current_username, mana, term, is_colorless, has_color):
+        if is_colorless:
+            list_of_colors = ['{W}', '{W/U}', '{W/B}', '{R/W}', '{G/W}', '{2/W}', '{W/P}', '{HW}',
+                              '{U}', '{U/B}', '{U/R}', '{G/U}', '{2/U}', '{U/P}', '{HU}',
+                              '{B}', '{B/R}', '{B/G}', '{2/B}', '{B/P}', '{HB}',
+                              '{R}', '{R/G}', '{2/R}', '{R/P}', '{HR}',
+                              '{G}', '{2/G}', '{G/P}', '{HG}']
+            mana_filter = (
                     reduce(
                         operator.or_, (
                             Q(mana_cost__contains=item) for item in mana
@@ -35,65 +29,45 @@ class DeckManager(models.Manager):
                         )
                     )
             )
-        ).order_by('name')[random_index:random_index+500]
-
-    def deck_filter_by_color_term(self, current_username, mana, term):
-        # Retrieve all decks that are not private and colorId contains the selected colors,
-        # or name contains the search term
-        return Deck.objects.select_related().filter(
-            (
-                    Q(is_private=False) |
-                    Q(deck_user=current_username)
-            ) &
-            reduce(
+        elif has_color :
+            mana_filter = reduce(
                 operator.or_, (
                     Q(mana_cost__contains=item) for item in mana
                 )
-            ) &
-            Q(colorId__contains=mana) & (
-                    Q(name__icontains=term) |
-                    Q(decsription__icontains='{' + term + '}')
             )
-        ).order_by('name')
+        else:
+            mana_filter = Q(id__gt=0)
 
-    def get_deck_by_user_term(self, current_username, term):
-        filtered_deck_list = Deck.objects.select_related().filter(
-            (
-                    Q(is_private=False) |
-                    Q(deck_user=current_username)
-            ) & (
-                    Q(name__icontains=term) |
-                    Q(description__icontains='{' + term + '}')
-            )
-        ).order_by('name')
+        filter = (
+                Q(is_private=False) |
+                Q(deck_user=current_username)
+        ) & mana_filter & (
+                Q(name__icontains=term) |
+                Q(description__icontains='{' + term + '}')
+        )
 
-        deck_json_list = ""
-        i = 0
-        for deck in filtered_deck_list:
-            deck_json_list = deck_json_list + deck.__str__()
-            if len(filtered_deck_list) > 1 and i + 1 < len(filtered_deck_list):
-                deck_json_list = deck_json_list + '},'
-                i += 1
-        return deck_json_list.__str__()
+        return self.run_query(filter, True)
+
+    def get_deck_by_user_term(self, current_username, show_private, term):
+        if show_private:
+            filter = Q(deck_user=current_username) & (
+                            Q(name__icontains=term) |
+                            Q(description__icontains='{' + term + '}')
+                     )
+        else:
+            filter = Q(is_private=False) & \
+                     Q(deck_user=current_username) & (
+                             Q(name__icontains=term) |
+                             Q(description__icontains='{' + term + '}')
+                     )
+
+        return self.run_query(filter, False)
 
     def get_deck_list(self, current_username):
-        count = self.aggregate(count=Count('id'))['count']
-        random_index = randint(0, count - 1)
-        filtered_deck_list = Deck.objects.select_related().filter(
-            (
-                    Q(is_private=False) |
-                    Q(deck_user=current_username)
-            )
-        ).order_by('name')[random_index:random_index+500]
+        filter = Q(is_private=False) | \
+                 Q(deck_user=current_username)
 
-        deck_json_list = ""
-        i = 0
-        for deck in filtered_deck_list:
-            deck_json_list = deck_json_list + deck.__str__()
-            if len(filtered_deck_list) > 1 and i + 1 < len(filtered_deck_list):
-                deck_json_list = deck_json_list + '},'
-                i += 1
-        return deck_json_list.__str__()
+        return self.run_query(filter, True)
 
     def get_deck(self, current_username, deck_id):
         return Deck.objects.select_related().get(
@@ -111,11 +85,11 @@ class DeckManager(models.Manager):
             ).deck_type.id
         )
 
-    def deck_create(self, deck_name_field, deck_type_obj, deck_privacy_field, deck_description_field,
+    def deck_create(self, deck_name_field, deck_type_field, deck_privacy_field, deck_description_field,
                     color_id, username):
-        new_deck = Deck.objects.create(
+        return Deck.objects.create(
             name=deck_name_field,
-            deck_type=deck_type_obj,
+            deck_type=DeckType.objects.get(id=deck_type_field),
             is_private=deck_privacy_field == 'True',
             description=deck_description_field,
             color_id=color_id,
@@ -123,7 +97,31 @@ class DeckManager(models.Manager):
             deck_user=username,
             is_pre_con=(username == "Preconstructed")
         )
-        return new_deck.id
+
+    def run_query(self, filter, limit):
+        if limit:
+            count = self.filter(filter).aggregate(count=Count('id'))['count']
+            if count <= 500:
+                start_index = 0
+            else:
+                start_index = randint(0, count - 1)
+            return self.build_json(Deck.objects.select_related().filter(
+                filter
+            ).order_by('name')[start_index:start_index+500])
+        else:
+            return self.build_json(Deck.objects.select_related().filter(
+                filter
+            ).order_by('name'))
+
+    def build_json(self, deck_list):
+        deck_json_list = ""
+        i = 0
+        for deck in deck_list:
+            deck_json_list = deck_json_list + deck.__str__()
+            if len(deck_list) > 1 and i + 1 < len(deck_list):
+                deck_json_list = deck_json_list + '},'
+                i += 1
+        return deck_json_list.__str__()
 
 class Deck(models.Model):
     name = models.CharField(max_length=200)
