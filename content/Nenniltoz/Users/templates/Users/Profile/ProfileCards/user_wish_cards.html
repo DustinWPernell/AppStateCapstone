@@ -19,11 +19,11 @@
 {% include "./wish_pager.html" %}
 <div class="cardTable" id="cardGrid">
     <div class="innerCardTableHead">
-        <div class="profile_table">Name</div>
-        <div class="profile_table">Quantity</div>
-        <div class="profile_table">Mana Cost</div>
-        <div class="profile_table">Notes</div>
-        <div class="profile_table"></div>
+        <div class="profile_table_head">Name</div>
+        <div class="profile_table_head">Quantity</div>
+        <div class="profile_table_head">Mana Cost</div>
+        <div class="profile_table_head">Notes</div>
+        <div class="profile_table_head"></div>
     </div>
     {% for card_obj in wish_list %}
         {% if card_obj is not '' %}

@@ -20,19 +20,19 @@ class DeckManager(models.Manager):
             mana_filter = (
                     reduce(
                         operator.or_, (
-                            Q(mana_cost__contains=item) for item in mana
+                            Q(color_id__contains=item) for item in mana
                         )
                     ) &
                     reduce(
                         operator.and_, (
-                            ~Q(mana_cost__contains=item) for item in list_of_colors
+                            ~Q(color_id__contains=item) for item in list_of_colors
                         )
                     )
             )
         elif has_color :
             mana_filter = reduce(
                 operator.or_, (
-                    Q(mana_cost__contains=item) for item in mana
+                    Q(color_id__contains=item) for item in mana
                 )
             )
         else:

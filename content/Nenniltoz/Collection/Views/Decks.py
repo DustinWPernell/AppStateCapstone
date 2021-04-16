@@ -123,7 +123,8 @@ class Deck_Database(View):
                      'id': init_mana.id})
 
         deck_list_split = list(deck_list.split("},"))
-
+        if deck_list_split[0] == '':
+            deck_list_split = []
         page = request.GET.get('page', 1)
         paginator = Paginator(deck_list_split, 50)
         try:
@@ -138,7 +139,7 @@ class Deck_Database(View):
             font_family = UserProfile.get_font(request.user)
             should_translate = UserProfile.get_translate(request.user)
             context = {'font_family': font_family, 'should_translate': should_translate, 'pages': decks,
-                       'search_Term': search_term, 'mana_list': mana_list, 'clearSearch': clear_search,
+                       'collection_deck_search_Term': search_term, 'mana_list': mana_list, 'clearSearch': clear_search,
                        'full_list': full_list}
             return render(request, 'Collection/deck_list.html', context)
         except JSONDecodeError:

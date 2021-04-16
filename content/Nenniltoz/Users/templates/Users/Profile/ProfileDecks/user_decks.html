@@ -20,12 +20,12 @@
     {% include "./deck_pager.html" %}
     <div class="deckTable" id="deckGrid">
         <div class="innerDeckTableHead">
-            <div class="profile_table">Name</div>
-            <div class="profile_table">Original Creator</div>
-            <div class="profile_table">Deck Owner</div>
-            <div class="profile_table">Mana Cost</div>
-            <div class="profile_table">Description</div>
-            <div class="profile_table"></div>
+            <div class="profile_table_head">Name</div>
+            <div class="profile_table_head">Original Creator</div>
+            <div class="profile_table_head">Deck Owner</div>
+            <div class="profile_table_head">Mana Cost</div>
+            <div class="profile_table_head">Description</div>
+            <div class="profile_table_head"></div>
         </div>
         {% for deck_obj in deck_list %}
             {% if deck_obj is not '' %}

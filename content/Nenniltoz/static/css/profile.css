@@ -116,21 +116,25 @@
 .innerCardTableHead{
     padding: 5px;
     display: grid;
-    grid-gap: 1%;
-    grid-template-columns: minmax(100px, 20%) minmax(100px, 10%) minmax(100px, 15%) minmax(100px, 40%) minmax(100px, 10%);
+    grid-gap: 10px;
+    grid-template-columns: 150px 150px 50px minmax(100px, 500px) auto;
 }
 
 .innerCardTable{
     border-top-style: solid;
     border-top-width: 1px;
-    padding: 10px;
+    padding: 5px;
     display: grid;
-    grid-gap: 1%;
-    grid-template-columns: minmax(100px, 20%) minmax(100px, 10%) minmax(100px, 15%) minmax(100px, 40%) minmax(100px, 10%);
+    grid-gap: 10px;
+    grid-template-columns: 150px 150px 50px minmax(100px, 500px) auto;
+}
+
+.profile_table_head{
+    font-size: .9em;
 }
 
 .profile_table{
-    overflow-wrap: break-word;
+    font-size: .8em;
 }
 
 .smallCardImg{
@@ -148,17 +152,15 @@
 .innerDeckTableHead{
     padding: 5px;
     display: grid;
-    grid-gap: 1%;
-    grid-template-columns: minmax(50px, 20%) minmax(50px, 10%) minmax(50px, 10%) minmax(50px, 10%) minmax(50px, 40%) minmax(50px, 10%);
+    grid-gap: 10px;    grid-template-columns: 150px 150px 150px 50px minmax(100px, 500px) auto;
 }
 
 .innerDeckTable{
     border-top-style: solid;
     border-top-width: 1px;
-    padding: 10px;
+    padding: 5px;
     display: grid;
-    grid-gap: 1%;
-    grid-template-columns: minmax(50px, 20%) minmax(50px, 10%) minmax(50px, 10%) minmax(50px, 10%) minmax(50px, 40%) minmax(50px, 10%);
+    grid-gap: 10px;    grid-template-columns: 150px 150px 150px 50px minmax(100px, 500px) auto;
 }
 
 .smallDeckImg{
@@ -184,14 +186,14 @@
 }
 
 .leftGrid{
-    min-width: 550px;
+    min-width: 800px;
 }
 
 .ProfileGrid{
-    min-width: 550px;
+    min-width: 800px;
 }
 
-@media all and (min-width: 1080px) {
+@media all and (min-width: 1300px) {
     .ProfileGrid{
         display: grid;
         grid-template-columns: minmax(550px, auto) 300px;
