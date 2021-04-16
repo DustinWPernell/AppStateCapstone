@@ -58,11 +58,13 @@
     </div>
     {% include "./deck_pager.html" %}
 {% else %}
-{% if o_player %}
-<h5>No decks added to account.</h5>
-{% else %}
-<h5>No decks added to account. Visit deck Database to add decks.</h5>
-{% endif %}
+    {% if o_player %}
+    <h5>No decks added to account.</h5>
+    {% else %}
+    <h5>No decks added to account. Visit deck Database to add decks.</h5>
+    {% endif %}
 {% endif %}
 <!-- -1 tells it to make a new deck -->
-<a class="colorText clickableCol" onclick="show_page_load();" href="modify_deck/-1">New Deck</a>
+{% if not o_player %}
+    <a class="link_objs clickable" onclick="show_page_load();" href="modify_deck/-1">New Deck</a>
+{% endif %}
