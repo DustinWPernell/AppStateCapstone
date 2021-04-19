@@ -12,7 +12,7 @@ def cardDuelSide(val):
 
 @register.filter
 def cardMultiFace(val):
-    if val == 1:
+    if val > 1:
         return "singCardValueMulti"
     return "singCardValue"
 

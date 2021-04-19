@@ -34,7 +34,7 @@
     <!-- Determining the value of the deck and whether it should translate. -->
     <div class="deckValue {{ should_translate }}">
         <!-- This checks DeckCards in models and pulls the deck type -->
-        {{ deck.deck_type.name }}
+        {{ deck.deck_type.desc|safe }}
     </div>
 
     <span class="deckAttributeLabel">Description:</span>

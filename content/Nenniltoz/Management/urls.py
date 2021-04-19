@@ -8,7 +8,6 @@ urlpatterns = [
     path('quick_search_update', views.quick_search_update, name='quick_search_update'),
     path('retrieveAPI', views.retrieve_api, name='retrieveAPI'),
     path('cardUpdate', views.card_update, name='cardUpdate'),
-    path('card_image', views.card_image, name='card_image'),
     path('ruleUpdate', views.rule_update, name='ruleUpdate'),
     path('symbolUpdate', views.symbol_update, name='symbolUpdate'),
     path('setUpdate', views.set_update, name='setUpdate'),

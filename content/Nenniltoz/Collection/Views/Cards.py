@@ -4,15 +4,14 @@ import logging
 from json import JSONDecodeError
 
 from django.contrib import messages
-from django.core import serializers
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.views import View
 
-from Collection.models import CardFace, Symbol, CardIDList, Rule
+from Collection.models import Symbol, CardIDList, Rule
+from Models.Card import Card
+from Models.CardFace import CardFace
 from Users.models import UserCards, UserProfile
-from static.python.api_access import APIAccess
 from static.python.session_manager import SessionManager
 
 logger = logging.getLogger(__name__)
@@ -36,7 +35,7 @@ class Card_Display(View):
             if card_quantity <= 0:
                 card_quantity = 1
             if user_card_id == '':
-                card_faces = CardFace.get_face_by_card(CardIDList.get_card_by_oracle(oracle_id).card_id)
+                card_faces = CardFace.objects.get_face_by_card(CardIDList.get_card_by_oracle(oracle_id).card_id)
                 card_search = card_faces[0].legal.card_obj.keywords + ' // '+ card_faces[0].legal.card_obj.set_name
                 card_name = card_all_mana = card_mana = ''
                 for face in card_faces:
@@ -83,7 +82,7 @@ class Card_Display(View):
             if card_quantity <= 0:
                 card_quantity = 1
             if user_card_id == '':
-                card_faces = CardFace.get_face_by_card(CardIDList.get_card_by_oracle(oracle_id).card_id)
+                card_faces = CardFace.objects.get_face_by_card(CardIDList.get_card_by_oracle(oracle_id).card_id)
                 card_search = card_faces[0].legal.card_obj.keywords + ' // '+ card_faces[0].legal.card_obj.set_name
                 card_name = card_all_mana = card_mana = ''
                 for face in card_faces:
@@ -166,10 +165,10 @@ class Card_Display(View):
 
         try:
             card_obj = CardIDList.get_card_by_oracle(oracle_id)
+            card = Card.objects.get_card(card_obj.card_id)
+            card_faces = CardFace.objects.get_face_by_card(card_obj.card_id)
 
-            card_faces = CardFace.get_face_by_card(card_obj.card_id)
-
-            card_set_list = CardFace.get_card_sets(oracle_id)
+            card_set_list = CardFace.objects.get_card_sets(oracle_id)
             card_set_list.sort(key=lambda item: item.get("set_name"))
 
             rulings_list = Rule.objects.filter(oracle_id=oracle_id).order_by('-pub_date')
@@ -183,21 +182,21 @@ class Card_Display(View):
                     user_card = UserCards.get_user_card_by_oracle(oracle_id, request.user)
                     notes = user_card.notes
                     has_notes = notes != ""
-                    context = {'font_family': font_family, 'should_translate': should_translate, 'card': card_faces,
+                    context = {'font_family': font_family, 'should_translate': should_translate, 'card': card,
                                'faces': card_faces, 'set_info': card_set_list,
                                'has_card': True, 'user_card': user_card, 'has_notes': has_notes,
                                'rulings': rulings_list, 'has_rules': len(rulings_list) > 0,
                                'tcg_pricing': tcg_pricing,
                                'auth': request.user.is_authenticated}
                 except UserCards.DoesNotExist:
-                    context = {'font_family': font_family, 'should_translate': should_translate, 'card': card_faces,
+                    context = {'font_family': font_family, 'should_translate': should_translate, 'card': card,
                                'faces': card_faces, 'set_info': card_set_list,
                                'has_card': False, 'tcg_pricing': tcg_pricing,
                                'rulings': rulings_list, 'has_rules': len(rulings_list) > 0,
                                'auth': request.user.is_authenticated}
 
             else:
-                context = {'font_family': font_family, 'should_translate': should_translate, 'card': card_faces,
+                context = {'font_family': font_family, 'should_translate': should_translate, 'card': card,
                            'faces': card_faces, 'set_info': card_set_list,
                            'rulings': rulings_list, 'has_rules': len(rulings_list) > 0,
                            'tcg_pricing': tcg_pricing,
@@ -224,13 +223,13 @@ class Card_Database(View):
         if 'collection_card_clear_search' in request.POST:
             request.session['collection_card_search_Term'] = ""
             request.session['collection_card_selected_mana'] = []
-            request.session['collection_card_card_list'] = CardIDList.get_json(True)
+            request.session['collection_card_card_list'] = CardFace.objects.get_card_face(True)
             request.session['collection_card_clear'] = False
             request.session['collection_card_card_full'] = False
         elif 'collection_card_full_list' in request.POST:
             request.session['collection_card_search_Term'] = "Full List"
             request.session['collection_card_selected_mana'] = []
-            request.session['collection_card_card_list'] = CardIDList.get_json(False)
+            request.session['collection_card_card_list'] = CardFace.objects.get_card_face(False)
             request.session['collection_card_clear'] = True
             request.session['collection_card_card_full'] = True
         else:
@@ -239,6 +238,8 @@ class Card_Database(View):
                 text = request.session['collection_card_search_Term'] = ""
             search_term = text
             selected_mana = []
+            has_colorless = False
+            has_color = False
             for selected in init_mana_list:
                 mana_ele = request.POST.get("mana-" + str(selected.id))
                 if mana_ele == '':
@@ -268,26 +269,13 @@ class Card_Database(View):
                              '{16}', '{17}', '{18}', '{19}', '{20}', '{100}', '{1000000}', '{P}']
 
                 has_colorless = any(item in selected_mana for item in colorless)
-                if has_colorless:
-                    filtered_card_list = CardFace.card_face_filter_by_card_color_term_colorless(
-                        full_card_list_all, selected_mana, search_term
-                    )
-                else:
-                    filtered_card_list = CardFace.card_face_filter_by_card_term(
-                        full_card_list_all, selected_mana, search_term
-                    )
-            else:
-                list_of_colors = ['{W}', '{W/U}', '{W/B}', '{R/W}', '{G/W}', '{2/W}', '{W/P}', '{HW}',
-                                  '{U}', '{U/B}', '{U/R}', '{G/U}', '{2/U}', '{U/P}', '{HU}',
-                                  '{B}', '{B/R}', '{B/G}', '{2/B}', '{B/P}', '{HB}',
-                                  '{R}', '{R/G}', '{2/R}', '{R/P}', '{HR}',
-                                  '{G}', '{2/G}', '{G/P}', '{HG}',
-                                  '{C}', '', '{X}', '{Y}', '{Z}', '{0}', '{1/2}', '{1}', '{2}', '{3}', '{4}', '{5}',
-                                  '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}', '{14}', '{15}',
-                                  '{16}', '{17}', '{18}', '{19}', '{20}', '{100}', '{1000000}', '{P}']
-                filtered_card_list = CardFace.card_face_filter_by_card_term(
-                    full_card_list_all, list_of_colors, search_term
-                )
+                has_color = True
+
+
+            filtered_card_list = CardFace.objects.card_filter_by_color_term(
+                selected_mana, search_term, has_colorless, has_color
+            )
+
             request.session['collection_card_search_Term'] = search_term
             request.session['collection_card_selected_mana'] = selected_mana
             request.session['collection_card_card_list'] = filtered_card_list
@@ -317,7 +305,7 @@ class Card_Database(View):
         except KeyError:
             search_term = request.session['collection_card_search_Term'] = ""
             selected_mana = request.session['collection_card_selected_mana'] = []
-            card_list = request.session['collection_card_card_list'] = CardIDList.get_json(True)
+            card_list = request.session['collection_card_card_list'] = CardFace.objects.get_card_face(True)
             clear_search = request.session['collection_card_clear'] = False
             full_list = request.session['collection_card_card_full'] = False
 
@@ -356,7 +344,7 @@ class Card_Database(View):
         except JSONDecodeError:
             request.session['collection_card_search_Term'] = ""
             request.session['collection_card_selected_mana'] = []
-            request.session['collection_card_card_list'] = CardIDList.get_json(True)
+            request.session['collection_card_card_list'] = CardFace.objects.get_card_face(True)
             request.session['collection_card_clear'] = False
             request.session['collection_card_card_full'] = False
 

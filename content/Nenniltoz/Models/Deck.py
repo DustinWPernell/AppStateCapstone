@@ -70,7 +70,7 @@ class DeckManager(models.Manager):
         return self.run_query(filter, True)
 
     def get_deck(self, current_username, deck_id):
-        return Deck.objects.select_related().get(
+        return self.select_related().get(
             (
                     Q(is_private=False) |
                     Q(deck_user=current_username)
@@ -80,22 +80,30 @@ class DeckManager(models.Manager):
 
     def get_deck_type(self, deck_id):
         return DeckType.objects.get_deck_type_by_type(
-            Deck.objects.get(
+            self.get(
                 Q(id=int(deck_id))
             ).deck_type.id
         )
 
     def deck_create(self, deck_name_field, deck_type_field, deck_privacy_field, deck_description_field,
-                    color_id, username):
-        return Deck.objects.create(
+                    color_id, creator, username):
+        return self.create(
             name=deck_name_field,
             deck_type=DeckType.objects.get(id=deck_type_field),
             is_private=deck_privacy_field == 'True',
             description=deck_description_field,
             color_id=color_id,
-            created_by=username,
+            created_by=creator,
             deck_user=username,
             is_pre_con=(username == "Preconstructed")
+        )
+
+    def deck_update(self, deck_id, deck_name_field, deck_type_field, deck_privacy_field, deck_description_field):
+        self.filter(id=deck_id).update(
+            name=deck_name_field,
+            deck_type=deck_type_field,
+            is_private=deck_privacy_field,
+            description=deck_description_field
         )
 
     def run_query(self, filter, limit):
@@ -105,11 +113,11 @@ class DeckManager(models.Manager):
                 start_index = 0
             else:
                 start_index = randint(0, count - 1)
-            return self.build_json(Deck.objects.select_related().filter(
+            return self.build_json(self.select_related().filter(
                 filter
             ).order_by('name')[start_index:start_index+500])
         else:
-            return self.build_json(Deck.objects.select_related().filter(
+            return self.build_json(self.select_related().filter(
                 filter
             ).order_by('name'))
 
@@ -169,10 +177,6 @@ class Deck(models.Model):
             is_private=UserProfile.get_deck_private(user),
             image_url=self.image_url,
             description=self.description,
-            commander_id=self.commander_id,
-            commander_name=self.commander_name,
-            commander_file=self.commander_file,
-            commander_oracle=self.commander_oracle,
             color_id=self.color_id,
             created_by=self.created_by,
             deck_user=user.username,
@@ -192,6 +196,7 @@ class Deck(models.Model):
                 card_search=card.card_search,
                 quantity=card.quantity,
                 sideboard=card.sideboard,
+                commander=card.commander,
             )
         # endregion
         return new_deck

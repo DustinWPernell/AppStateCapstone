@@ -28,9 +28,9 @@
             {% for deck_type in deck_types %}
             {% with deck_type|convert_to_json as deck_type_json %}
             {% if deck_type_obj_json.type_id != deck_type_json.type_id %}
-                <option value="{{ deck_type_json.type_id }}">{{ deck_type_json.desc }}</option>
+                <option value="{{ deck_type_json.type_id }}">{{ deck_type_json.desc|safe }}</option>
             {% else %}
-                <option value="{{ deck_type_json.type_id }}" selected>{{ deck_type_json.desc }}</option>
+                <option value="{{ deck_type_json.type_id }}" selected>{{ deck_type_json.desc|safe }}</option>
             {% endif %}
             {% endwith %}
             {% endfor %}
@@ -42,7 +42,7 @@
         <textarea class="deck_description_field" cols="40" id="deck_description_field"
                   name="deck_description_field" placeholder="Description of the Deck"
                   rows="1">{% if deck_obj != "new" or has_desc %}{{ deck_obj.description|check_safe }}{% endif %}</textarea>
-        <div></div><div class="default_font">* Use { } for searchable notes. <br>Example: {Agro}</div>
+        <div></div><div class="default_font">* Use { } for searchable notes. <br>Example: {Aggro}</div>
         <button class="clickable {{ font_family }}" name="submitDeck" type="submit">
             {% if deck_obj == "new" %}
                 Create Deck

@@ -10,7 +10,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views import View
 
-from Collection.models import CardFace
+from Models.CardFace import CardFace
 from Models.Deck import Deck
 from Users.models import UserProfile, UserCards
 from static.python.session_manager import SessionManager
@@ -202,7 +202,7 @@ class NenniUserProfile(View):
         if user_deck_list_split[0] == '':
             user_deck_list_split = []
         deck_show = len(user_deck_list_split) > 0 or user_clear_deck_search
-        deck_paginator = Paginator(user_deck_list_split, 10)
+        deck_paginator = Paginator(user_deck_list_split, 5)
         try:
             deck_list = deck_paginator.page(deck_page)
         except PageNotAnInteger:
@@ -263,19 +263,13 @@ class AvatarPicker(View):
 
     def post(self, request):
         if 'clearSearch' in request.POST:
-            del request.session['avatar_search_term']
-            del request.session['avatar_clear_search']
-            search_term = ''
-            card_list = CardFace.objects.all().order_by('name')
-            clear_search = False
+            request.session['avatar_search_term'] = ''
+            request.session['avatar_card_list'] = CardFace.objects.card_face_avatar_filter('')
+            request.session['avatar_clear_search'] = False
         else:
-            search_term = request.POST.get('avatarSearchTerm')
-            card_list = CardFace.card_face_filter_by_name_term(search_term).order_by('name')
-            clear_search = True
-
-        request.session['avatar_search_term'] = search_term
-        request.session['avatar_card_list'] = card_list
-        request.session['avatar_clear_search'] = clear_search
+            search_term = request.session['avatar_search_term'] = request.POST.get('avatarSearchTerm')
+            request.session['avatar_card_list'] = CardFace.objects.card_face_avatar_filter(search_term)
+            request.session['avatar_clear_search'] = True
 
     @login_required
     def get(self, request):
@@ -289,16 +283,19 @@ class AvatarPicker(View):
         """
         search_term = 'Search'
         try:
-            search_term = request.session['avatar_search_term']
-            card_list = CardFace.card_face_filter_by_name_term(search_term).order_by('name')
-            clear_search = True
+            avatar_search_term = request.session['avatar_search_term']
+            card_list = request.session['avatar_card_list']
+            avatar_clear_search = request.session['avatar_clear_search']
         except KeyError:
-            card_list = CardFace.objects.all().order_by('name')
-            clear_search = False
+            avatar_search_term = request.session['avatar_search_term'] = ''
+            card_list = request.session['avatar_card_list'] = CardFace.objects.card_face_avatar_filter('')
+            avatar_clear_search = request.session['avatar_clear_search'] = False
 
+        card_list_split = list(card_list.split("},"))
+        if card_list_split[0] == '':
+            card_list_split = []
         page = request.GET.get('page', 1)
-
-        paginator = Paginator(card_list, 50)
+        paginator = Paginator(card_list_split, 50)
         try:
             cards = paginator.page(page)
         except PageNotAnInteger:
@@ -306,10 +303,10 @@ class AvatarPicker(View):
         except EmptyPage:
             cards = paginator.page(paginator.num_pages)
 
-        font_family = NenniUserProfile.get_font(request.user)
-        should_translate = NenniUserProfile.get_translate(request.user)
+        font_family = UserProfile.get_font(request.user)
+        should_translate = UserProfile.get_translate(request.user)
         context = {'font_family': font_family, 'should_translate': should_translate, 'pages': cards,
-                   'SearchTerm': search_term, 'clearSearch': clear_search}
+                   'avatar_search_term': avatar_search_term, 'avatar_clear_search': avatar_clear_search}
         return render(request, 'Users/Profile/select_avatar.html', context)
 
 

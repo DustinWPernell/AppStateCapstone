@@ -51,10 +51,10 @@
                 <a class="deckDirection" href="/Collection/deck/{{ deck_json.deck_id }}/">
                     <!-- This is the display for a deck. It will show the name, colors associated, game type, and name of the creator of the deck.
                      If the deck is PreCon-->
-                    <div>{{ deck_json.deck_name }}</div>
+                    <div>{{ deck_json.deck_name|check_safe }}</div>
                     <!-- replaceMana is a template tag used for replacing mana text with it respective symbol. -->
                     <div>{{ deck_json.color_id|replaceMana|safe }}</div>
-                    <div>Deck Type: {{ deck_json.deck_type }}</div>
+                    <div>Deck Type: {{ deck_json.deck_type|safe }}</div>
                     <div>
                         {% if deck_json.is_pre_con == "1" %}
                         Pre-Constructed Deck

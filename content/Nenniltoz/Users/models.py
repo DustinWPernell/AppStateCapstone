@@ -1,16 +1,12 @@
 from datetime import datetime
-from urllib.request import urlopen
 
 import boto3
 import requests
 from decouple import config
 from django.contrib.auth.models import User
-from django.core.files import File
-from django.core.files.temp import NamedTemporaryFile
 from django.db import models
 from django.db.models import Q
 
-from Collection.models import CardFace
 
 
 # Create your models here.

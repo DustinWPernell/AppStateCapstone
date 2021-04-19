@@ -6,10 +6,11 @@ from Models import Deck
 
 class DeckCardManager(models.Manager):
     @staticmethod
-    def deck_card_by_deck_side(deck_id, side):
+    def deck_card_by_deck_side(deck_id, side, commander):
         return DeckCard.objects.filter(
             Q(deck=deck_id) &
-            Q(sideboard=side)
+            Q(sideboard=side) &
+            Q(commander=commander)
         )
 
     @staticmethod
@@ -27,6 +28,7 @@ class DeckCard(models.Model):
     card_search = models.CharField(max_length=2000)
     quantity = models.IntegerField(default=0)
     sideboard = models.BooleanField(default=False)
+    commander = models.BooleanField(default=False)
 
     objects = DeckCardManager()
 

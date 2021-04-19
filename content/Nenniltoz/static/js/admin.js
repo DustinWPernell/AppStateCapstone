@@ -1,4 +1,4 @@
-function runSearche(type){
+function runSearch(type){
     showLoad();
     RetrieveSearch(type);
 }
@@ -47,8 +47,6 @@ function RetrieveAPI(type){
         success : function(json) {
             if(type == "card"){
                 CardImport();
-            } else if(type == "images"){
-                CardImages();
             } else if(type == "oracle"){
                 OracleImport();
             } else if(type == "set"){
@@ -94,18 +92,6 @@ function CardImport(){
         data : {request: request_data},
         success : function(json) {
             printToList("Added Card To Queue");
-            CardImages();
-        }
-    })
-}
-
-function CardImages(){
-    var request_data = "Cards";
-    $.ajax({
-        url: "../Management/cardUpdate",
-        data : {request: request_data},
-        success : function(json) {
-            printToList("Added Card Image To Queue");
             showLoad();
         }
     })

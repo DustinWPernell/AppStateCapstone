@@ -126,7 +126,7 @@ class Deck_Database(View):
         if deck_list_split[0] == '':
             deck_list_split = []
         page = request.GET.get('page', 1)
-        paginator = Paginator(deck_list_split, 50)
+        paginator = Paginator(deck_list_split, 20)
         try:
             decks = paginator.page(page)
         except PageNotAnInteger:

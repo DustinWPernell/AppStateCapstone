@@ -4,7 +4,7 @@
 <div class="singCardHead">
     <h3>Card Data</h3> <div></div>
     <span class="singCardAttLbl">Name:</span>
-    <div class="{{faces.0.legal.card_obj.layout.multi_face|cardMultiFace}}">
+    <div class="{{card.layout.multi_face|cardMultiFace}}">
         {% for face in faces %}
         <div class="singCardInValue {{ should_translate }}">
             {{ face.name }}
@@ -13,7 +13,7 @@
     </div>
 
     <span class="singCardAttLbl">Mana Cost:</span>
-    <div class="{{faces.0.legal.card_obj.layout.multi_face|cardMultiFace}}">
+    <div class="{{card.layout.multi_face|cardMultiFace}}">
         {% for face in faces %}
         <div class="singCardInValue">
             {{ face.mana_cost|replaceMana|safe }}
@@ -22,7 +22,7 @@
     </div>
 
     <span class="singCardAttLbl">Type:</span>
-    <div class="{{faces.0.legal.card_obj.layout.multi_face|cardMultiFace}}">
+    <div class="{{card.layout.multi_face|cardMultiFace}}">
         {% for face in faces %}
         <div class="singCardInValue">
             {{ face.type_line }}
@@ -31,7 +31,7 @@
     </div>
 
     <span class="singCardAttLbl">Loyalty:</span>
-    <div class="{{faces.0.legal.card_obj.layout.multi_face|cardMultiFace}}">
+    <div class="{{card.layout.multi_face|cardMultiFace}}">
         {% for face in faces %}
         <div class="singCardInValue">
             {{ face.loyalty }}
@@ -40,7 +40,7 @@
     </div>
 
     <span class="singCardAttLbl">Power:</span>
-    <div class="{{faces.0.legal.card_obj.layout.multi_face|cardMultiFace}}">
+    <div class="{{card.layout.multi_face|cardMultiFace}}">
         {% for face in faces %}
         <div class="singCardInValue">
             {{ face.power }}
@@ -49,7 +49,7 @@
     </div>
 
     <span class="singCardAttLbl">Toughness:</span>
-    <div class="{{faces.0.legal.card_obj.layout.multi_face|cardMultiFace}}">
+    <div class="{{card.layout.multi_face|cardMultiFace}}">
         {% for face in faces %}
         <div class="singCardInValue">
             {{ face.toughness }}
@@ -58,7 +58,7 @@
     </div>
 
     <span class="singCardAttLbl">Text:</span>
-    <div class="{{faces.0.legal.card_obj.layout.multi_face|cardMultiFace}}">
+    <div class="{{card.layout.multi_face|cardMultiFace}}">
         {% for face in faces %}
         <div class="singCardInValue">
             <p style="white-space: pre-line;">{{ face.text|replaceTextMana|replacePeriod|safe }}</p>
@@ -67,7 +67,7 @@
     </div>
 
     <span class="singCardAttLbl">Flavor Text:</span>
-    <div class="{{faces.0.legal.card_obj.layout.multi_face|cardMultiFace}}">
+    <div class="{{card.layout.multi_face|cardMultiFace}}">
         {% for face in faces %}
         <div class="singCardInValue">
             {{ face.flavor_text }}
@@ -75,8 +75,8 @@
         {% endfor %}
     </div>
     <span class="singCardAttLbl">Most recent set:</span>
-    <div class="singCardSet {{ should_translate }}">{{ faces.0.legal.card_obj.set_name }}</div>
+    <div class="singCardSet {{ should_translate }}">{{ card.set_name }}</div>
 
     <span class="singCardAttLbl">Keywords:</span>
-    <div class="singCardKeywords">{{ faces.0.legal.card_obj.keywords }}</div>
+    <div class="singCardKeywords">{{ card.keywords }}</div>
 </div>

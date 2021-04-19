@@ -11,8 +11,8 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import render, redirect
 from django.views import View
 
-from Collection.models import CardFace
 from Models import DeckType
+from Models.CardFace import CardFace
 from Models.Deck import Deck
 from Users.models import UserProfile, UserCards
 from static.python.session_manager import SessionManager
@@ -217,22 +217,24 @@ class Manage_Cards(View):
 class Manage_Deck(View):
     user = User
     def post(self, request, user_id, deck_id):
-        # commander = request.session['commander'] = request.POST.get('commander')
-        # image_url = request.session['image_url'] = request.POST.get('image_url')
         if 'submitDeck' in request.POST:
-            deck_name_field = request.session['deck_name_field'] = html.escape(request.POST.get('deck_name_field'))
-            deck_privacy_field = request.session['deck_privacy_field'] = request.POST.get('deck_privacy_field') == "True"
-            deck_description_field = request.session['deck_description_field'] = html.escape(request.POST.get('deck_description_field'))
-            deck_type_field = request.session['deck_type_field'] = request.POST.get('deck_type_field')
+            deck_name_field = html.escape(request.POST.get('deck_name_field'))
+            deck_privacy_field = request.POST.get('deck_privacy_field') == "True"
+            deck_description_field = (html.escape(request.POST.get('deck_description_field'))).rstrip().replace(',', '&#44;')
+            deck_type_field = request.POST.get('deck_type_field')
+
             if deck_id == "-1":
                 try:
                     color_id = '{C}'
-                    Deck.objects.deck_create(deck_name_field,
-                                                      int(deck_type_field),
-                                                      deck_privacy_field,
-                                                      deck_description_field,
-                                                      color_id,
-                                                      request.user.username)
+                    Deck.objects.deck_create(
+                        deck_name_field,
+                        int(deck_type_field),
+                        deck_privacy_field,
+                        deck_description_field,
+                        color_id,
+                        request.user.username,
+                        request.user.username
+                    )
                 except ObjectDoesNotExist:
                     messages.error(request, "Object does not exist. Deck not created.")
                 except ValueError:
@@ -240,14 +242,15 @@ class Manage_Deck(View):
 
             else:
                 try:
-                    deck_obj = Deck.objects.get_deck(request.user.username, deck_id)
                     deck_type_obj = DeckType.objects.get(id=int(deck_type_field))
 
-                    deck_obj.deck_name = deck_name_field
-                    deck_obj.deck_type = deck_type_obj
-                    deck_obj.is_private = deck_privacy_field
-                    deck_obj.description = deck_description_field
-                    deck_obj.save()
+                    Deck.objects.deck_update(
+                        deck_id=deck_id,
+                        deck_name_field=deck_name_field,
+                        deck_type_field=deck_type_obj,
+                        deck_privacy_field=deck_privacy_field,
+                        deck_description_field=deck_description_field
+                    )
                 except ObjectDoesNotExist :
                     messages.error(request, "Object does not exist. Deck not modified.")
 
@@ -264,8 +267,6 @@ class Manage_Deck(View):
 
         :todo: Finish new deck page
         """
-        SessionManager.clear_other_session_data(request, SessionManager.All)
-
         try:
             deck_obj = Deck.objects.get_deck(request.user.username, deck_id)
             deck_type_obj = Deck.objects.get_deck_type(deck_id)
@@ -296,24 +297,20 @@ class Manage_Deck(View):
 class Commander_Picker(View):
     user = User
 
-    def post(self, request):
-        if 'clearSearch' in request.POST:
-            del request.session['avatar_search_term']
-            del request.session['avatar_clear_search']
-            search_term = ''
-            card_list = CardFace.objects.all().order_by('name')
-            clear_search = False
+    def post(self, request, user_id, deck_id):
+        if 'user_clear_commander_search' in request.POST:
+            request.session['user_search_commander_term'] = ""
+            request.session['user_search_commander_cards'] = CardFace.objects.card_face_commander_filter("")
+            request.session['user_clear_commander_search'] = False
         else:
-            search_term = request.POST.get('avatarSearchTerm')
-            card_list = CardFace.card_face_commander_filter_by_name_term(search_term).order_by('name')
-            clear_search = True
+            search_term = request.POST.get('user_search_commander_term')
+            request.session['user_search_commander_term'] = search_term
+            request.session['user_search_commander_cards'] = CardFace.objects.card_face_commander_filter(search_term)
+            request.session['user_clear_commander_search'] = True
 
-        request.session['avatar_search_term'] = search_term
-        request.session['avatar_card_list'] = card_list
-        request.session['avatar_clear_search'] = clear_search
-
+        return redirect('../' + str(deck_id) + "/commander")
     @login_required
-    def get(self, request):
+    def get(self, request, user_id, deck_id):
         """Displays list for selecting new avatar
 
         Displays full list of card art with search by name feature.
@@ -322,18 +319,20 @@ class Commander_Picker(View):
 
         :todo: None
         """
-        search_term = 'Search'
         try:
-            search_term = request.session['avatar_search_term']
-            card_list = CardFace.card_face_commander_filter_by_name_term(search_term).order_by('name')
-            clear_search = True
+            search_term = request.session['user_search_commander_term']
+            commander_list = request.session['user_search_commander_cards']
+            clear_commander = request.session['user_clear_commander_search']
         except KeyError:
-            card_list = CardFace.objects.all().order_by('name')
-            clear_search = False
+            search_term = request.session['user_search_commander_term']
+            commander_list = request.session['user_search_commander_cards']
+            clear_commander = request.session['user_clear_commander_search']
 
+        commander_list_split = list(commander_list.split("},"))
+        if commander_list_split[0] == '':
+            commander_list_split = []
         page = request.GET.get('page', 1)
-
-        paginator = Paginator(card_list, 50)
+        paginator = Paginator(commander_list_split, 20)
         try:
             cards = paginator.page(page)
         except PageNotAnInteger:
@@ -344,5 +343,5 @@ class Commander_Picker(View):
         font_family = UserProfile.get_font(request.user)
         should_translate = UserProfile.get_translate(request.user)
         context = {'font_family': font_family, 'should_translate': should_translate, 'pages': cards,
-                   'SearchTerm': search_term, 'clearSearch': clear_search}
-        return render(request, 'Users/Profile/select_avatar.html', context)
+                   'user_search_commander_term': search_term, 'user_clear_commander_search': clear_commander}
+        return render(request, 'Users/Profile/ProfileDecks/select_commander.html', context)
