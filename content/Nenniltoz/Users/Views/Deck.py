@@ -291,7 +291,8 @@ class Manage_Deck(View):
         context = {
             'font_family': font_family, 'should_translate': should_translate,
             'deck_obj': deck_obj, 'deck_types': deck_type_split, 'deck_id': deck_id,
-            'is_private': deck_private, 'deck_type_obj': deck_type_obj, 'commander': deck_commander
+            'is_private': deck_private, 'deck_type_obj': deck_type_obj,
+            'commander': deck_commander, 'commander_len': len(deck_commander)
         }
         return render(request, 'Users/Profile/ProfileDecks/modify_deck.html', context)
 
