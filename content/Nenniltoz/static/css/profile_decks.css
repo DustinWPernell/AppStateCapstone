@@ -83,3 +83,38 @@
     display: none;
 }
 }
+
+.commander_btn a {
+    color: white;
+    display: block;
+    height: 2.5em;
+    padding: 0 1em;
+    width: 5em;
+    text-decoration: none;
+}
+
+.userCommanderImg{
+    max-width: 300px;
+}
+
+.commanderImg{
+    max-height: 300px;
+    max-width: 300px;
+    border-color: white;
+    border-width: 1px;
+    border-style: solid;
+}
+
+.commanderBtn{
+    background-color: rgba(0, 0, 0, 0.0);
+    padding: 0;
+    border: none;
+    color: white;
+}
+
+.commanderGrid{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 300px);
+    column-gap: 20px;
+    row-gap: 20px;
+}

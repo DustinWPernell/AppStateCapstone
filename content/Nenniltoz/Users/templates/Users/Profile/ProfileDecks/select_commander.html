@@ -1,0 +1,46 @@
+{% extends "base_generic.html" %}
+{% load static %}
+{% load replaceValues %}
+
+{% block css %}
+<link href="{% static 'css\profile_decks.css' %}" rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% block content %}
+<div class="cardFilter">
+    <form action="select_commander" method="post">
+        {% csrf_token %}
+        {% if user_clear_commander_search %}
+        <input name="user_search_commander_term" type="text" value="{{ user_search_commander_term }}">
+        {% else %}
+        <input name="user_search_commander_term" placeholder="Search" type="text">
+        {% endif %}
+        <input type="submit" onclick="show_page_load();" value="Search">
+        {% if clearSearch %}
+        <input name="user_clear_commander_search" type="submit" onclick="show_page_load();" value="Clear Search">
+        {% endif %}
+    </form>
+</div>
+
+{% include "./commander_pager.html" %}
+<div class="commanderGrid" id="commanderGrid">
+    {% for card_obj in pages %}
+    <div>
+        <form action="select_commander" method="POST">
+            {% csrf_token %}
+            {% with card_obj|convert_to_json as card_json %}
+            <button class="commanderBtn clickable" onclick="return confirm('Select Commander: {{ card_json.name }}?');"
+                    type="submit">
+                <img alt="{{ card_json.card_name }}" class="commanderImg" src="{{ card_json.card_url }}">
+                <span class="cardObjText {{ should_translate }}">
+                    {{ card_json.name }}
+                </span>
+            </button>
+            {% endwith %}
+        </form>
+    </div>
+    {% endfor %}
+</div>
+
+{% include "./commander_pager.html" %}
+{% endblock %}

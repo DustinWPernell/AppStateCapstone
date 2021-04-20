@@ -1,12 +1,20 @@
 <div class="CommanderImage">
-    {% if deck.deck_type.has_commander %}
     <!-- If the type of deck is Commander, this function will pull the image of the commander from the respective url.
       That directory holds images of every card.-->
     <hr class="CommanderHr">
         <div class="CommanderObj">
             <h3>Commander:</h3>
-            <img alt="{{ deck.commander_name }}" class="CommanderImg"
-                 src="{{ deck.commander_file }}">
+            {% if commander_len > 0 %}
+            {% for commander_obj in commander %}
+            <img alt="{{ commander_obj.card_name }}" class="CommanderImg"
+                 src="{{ commander_obj.card_img }}">
+            {% endfor %}
+            {% else %}
+            <img alt="No Commander" class="CommanderImg"
+                 src="../../../../../static/img/generic_box.png">
+            {% endif %}
         </div>
-    {% endif %}
+    <div>
+        <a class="link_objs clickable" onclick="show_page_load();" href="/Users/select_commander/{{ deck_id }}/">Change Commander</a>
+    </div>
 </div>

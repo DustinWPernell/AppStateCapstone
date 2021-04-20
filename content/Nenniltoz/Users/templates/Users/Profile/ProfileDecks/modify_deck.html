@@ -13,6 +13,7 @@
 <!-- Extends uses base_generic.html as a base, then loads the blocks within the specific html. -->
 {% extends "base_generic.html" %}
 {% load static %}
+{% load replaceValues %}
 
 {% block css %}
     <link href="{% static 'css\profile_decks.css' %}" rel="stylesheet" type="text/css">
@@ -23,7 +24,13 @@
 <div class="DeckBody" id="deck">
     <!-- Include takes the html in the file and pastes it into the file.  -->
     {% include "./deck_info.html" %}
-    {% include "./commander.html" %}
+    {% with deck_type_obj|convert_to_json as deck_type_json %}
+    {% if deck_type_json.has_commander %}
+        {% include "./commander.html" %}
+    {% else %}
+        {% include "./image_deck.html" %}
+    {% endif %}
+    {% endwith %}
 </div>
 {% endblock %}
 
