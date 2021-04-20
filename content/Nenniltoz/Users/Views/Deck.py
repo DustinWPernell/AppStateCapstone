@@ -300,7 +300,7 @@ class Manage_Deck(View):
 class Commander_Picker(View):
     user = User
 
-    def post(self, request, user_id, deck_id):
+    def post(self, request, deck_id):
         if 'user_clear_commander_search' in request.POST:
             request.session['user_search_commander_term'] = ""
             request.session['user_search_commander_cards'] = CardFace.objects.card_face_commander_filter("")
@@ -314,7 +314,7 @@ class Commander_Picker(View):
         return redirect('../' + str(deck_id) + "/commander")
 
     @login_required
-    def get(self, request, user_id, deck_id):
+    def get(self, request, deck_id):
         """Displays list for selecting new avatar
 
         Displays full list of card art with search by name feature.
