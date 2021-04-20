@@ -328,9 +328,9 @@ class Commander_Picker(View):
             commander_list = request.session['user_search_commander_cards']
             clear_commander = request.session['user_clear_commander_search']
         except KeyError:
-            search_term = request.session['user_search_commander_term']
-            commander_list = request.session['user_search_commander_cards']
-            clear_commander = request.session['user_clear_commander_search']
+            search_term = request.session['user_search_commander_term'] = ""
+            commander_list = request.session['user_search_commander_cards'] = CardFace.objects.card_face_commander_filter(search_term)
+            clear_commander = request.session['user_clear_commander_search'] = False
 
         commander_list_split = list(commander_list.split("},"))
         if commander_list_split[0] == '':
