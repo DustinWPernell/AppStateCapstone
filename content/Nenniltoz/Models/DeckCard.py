@@ -23,8 +23,8 @@ class DeckCard(models.Model):
     deck = models.IntegerField()
     card_oracle = models.CharField(max_length=200)
     card_name = models.CharField(max_length=200)
-    card_file = models.CharField(max_length=200)
-    card_file.null = True
+    card_img = models.CharField(max_length=200)
+    card_img.null = True
     card_search = models.CharField(max_length=2000)
     quantity = models.IntegerField(default=0)
     sideboard = models.BooleanField(default=False)

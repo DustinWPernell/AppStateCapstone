@@ -161,14 +161,16 @@ class Deck_Display(View):
 
         try:
             deck = Deck.objects.get_deck(request.user.username, deck_id)
-            deck_cards = DeckCard.objects.deck_card_by_deck_side(deck_id, False)
-            side_cards = DeckCard.objects.deck_card_by_deck_side(deck_id, True)
+            deck_cards = DeckCard.objects.deck_card_by_deck_side(deck_id, False, False)
+            side_cards = DeckCard.objects.deck_card_by_deck_side(deck_id, True, False)
+            commander_cards = DeckCard.objects.deck_card_by_deck_side(deck_id, False, True)
 
             font_family = UserProfile.get_font(request.user)
             should_translate = UserProfile.get_translate(request.user)
             context = {'font_family': font_family, 'should_translate': should_translate,
                        'auth': request.user.is_authenticated, 'user_id': request.user.id,
                        'deck': deck, 'deck_cards': deck_cards, 'side_cards': side_cards,
+                       'commander': commander_cards,
                        'edit': request.user.username == deck.deck_user,}
             return render(request, 'Collection/deck_display.html', context)
 

@@ -11,7 +11,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import render, redirect
 from django.views import View
 
-from Models import DeckType
+from Models import DeckType, DeckCard
 from Models.CardFace import CardFace
 from Models.Deck import Deck
 from Users.models import UserProfile, UserCards
@@ -284,12 +284,14 @@ class Manage_Deck(View):
         deck_types = DeckType.objects.get_types()
         deck_type_split = list(deck_types.split("},"))
 
+        deck_commander = DeckCard.objects.deck_card_by_deck_side(deck_id, False, True)
+
         font_family = UserProfile.get_font(request.user)
         should_translate = UserProfile.get_translate(request.user)
         context = {
             'font_family': font_family, 'should_translate': should_translate,
             'deck_obj': deck_obj, 'deck_types': deck_type_split, 'deck_id': deck_id,
-            'is_private': deck_private, 'deck_type_obj': deck_type_obj
+            'is_private': deck_private, 'deck_type_obj': deck_type_obj, 'commander': deck_commander
         }
         return render(request, 'Users/Profile/ProfileDecks/modify_deck.html', context)
 
@@ -309,6 +311,61 @@ class Commander_Picker(View):
             request.session['user_clear_commander_search'] = True
 
         return redirect('../' + str(deck_id) + "/commander")
+
+    @login_required
+    def get(self, request, user_id, deck_id):
+        """Displays list for selecting new avatar
+
+        Displays full list of card art with search by name feature.
+
+        @param request:
+
+        :todo: None
+        """
+        try:
+            search_term = request.session['user_search_commander_term']
+            commander_list = request.session['user_search_commander_cards']
+            clear_commander = request.session['user_clear_commander_search']
+        except KeyError:
+            search_term = request.session['user_search_commander_term']
+            commander_list = request.session['user_search_commander_cards']
+            clear_commander = request.session['user_clear_commander_search']
+
+        commander_list_split = list(commander_list.split("},"))
+        if commander_list_split[0] == '':
+            commander_list_split = []
+        page = request.GET.get('page', 1)
+        paginator = Paginator(commander_list_split, 20)
+        try:
+            cards = paginator.page(page)
+        except PageNotAnInteger:
+            cards = paginator.page(1)
+        except EmptyPage:
+            cards = paginator.page(paginator.num_pages)
+
+        font_family = UserProfile.get_font(request.user)
+        should_translate = UserProfile.get_translate(request.user)
+        context = {'font_family': font_family, 'should_translate': should_translate, 'pages': cards,
+                   'user_search_commander_term': search_term, 'user_clear_commander_search': clear_commander}
+        return render(request, 'Users/Profile/ProfileDecks/select_commander.html', context)
+
+
+class Image_Picker(View):
+    user = User
+
+    def post(self, request, user_id, deck_id):
+        if 'user_clear_commander_search' in request.POST:
+            request.session['user_search_commander_term'] = ""
+            request.session['user_search_commander_cards'] = CardFace.objects.card_face_commander_filter("")
+            request.session['user_clear_commander_search'] = False
+        else:
+            search_term = request.POST.get('user_search_commander_term')
+            request.session['user_search_commander_term'] = search_term
+            request.session['user_search_commander_cards'] = CardFace.objects.card_face_commander_filter(search_term)
+            request.session['user_clear_commander_search'] = True
+
+        return redirect('../' + str(deck_id) + "/commander")
+
     @login_required
     def get(self, request, user_id, deck_id):
         """Displays list for selecting new avatar
