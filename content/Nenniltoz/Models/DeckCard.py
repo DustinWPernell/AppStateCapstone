@@ -4,6 +4,8 @@ from django.db.models import Q
 
 from Collection.models import CardIDList
 
+from Models import CardFace
+
 class DeckCardManager(models.Manager):
     def deck_card_by_deck_side(self, deck_id, side, commander):
         filter = Q(deck=deck_id) & Q(sideboard=side) & Q(commander=commander)
@@ -57,7 +59,11 @@ class DeckCard(models.Model):
         app_label = "Management"
 
     def __str__(self):
-        card = CardIDList.get_card_face_by_oracle(self.card_oracle)[0].__str__()
+        card_id_obj = CardIDList.get_card_face_by_oracle(self.card_oracle)
+        card = CardFace.objects.select_related().filter(
+            Q(legal__card_obj__card_id=card_id_obj.card_id)
+        )[0]
+
         return '{' \
                '"deck_id": "' + str(self.deck) + \
                '", "card_oracle": "' + str(self.card_oracle) + \

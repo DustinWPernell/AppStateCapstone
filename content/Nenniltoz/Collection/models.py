@@ -102,10 +102,7 @@ class CardIDList(models.Model):
 
     @staticmethod
     def get_card_face_by_oracle(oracle_id):
-        card_id_obj =  CardIDList.objects.get(oracle_id=oracle_id)
-        return CardFace.objects.select_related().filter(
-            Q(legal__card_obj__card_id=card_id_obj.card_id)
-        ).order_by('name')
+        return  CardIDList.objects.get(oracle_id=oracle_id)
 
     @staticmethod
     def convert_to(obj_list):
