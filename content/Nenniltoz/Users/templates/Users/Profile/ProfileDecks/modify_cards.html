@@ -1,0 +1,38 @@
+{% load replaceValues %}
+<div>
+<hr>
+<div class="card_display">
+    <div class="deck_cards">
+        {% for card_obj in deck_cards %}
+        {% if card_obj is not ' ' %}
+            {% with card_obj|convert_to_json as card_json %}
+            <div class="cardObj">
+                <a class="cardDirection" onclick="show_page_load();" href='/Collection/card/{{ card_json.oracle_id }}/'>
+                    <img alt="{{ card_json.card_name|check_safe }}" class="cardImg" src='{{ card_json.card_url }}'>
+                    <div class="cardObjText {{ should_translate }}">
+                        {{ card_json.card_name|check_safe }}
+                    </div>
+                </a>
+            </div>
+            {% endwith %}
+        {% endif %}
+    {% endfor %}
+    </div>
+    <div class="side_cards">
+        {% for card_obj in side_cards %}
+        {% if card_obj is not ' ' %}
+            {% with card_obj|convert_to_json as card_json %}
+            <div class="cardObj">
+                <a class="cardDirection" onclick="show_page_load();" href='/Collection/card/{{ card_json.oracle_id }}/'>
+                    <img alt="{{ card_json.card_name|check_safe }}" class="cardImg" src='{{ card_json.card_url }}'>
+                    <div class="cardObjText {{ should_translate }}">
+                        {{ card_json.card_name|check_safe }}
+                    </div>
+                </a>
+            </div>
+            {% endwith %}
+        {% endif %}
+    {% endfor %}
+    </div>
+</div>
+</div>

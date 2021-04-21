@@ -215,7 +215,7 @@ class Manage_Cards(View):
         context = {
             'font_family': font_family, 'should_translate': should_translate,
         }
-        return render(request, 'Users/Profile/ProfileDecks/modify_cards_deck.html', context)
+        return render(request, 'Users/Profile/ProfileDecks/modify_cards.html', context)
 
 
 class Manage_Deck(View):
