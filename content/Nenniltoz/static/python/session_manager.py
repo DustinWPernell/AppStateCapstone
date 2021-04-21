@@ -27,7 +27,7 @@ class SessionManager:
 
     commander_session = ['user_search_commander_term', 'user_search_commander_cards' 'user_clear_commander_search']
 
-    deck_image_session = ['user_search_commander_term', 'user_search_commander_cards' 'user_clear_commander_search']
+    deck_image_session = ['user_search_deck_image_term', 'user_search_deck_image_cards' 'user_clear_deck_image_search']
 
     @staticmethod
     def clear_other_session_data(request, data):

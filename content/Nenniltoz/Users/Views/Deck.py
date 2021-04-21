@@ -352,7 +352,7 @@ class Commander_Picker(View):
 
         :todo: None
         """
-        SessionManager.clear_other_session_data(request, SessionManager.commander_session)
+        SessionManager.clear_other_session_data(request, SessionManager.Commander)
 
         deck_id = request.GET.get('deck_id', -1)
 
@@ -380,7 +380,7 @@ class Commander_Picker(View):
         font_family = UserProfile.get_font(request.user)
         should_translate = UserProfile.get_translate(request.user)
         context = {'font_family': font_family, 'should_translate': should_translate, 'pages': cards, 'deck_id': deck_id,
-                   str(self.term): user_search_commander_term, str(self.term): clear_commander}
+                   str(self.term): user_search_commander_term, str(self.clear): clear_commander}
         return render(request, 'Users/Profile/ProfileDecks/select_commander.html', context)
 
 
