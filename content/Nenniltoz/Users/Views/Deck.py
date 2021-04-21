@@ -1,21 +1,19 @@
 import html
 import logging
 
-
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.http import HttpResponseRedirect
 
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.views import View
 
-from Models import DeckType, DeckCard
-from Models.CardFace import CardFace
-from Models.Deck import Deck
+from Models import DeckType, DeckCard, CardFace, Deck
 from Users.models import UserProfile, UserCards
-from static.python.session_manager import SessionManager
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +21,10 @@ logger = logging.getLogger(__name__)
 class Manage_Cards(View):
     user = User
 
-    def post(self, request, user_id, deck_id):
+    def post(self, request):
+        user_id = request.GET.get('user_id', -1)
+        deck_id = request.GET.get('deck_id', -1)
+
         user_profile_obj = UserProfile.get_profile_by_user(user_id)
 
 # region Page numbers
@@ -107,7 +108,9 @@ class Manage_Cards(View):
             wish_card_page))
 
     @login_required
-    def get(self, request, user_id, deck_id):
+    def get(self, request):
+        user_id = request.GET.get('user_id', -1)
+        deck_id = request.GET.get('deck_id', -1)
 
         user_profile_obj = UserProfile.get_profile_by_user(user_id)
 
@@ -216,17 +219,25 @@ class Manage_Cards(View):
 
 class Manage_Deck(View):
     user = User
-    def post(self, request, user_id, deck_id):
+    name = 'deck_name_field'
+    privacy = 'deck_privacy_field'
+    desc = 'deck_description_field'
+    type = 'deck_type_field'
+
+    def post(self, request):
+        user_id = request.GET.get('user_id', -1)
+        deck_id = request.GET.get('deck_id', -1)
+
         if 'submitDeck' in request.POST:
-            deck_name_field = html.escape(request.POST.get('deck_name_field'))
-            deck_privacy_field = request.POST.get('deck_privacy_field') == "True"
-            deck_description_field = (html.escape(request.POST.get('deck_description_field'))).rstrip().replace(',', '&#44;')
-            deck_type_field = request.POST.get('deck_type_field')
+            deck_name_field = html.escape(request.POST.get(self.name))
+            deck_privacy_field = request.POST.get(self.privacy) == "True"
+            deck_description_field = (html.escape(request.POST.get(self.desc))).rstrip().replace(',', '&#44;')
+            deck_type_field = request.POST.get(self.type)
 
             if deck_id == "-1":
                 try:
                     color_id = '{C}'
-                    Deck.objects.deck_create(
+                    deck_obj = Deck.objects.deck_create(
                         deck_name_field,
                         int(deck_type_field),
                         deck_privacy_field,
@@ -235,6 +246,7 @@ class Manage_Deck(View):
                         request.user.username,
                         request.user.username
                     )
+                    deck_id = deck_obj.id
                 except ObjectDoesNotExist:
                     messages.error(request, "Object does not exist. Deck not created.")
                 except ValueError:
@@ -254,11 +266,10 @@ class Manage_Deck(View):
                 except ObjectDoesNotExist :
                     messages.error(request, "Object does not exist. Deck not modified.")
 
-        return redirect('../' + str(deck_id))
-            # 'Users/user_profile/' + str(user_id) + '/manage_deck/' + str(deck_id) + '/')
+        return HttpResponseRedirect(reverse('modify_deck')+'?deck_id='+str(deck_id))
 
     @login_required
-    def get(self, request, user_id, deck_id):
+    def get(self, request):
         """Displays new deck page
 
         Redirects to new deck page
@@ -267,6 +278,9 @@ class Manage_Deck(View):
 
         :todo: Finish new deck page
         """
+        user_id = request.GET.get('user_id', -1)
+        deck_id = request.GET.get('deck_id', -1)
+
         try:
             deck_obj = Deck.objects.get_deck(request.user.username, deck_id)
             deck_type_obj = Deck.objects.get_deck_type(deck_id)
@@ -299,22 +313,32 @@ class Manage_Deck(View):
 
 class Commander_Picker(View):
     user = User
+    term = 'user_search_commander_term'
+    cards = 'user_search_commander_cards'
+    clear = 'user_clear_commander_search'
 
-    def post(self, request, deck_id):
-        if 'user_clear_commander_search' in request.POST:
-            request.session['user_search_commander_term'] = ""
-            request.session['user_search_commander_cards'] = CardFace.objects.card_face_commander_filter("")
-            request.session['user_clear_commander_search'] = False
+    def post(self, request):
+        deck_id = request.GET.get('deck_id', -1)
+
+        if self.clear in request.POST:
+            request.session[self.term] = ""
+            request.session[self.cards] = CardFace.objects.card_face_commander_filter("")
+            request.session[self.clear] = False
+        if self.term in request.POST:
+            user_search_commander_term = request.session[self.term] =request.POST.get(self.term)
+            request.session[self.cards] = CardFace.objects.card_face_commander_filter(user_search_commander_term)
+            request.session[self.clear] = True
         else:
-            search_term = request.POST.get('user_search_commander_term')
-            request.session['user_search_commander_term'] = search_term
-            request.session['user_search_commander_cards'] = CardFace.objects.card_face_commander_filter(search_term)
-            request.session['user_clear_commander_search'] = True
+            user_selected_commander = request.POST.get('user_selected_commander')
 
-        return redirect('../' + str(deck_id) + "/commander")
+            DeckCard.objects.deck_card_update_create(deck_id, user_selected_commander, 1, False, True)
+
+            return HttpResponseRedirect(reverse('modify_deck') + '?deck_id=' + str(deck_id))
+
+        return HttpResponseRedirect(reverse('select_commander')+'?deck_id='+str(deck_id))
 
     @login_required
-    def get(self, request, deck_id):
+    def get(self, request):
         """Displays list for selecting new avatar
 
         Displays full list of card art with search by name feature.
@@ -323,14 +347,16 @@ class Commander_Picker(View):
 
         :todo: None
         """
+        deck_id = request.GET.get('deck_id', -1)
+
         try:
-            search_term = request.session['user_search_commander_term']
-            commander_list = request.session['user_search_commander_cards']
-            clear_commander = request.session['user_clear_commander_search']
+            user_search_commander_term = request.session[self.term]
+            commander_list = request.session[self.cards]
+            clear_commander = request.session[self.clear]
         except KeyError:
-            search_term = request.session['user_search_commander_term'] = ""
-            commander_list = request.session['user_search_commander_cards'] = CardFace.objects.card_face_commander_filter(search_term)
-            clear_commander = request.session['user_clear_commander_search'] = False
+            user_search_commander_term = request.session[self.term] = ""
+            commander_list = request.session[self.cards] = CardFace.objects.card_face_commander_filter("")
+            clear_commander = request.session[self.clear] = False
 
         commander_list_split = list(commander_list.split("},"))
         if commander_list_split[0] == '':
@@ -346,29 +372,37 @@ class Commander_Picker(View):
 
         font_family = UserProfile.get_font(request.user)
         should_translate = UserProfile.get_translate(request.user)
-        context = {'font_family': font_family, 'should_translate': should_translate, 'pages': cards,
-                   'user_search_commander_term': search_term, 'user_clear_commander_search': clear_commander}
+        context = {'font_family': font_family, 'should_translate': should_translate, 'pages': cards, 'deck_id': deck_id,
+                   str(self.term): user_search_commander_term, str(self.term): clear_commander}
         return render(request, 'Users/Profile/ProfileDecks/select_commander.html', context)
 
 
 class Image_Picker(View):
     user = User
+    term = 'user_search_deck_image_term'
+    cards = 'user_search_deck_image_cards'
+    clear = 'user_clear_deck_image_search'
 
-    def post(self, request, user_id, deck_id):
-        if 'user_clear_commander_search' in request.POST:
-            request.session['user_search_commander_term'] = ""
-            request.session['user_search_commander_cards'] = CardFace.objects.card_face_commander_filter("")
-            request.session['user_clear_commander_search'] = False
+    def post(self, request):
+        deck_id = request.GET.get('deck_id', -1)
+
+        if self.clear in request.POST:
+            request.session[self.term] = ""
+            request.session[self.cards] = CardFace.objects.card_face_commander_filter("")
+            request.session[self.clear] = False
+        if self.term in request.POST:
+            user_search_deck_image_term = request.session[self.term] = request.POST.get(self.term)
+            request.session[self.cards] = CardFace.objects.card_filter_by_color_term([], user_search_deck_image_term)
+            request.session[self.clear] = True
         else:
-            search_term = request.POST.get('user_search_commander_term')
-            request.session['user_search_commander_term'] = search_term
-            request.session['user_search_commander_cards'] = CardFace.objects.card_face_commander_filter(search_term)
-            request.session['user_clear_commander_search'] = True
+            user_selected_deck_image = request.POST.get('user_selected_deck_image')
 
-        return redirect('../' + str(deck_id) + "/commander")
+            return HttpResponseRedirect(reverse('modify_deck') + '?deck_id=' + str(deck_id))
+
+        return HttpResponseRedirect(reverse('select_deck_image') + '?deck_id=' + str(deck_id))
 
     @login_required
-    def get(self, request, user_id, deck_id):
+    def get(self, request):
         """Displays list for selecting new avatar
 
         Displays full list of card art with search by name feature.
@@ -377,20 +411,22 @@ class Image_Picker(View):
 
         :todo: None
         """
-        try:
-            search_term = request.session['user_search_commander_term']
-            commander_list = request.session['user_search_commander_cards']
-            clear_commander = request.session['user_clear_commander_search']
-        except KeyError:
-            search_term = request.session['user_search_commander_term']
-            commander_list = request.session['user_search_commander_cards']
-            clear_commander = request.session['user_clear_commander_search']
+        deck_id = request.GET.get('deck_id', -1)
 
-        commander_list_split = list(commander_list.split("},"))
-        if commander_list_split[0] == '':
-            commander_list_split = []
+        try:
+            user_search_deck_image_term = request.session[self.term]
+            deck_image_list = request.session[self.cards]
+            clear_deck_image = request.session[self.clear]
+        except KeyError:
+            user_search_deck_image_term = request.session[self.term] = ""
+            deck_image_list = request.session[self.cards] = CardFace.objects.card_face_commander_filter(user_search_deck_image_term)
+            clear_deck_image = request.session[self.clear] = False
+
+        deck_image_list_split = list(deck_image_list.split("},"))
+        if deck_image_list_split[0] == '':
+            deck_image_list_split = []
         page = request.GET.get('page', 1)
-        paginator = Paginator(commander_list_split, 20)
+        paginator = Paginator(deck_image_list_split, 20)
         try:
             cards = paginator.page(page)
         except PageNotAnInteger:
@@ -400,6 +436,7 @@ class Image_Picker(View):
 
         font_family = UserProfile.get_font(request.user)
         should_translate = UserProfile.get_translate(request.user)
-        context = {'font_family': font_family, 'should_translate': should_translate, 'pages': cards,
-                   'user_search_commander_term': search_term, 'user_clear_commander_search': clear_commander}
-        return render(request, 'Users/Profile/ProfileDecks/select_commander.html', context)
+        context = {'font_family': font_family, 'should_translate': should_translate, 'pages': cards, 'deck_id': deck_id,
+                   str(self.term): user_search_deck_image_term,
+                   str(self.clear): clear_deck_image}
+        return render(request, 'Users/Profile/ProfileDecks/select_deck_image.html', context)

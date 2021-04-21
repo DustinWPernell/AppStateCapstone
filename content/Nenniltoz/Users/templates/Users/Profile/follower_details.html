@@ -4,14 +4,14 @@
     {% for follower in follower_obj %}
     <div>
         <a class="friendLinkA clickable colorText {{ font_family }} {{ should_translate }}"
-           href="/Users/user_profile/{{ follower.id }}/">&emsp;{{ follower.username }}</a>
+           href="/Users/user_profile?user_id={{ follower.id }}/">&emsp;{{ follower.username }}</a>
     </div>
     {% endfor %}
 </div>
 {% else %}
 <h4>Following:</h4>
 <div class="followerGrid">
-    <form action="add_follower" method="post">
+    <form action="add_follower?user_id={{ user_id }}" method="post">
         {% csrf_token %}
         <input id="curUserRequest" name="curUser" type="hidden" value="{{ user_profile_obj.user.username }}">
         <input class="newFollowerRequest {{ font_family }}" id="newFollowerRequest" name="newFollower"
@@ -20,7 +20,7 @@
     </form>
     {% for follower in follower_obj %}
     <div>
-        <form action="remove_follower" method="post">
+        <form action="remove_follower?user_id={{ user_id }}" method="post">
             {% csrf_token %}
             <input name="curUser" type="hidden" value="{{ user_profile_obj.user.username }}">
             <input name="newFollower" type="hidden" value="{{ follower.username }}">

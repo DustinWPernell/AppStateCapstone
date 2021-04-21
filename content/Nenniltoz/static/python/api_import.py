@@ -18,11 +18,7 @@ from django.http import HttpResponse
 
 from Collection.models import Symbol, Rule, CardIDList, IgnoreCards
 from Management.models import Settings
-from Models.Card import Card
-from Models.CardFace import CardFace
-from Models.CardLayout import CardLayout
-from Models.CardLegality import CardLegality
-from Models.CardSet import CardSet
+from Models import Card, CardFace, CardLayout, CardLegality, CardSet
 
 logger = logging.getLogger("logger")
 
@@ -49,7 +45,6 @@ def symbol_import_job(param):
     """Performs API call for symbols.
 
     Calls Scryfall API for retrieval of symbols. Parses symbols Json file. Creates symbols objects for each symbol.
-    :todo: Set to process in background
     """
     logger.info("Param: " + param)
     Settings.objects.update_or_create(
@@ -107,7 +102,6 @@ def set_import_job(param):
     """Performs API call for sets.
 
     Calls Scryfall API for retrieval of sets. Parses sets Json file. Creates sets objects for each set.
-    :todo: Set to process in background
     """
     logger.info("Param: " + param)
 
@@ -149,7 +143,6 @@ def rule_import_job(param):
     """Performs API call for rules.
 
     Calls Scryfall API for retrieval of bulk rules. Parses bulk rule Json file. Creates a Rule object for each rule.
-    :todo: Set to process in background
     """
     logger.info("Param: " + param)
     Settings.objects.update_or_create(
@@ -233,7 +226,6 @@ def card_import_job(param):
 
     Calls Scryfall API for retrieval of bulk cards. Parses bulk card Json file.
     Creates Card, Card faces, and legalities objects for each card.
-    :todo: Set to process in background
     """
     logger.info("Param: " + param)
 
@@ -451,7 +443,6 @@ def check_card_obj(obj):
         * True: Card is good
         * False: Card is bad
 
-    :todo: None
     """
     set_ignore = IgnoreCards.objects.filter(type="set")
     for set_obj in set_ignore:

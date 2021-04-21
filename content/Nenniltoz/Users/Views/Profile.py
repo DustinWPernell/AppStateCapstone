@@ -22,7 +22,7 @@ class SettingsUpdate(View):
     user = User
 
     @login_required
-    def post(self, request, user_id):
+    def post(self, request):
         """Updated setting
 
         Updates user settings in database
@@ -33,7 +33,9 @@ class SettingsUpdate(View):
         :todo: None
         """
         logger.info("Run: update_settings; Params: " + json.dumps(request.GET.dict()))
-        user_obj = User.objects.get(id=user_id).id
+        user_id = request.GET.get('user_id', -1)
+
+        user_obj = User.objects.get(id=user_id)
 
         setting = request.GET['setting']
         value = request.GET['value']
@@ -53,8 +55,9 @@ class NenniUserProfile(View):
     user = User
 
     @login_required
-    def post(self, request, user_id):
+    def post(self, request):
         logger.info("Run: user_profile; Params: " + json.dumps(request.GET.dict()))
+        user_id = request.GET.get('user_id', -1)
 
         # region Page numbers
         try:
@@ -116,7 +119,7 @@ class NenniUserProfile(View):
                         str(card_page) + '&wish_page=' + str(wish_page))
 
     @login_required
-    def get(self, request, user_id):
+    def get(self, request):
         """Display the profile of a user.
 
         Uses the GET data from request to display user data.
@@ -127,6 +130,8 @@ class NenniUserProfile(View):
         :todo: None
         """
         logger.info("Run: user_profile; Params: " + json.dumps(request.GET.dict()))
+        user_id = request.GET.get('user_id', -1)
+
         user_profile_obj = UserProfile.get_profile_by_user(user_id)
 
         try:
@@ -248,7 +253,7 @@ class NenniUserProfile(View):
             'has_friend': len(friend_obj) > 0, 'friend_obj': friend_obj,
             'has_pending': len(pending_obj) > 0, 'pending_obj': pending_obj,
             'has_follower': len(follower_obj) > 0, 'follower_obj': follower_obj,
-            'o_player': o_player,
+            'o_player': o_player, 'user_id': user_id,
             'deckPage': deck_page, 'deck_list': deck_list, 'user_search_deck_term': user_search_deck_term,
             'clear_deck_search': user_clear_deck_search, 'deckShow': deck_show,
             'cardPage': card_page, 'card_list': card_list, 'user_search_card_term': user_search_card_term,
@@ -257,6 +262,7 @@ class NenniUserProfile(View):
             'clear_wish_search': user_clear_wish_search, 'wishShow': wish_show,
         }
         return render(request, 'Users/user_profile.html', context)
+
 
 class AvatarPicker(View):
     user = User
@@ -339,4 +345,4 @@ class SaveAvatar(View):
 
 
 
-        return redirect('user_profile', user_id=str(request.user.id))
+        return redirect('user_profile?user_id=' + str(request.user.id))

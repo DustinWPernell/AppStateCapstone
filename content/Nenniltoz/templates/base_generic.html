@@ -56,7 +56,7 @@
                     <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol"  onclick="show_page_load();"
                                                  href="/LifeCounter/">Life Counter</a></li>
                     <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol" onclick="show_page_load();"
-                                                 href="/Users/user_profile/{{ request.user.id }}/">Profile</a></li>
+                                                 href="/Users/user_profile?user_id={{ request.user.id }}">Profile</a></li>
                     {% else %}
                     <li class="navDropDownLI"><a class="topDropNavItem colorText clickableCol" onclick="show_page_load();"
                                                  href="{% url 'card_database'%}">Card Database</a></li>

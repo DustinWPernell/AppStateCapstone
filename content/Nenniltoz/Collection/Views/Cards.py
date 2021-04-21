@@ -9,8 +9,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 
 from Collection.models import Symbol, CardIDList, Rule
-from Models.Card import Card
-from Models.CardFace import CardFace
+from Models import Card, CardFace
 from Users.models import UserCards, UserProfile
 from static.python.session_manager import SessionManager
 

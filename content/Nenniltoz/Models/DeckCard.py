@@ -1,31 +1,55 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Q
 
-from Models import Deck
-
+from Collection.models import CardIDList
 
 class DeckCardManager(models.Manager):
-    @staticmethod
-    def deck_card_by_deck_side(deck_id, side, commander):
-        return DeckCard.objects.filter(
-            Q(deck=deck_id) &
-            Q(sideboard=side) &
-            Q(commander=commander)
+    def deck_card_by_deck_side(self, deck_id, side, commander):
+        filter = Q(deck=deck_id) & Q(sideboard=side) & Q(commander=commander)
+        return self.run_query(filter)
+
+    def deck_card_by_deck(self, deck_id):
+        filter = Q(deck=deck_id)
+        return self.run_query(filter)
+
+    def deck_card_create(self, deck_id, card_oracle, quantity, side, commander):
+        self.create(
+            deck=deck_id,
+            card_oracle=card_oracle,
+            quantity=quantity,
+            sideboard=side,
+            commander=commander
         )
 
-    @staticmethod
-    def deck_card_by_deck(deck_id):
-        return DeckCard.objects.filter(
-            Q(deck=deck_id)
-        )
+    def deck_card_update_create(self, deck_id, card_oracle, quantity, side, commander):
+        try:
+            return self.filter(deck=deck_id, card_oracle=card_oracle).update(
+                quantity=quantity,
+                sideboard=side,
+                commander=commander
+            )
+        except ObjectDoesNotExist:
+            return self.deck_card_create(deck_id, card_oracle, quantity, side, commander)
+
+    def run_query(self, filter):
+        return self.build_json(self.select_related().filter(
+            filter
+        ))
+
+    def build_json(self, card_list):
+        card_json_list = ""
+        i = 0
+        for card in card_list:
+            card_json_list = card_json_list + card.__str__()
+            if len(card_list) > 1 and i + 1 < len(card_list):
+                card_json_list = card_json_list + '},'
+                i += 1
+        return card_json_list.__str__()
 
 class DeckCard(models.Model):
     deck = models.IntegerField()
     card_oracle = models.CharField(max_length=200)
-    card_name = models.CharField(max_length=200)
-    card_img = models.CharField(max_length=200)
-    card_img.null = True
-    card_search = models.CharField(max_length=2000)
     quantity = models.IntegerField(default=0)
     sideboard = models.BooleanField(default=False)
     commander = models.BooleanField(default=False)
@@ -34,3 +58,16 @@ class DeckCard(models.Model):
 
     class Meta:
         app_label = "Management"
+
+    def __str__(self):
+        card = CardIDList.get_card_face_by_oracle(self.card_oracle)[0].__str__()
+        return '{' \
+               '"deck_id": "' + str(self.deck) + \
+               '", "card_oracle": "' + str(self.card_oracle) + \
+               '", "quantity": "' + str(self.quantity) + \
+               '", "sideboard": "' + str(self.sideboard) + \
+               '", "commander": "' + str(self.commander) + \
+               '", "name": "' + str(card.name) + \
+               '", "image_url": "' + str(card.image_url) + \
+               '", "color_id": "' + str(card.color_id) + \
+               '"}'

@@ -103,7 +103,7 @@ def register(request):
     logger.info("Run: register; Params: " + json.dumps(request.GET.dict()))
 
     if request.user.is_authenticated:
-        return redirect('user_profile', user_id=str(request.user.id))
+        return redirect('user_profile?user_id=' + str(request.user.id))
 
     if request.method == 'POST':
         f = CreateUserForm(request.POST)

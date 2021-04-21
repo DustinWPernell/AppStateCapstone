@@ -8,7 +8,7 @@
 
 {% block content %}
 <div class="cardFilter">
-    <form action="select_commander" method="post">
+    <form action="select_commander?deck_id={{ deck_id }}" method="post">
         {% csrf_token %}
         {% if user_clear_commander_search %}
         <input name="user_search_commander_term" type="text" value="{{ user_search_commander_term }}">
@@ -26,10 +26,11 @@
 <div class="commanderGrid" id="commanderGrid">
     {% for card_obj in pages %}
     <div>
-        <form action="select_commander" method="POST">
+        <form action="select_commander?deck_id={{ deck_id }}" method="POST">
             {% csrf_token %}
             {% with card_obj|convert_to_json as card_json %}
-            <button class="commanderBtn clickable" onclick="return confirm('Select Commander: {{ card_json.name }}?');"
+            <input type="hidden" name="user_selected_commander" value="{{ card_json.oracle_id }}">
+            <button class="commanderBtn clickable" onclick="return confirm('Select Commander: {{ card_json.card_name }}?');"
                     type="submit">
                 <img alt="{{ card_json.card_name }}" class="commanderImg" src="{{ card_json.card_url }}">
                 <span class="cardObjText {{ should_translate }}">

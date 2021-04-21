@@ -3,7 +3,7 @@ from functools import reduce
 from random import randint
 
 from django.db import models
-from django.db.models import Q, Count, F
+from django.db.models import Q, Count
 
 from Models.DeckCard import DeckCard
 from Models.DeckType import DeckType

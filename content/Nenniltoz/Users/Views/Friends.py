@@ -4,7 +4,9 @@ from datetime import datetime
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.views import View
 
 from Users.models import Friends, PendingFriends, Followers
@@ -14,7 +16,7 @@ logger = logging.getLogger(__name__)
 class Add_Follower(View):
     user = User
     @login_required
-    def post(self, request, user_id):
+    def post(self, request):
         """Adds a followed user to the user.
 
         Add the followed user to the database.  Error checks for
@@ -26,6 +28,9 @@ class Add_Follower(View):
 
         :todo: None
         """
+        user_id = request.GET.get('user_id', -1)
+
+
         follower = request.POST['newFollower']
         user_obj = User.objects.get(id=user_id)
         follower_obj = User.objects.get(username=follower)
@@ -45,12 +50,13 @@ class Add_Follower(View):
             )
             messages.success(request, 'Follower Added.')
 
-        return redirect('user_profile', user_id=str(request.user.id))
+        return HttpResponseRedirect(reverse('user_profile')+'?user_id='+str(request.user.id))
+
 
 class Add_Friend(View):
     user = User
     @login_required
-    def post(self, request, user_id):
+    def post(self, request):
         """Creates friend relationship.
 
         Creates the 2 way friend relationship in the database. Removes the pending friend request from the database
@@ -60,6 +66,8 @@ class Add_Friend(View):
 
         :todo: None
         """
+        user_id = request.GET.get('user_id', -1)
+
         friend = request.POST['newFriend']
         user_obj = User.objects.get(id=user_id)
         friend_obj = User.objects.get(username=friend)
@@ -77,12 +85,13 @@ class Add_Friend(View):
             PendingFriends.objects.get(user_one=friend_obj, user_two=user_obj).delete()
         except:
             PendingFriends.objects.get(user_one=user_obj, user_two=friend_obj).delete()
-        return redirect('user_profile', user_id=str(request.user.id))
+        return HttpResponseRedirect(reverse('user_profile')+'?user_id='+str(request.user.id))
+
 
 class Remove_Follower(View):
     user = User
     @login_required
-    def post(self, request, user_id):
+    def post(self, request):
         """Removes a followed user
 
         Removes the followed user from the relationship with the current user.
@@ -92,6 +101,8 @@ class Remove_Follower(View):
 
         :todo: None
         """
+        user_id = request.GET.get('user_id', -1)
+
         follower_id = request.POST['newFollowerID']
         user_obj = User.objects.get(id=user_id).id
         follower_obj = User.objects.get(id=follower_id)
@@ -99,14 +110,15 @@ class Remove_Follower(View):
         if 'followerRejectBtn' in request.POST:
             Followers.objects.get(user_one=user_obj, user_two=follower_obj).delete()
             messages.error(request, 'Removed follower.')
-            return redirect('user_profile', user_id=str(user_id))
+            return HttpResponseRedirect(reverse('user_profile')+'?user_id='+str(request.user.id))
         else:
-            return redirect('user_profile', user_id=str(follower_id))
+            return HttpResponseRedirect(reverse('user_profile')+'?user_id='+str(follower_id))
+
 
 class Remove_Friend(View):
     user = User
     @login_required
-    def post(self, request, user_id):
+    def post(self, request):
         """Removes a friend
 
         Removes the 2 way relationship for friends.
@@ -116,6 +128,8 @@ class Remove_Friend(View):
 
         :todo: None
         """
+        user_id = request.GET.get('user_id', -1)
+
         friend_id = request.POST['newFriendID']
         user_obj = User.objects.get(id=user_id)
         friend_obj = User.objects.get(id=friend_id)
@@ -125,14 +139,15 @@ class Remove_Friend(View):
 
             messages.error(request, 'Removed friend. Send new request to add as friend.')
 
-            return redirect('user_profile', user_id=str(user_id))
+            return HttpResponseRedirect(reverse('user_profile')+'?user_id='+str(request.user.id))
         else:
-            return redirect('user_profile', user_id=str(friend_id))
+            return HttpResponseRedirect(reverse('user_profile')+'?user_id='+str(friend_id))
+
 
 class Send_Friend_Request(View):
     user = User
 
-    def add_friend(self, request, user_id):
+    def add_friend(self, request):
         """Creates friend relationship.
 
         Creates the 2 way friend relationship in the database. Removes the pending friend request from the database
@@ -142,6 +157,8 @@ class Send_Friend_Request(View):
 
         :todo: None
         """
+        user_id = request.GET.get('user_id', -1)
+
         friend = request.POST['newFriend']
         user_obj = User.objects.get(id=user_id)
         friend_obj = User.objects.get(username=friend)
@@ -159,10 +176,10 @@ class Send_Friend_Request(View):
             PendingFriends.objects.get(user_one=friend_obj, user_two=user_obj).delete()
         except:
             PendingFriends.objects.get(user_one=user_obj, user_two=friend_obj).delete()
-        return redirect('user_profile', user_id=str(request.user.id))
+        return HttpResponseRedirect(reverse('user_profile')+'?user_id='+str(request.user.id))
 
     @login_required
-    def post(self, request, user_id):
+    def post(self, request):
         """Sends friend request
 
         Uses POST data to send friend request to user. Error checks for
@@ -175,6 +192,8 @@ class Send_Friend_Request(View):
 
         :todo: None
         """
+        user_id = request.GET.get('user_id', -1)
+
         user = request.POST['curUser']
         friend = request.POST['newFriend']
         user_obj = User.objects.get(id=user_id)
@@ -190,7 +209,7 @@ class Send_Friend_Request(View):
             messages.error(request, 'Already friends.')
         elif pending_sent_exist:
             messages.success(request, 'Friend request accepted.')
-            self.add_friend(request, friend_obj.id)
+            self.add_friend(request)
         elif not friend_obj_exist:
             messages.success(request, 'Username does not exist.')
         else:
@@ -201,12 +220,13 @@ class Send_Friend_Request(View):
             )
             messages.success(request, 'Friend request sent.')
 
-        return redirect('user_profile', user_id=str(request.user.id))
+        return HttpResponseRedirect(reverse('user_profile')+'?user_id='+str(request.user.id))
+
 
 class Process_Friend(View):
     user = User
 
-    def add_friend(self, request, user_id):
+    def add_friend(self, request):
         """Creates friend relationship.
 
         Creates the 2 way friend relationship in the database. Removes the pending friend request from the database
@@ -216,6 +236,8 @@ class Process_Friend(View):
 
         :todo: None
         """
+        user_id = request.GET.get('user_id', -1)
+
         friend = request.POST['newFriend']
         user_obj = User.objects.get(id=user_id)
         friend_obj = User.objects.get(username=friend)
@@ -233,10 +255,10 @@ class Process_Friend(View):
             PendingFriends.objects.get(user_one=friend_obj, user_two=user_obj).delete()
         except:
             PendingFriends.objects.get(user_one=user_obj, user_two=friend_obj).delete()
-        return redirect('user_profile', user_id=str(request.user.id))
+        return HttpResponseRedirect(reverse('user_profile')+'?user_id='+str(request.user.id))
 
     @login_required
-    def post(self, request, user_id):
+    def post(self, request):
         """Processes button click for friend request on receivers profile.
 
         Determines if the user selected to accept or reject the friend request.
@@ -258,7 +280,7 @@ class Process_Friend(View):
                 messages.error(request, 'Friend request rejected. Send new request to add as friend.')
             else:
                 messages.success(request, 'Friend request accepted.')
-                self.add_friend(request, user_id)
-            return redirect('user_profile', user_id=str(request.user.id))
+                self.add_friend(request)
+            return HttpResponseRedirect(reverse('user_profile')+'?user_id='+str(request.user.id))
         else:
-            return redirect('user_profile', user_id=str(friend_obj.id))
+            return HttpResponseRedirect(reverse('user_profile')+'?user_id='+str(friend_obj.id))

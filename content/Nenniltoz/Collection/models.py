@@ -101,6 +101,13 @@ class CardIDList(models.Model):
         # .get(oracle_id=oracle_id)
 
     @staticmethod
+    def get_card_face_by_oracle(oracle_id):
+        card_id_obj =  CardIDList.objects.get(oracle_id=oracle_id)
+        return CardFace.objects.select_related().filter(
+            Q(legal__card_obj__card_id=card_id_obj.card_id)
+        ).order_by('name')
+
+    @staticmethod
     def convert_to(obj_list):
         return serializers.serialize('xml', obj_list)
 

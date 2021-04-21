@@ -15,7 +15,7 @@
 <div class="friendGrid">
     {% for new_friends in pending_obj %}
     <div>
-        <form action="process_friend" method="post">
+        <form action="process_friend?user_id={{ user_id }}" method="post">
             {% csrf_token %}
             <button class="friendLinkBtn clickable colorText {{ font_family }} {{ should_translate }}"
                     name="userRedirect" onclick="show_page_load();" type="submit">&emsp;
@@ -36,7 +36,7 @@
 {% endif %}
 <h4>Friends:</h4>
 <div class="friendGrid">
-    <form action="send_friend_request" method="post">
+    <form action="send_friend_request?user_id={{ user_id }}" method="post">
         {% csrf_token %}
         <input id="curUserRequest" name="curUser" type="hidden" value="{{ user_profile_obj.user.username }}">
         <input class="newFriendRequest  {{ font_family }}" id="newFriendRequest" name="newFriend"
@@ -45,7 +45,7 @@
     </form>
     {% for friend in friend_obj %}
     <div>
-        <form action="remove_friend" method="post">
+        <form action="remove_friend?user_id={{ user_id }}" method="post">
             {% csrf_token %}
             <button class="friendLinkBtn clickable colorText {{ font_family }} {{ should_translate }}"
                     name="userRedirect" onclick="show_page_load();" type="submit">&emsp;

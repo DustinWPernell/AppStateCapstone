@@ -9,8 +9,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 
 from Collection.models import Symbol
-from Models import Deck
-from Models.DeckCard import DeckCard
+from Models import Deck, DeckCard
 from Users.models import UserProfile
 from static.python.session_manager import SessionManager
 
@@ -170,7 +169,7 @@ class Deck_Display(View):
             context = {'font_family': font_family, 'should_translate': should_translate,
                        'auth': request.user.is_authenticated, 'user_id': request.user.id,
                        'deck': deck, 'deck_cards': deck_cards, 'side_cards': side_cards,
-                       'commander': commander_cards,
+                       'commander': commander_cards, 'deck_id':deck_id,
                        'edit': request.user.username == deck.deck_user,}
             return render(request, 'Collection/deck_display.html', context)
 

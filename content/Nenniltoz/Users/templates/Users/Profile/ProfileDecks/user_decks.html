@@ -66,5 +66,7 @@
 {% endif %}
 <!-- -1 tells it to make a new deck -->
 {% if not o_player %}
-    <a class="link_objs clickable" onclick="show_page_load();" href="modify_deck/-1">New Deck</a>
+    <button type="submit">
+        <a class="clickable" onclick="show_page_load();" href="modify_deck?user_id={{ user_id }}&deck_id-1">New Deck</a>
+    </button>
 {% endif %}
