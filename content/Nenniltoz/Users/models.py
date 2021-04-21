@@ -80,8 +80,6 @@ class UserProfile(models.Model):
     avatar_img = models.CharField(max_length=200,
                                   default="https://c1.scryfall.com/file/scryfall-cards/art_crop/front/e/b/eba90d37-d7ac-4097-a04d-1f27e4c9e5de.jpg?1562702416")
     avatar_img.null = True
-    avatar_file = models.CharField(max_length=200)
-    avatar_file.null = True
     font_family = models.CharField(max_length=200, default='default_font')
     translate = models.CharField(max_length=200, default='notranslate')
     translate.null = True

@@ -14,6 +14,7 @@ from django.views import View
 
 from Models import DeckType, DeckCard, CardFace, Deck
 from Users.models import UserProfile, UserCards
+from static.python.session_manager import SessionManager
 
 logger = logging.getLogger(__name__)
 
@@ -351,6 +352,8 @@ class Commander_Picker(View):
 
         :todo: None
         """
+        SessionManager.clear_other_session_data(request, SessionManager.commander_session)
+
         deck_id = request.GET.get('deck_id', -1)
 
         try:

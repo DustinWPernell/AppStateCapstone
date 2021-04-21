@@ -5,8 +5,11 @@ logger = logging.getLogger(__name__)
 
 class SessionManager:
     All = "all"
+    Avatar = "avatar"
     Card = "card"
+    Commander = "commander"
     Deck = "deck"
+    DeckImage = 'deck_image'
     Profile = "profile"
     Search = "search"
 
@@ -20,20 +23,56 @@ class SessionManager:
 
     deck_session = ['collection_deck_search_Term', 'collection_deck_selected_mana', 'collection_deck_deck_list', 'collection_deck_clear', 'collection_deck_deck_full']
 
+    avatar_session = ['avatar_search_term', 'avatar_card_list' 'avatar_clear_search']
+
+    commander_session = ['user_search_commander_term', 'user_search_commander_cards' 'user_clear_commander_search']
+
+    deck_image_session = ['user_search_commander_term', 'user_search_commander_cards' 'user_clear_commander_search']
+
     @staticmethod
     def clear_other_session_data(request, data):
-        if data == SessionManager.Profile:
+        if data == SessionManager.Avatar:
+            SessionManager.clear_session_data(request, SessionManager.card_session)
+            SessionManager.clear_session_data(request, SessionManager.commander_session)
+            SessionManager.clear_session_data(request, SessionManager.deck_session)
+            SessionManager.clear_session_data(request, SessionManager.deck_image_session)
+            SessionManager.clear_session_data(request, SessionManager.profile_session)
+        elif data == SessionManager.Card:
+            SessionManager.clear_session_data(request, SessionManager.avatar_session)
+            SessionManager.clear_session_data(request, SessionManager.commander_session)
+            SessionManager.clear_session_data(request, SessionManager.deck_session)
+            SessionManager.clear_session_data(request, SessionManager.deck_image_session)
+            SessionManager.clear_session_data(request, SessionManager.profile_session)
+        elif data == SessionManager.Commander:
+            SessionManager.clear_session_data(request, SessionManager.avatar_session)
             SessionManager.clear_session_data(request, SessionManager.card_session)
             SessionManager.clear_session_data(request, SessionManager.deck_session)
-        elif data == SessionManager.Card:
-            SessionManager.clear_session_data(request, SessionManager.deck_session)
+            SessionManager.clear_session_data(request, SessionManager.deck_image_session)
             SessionManager.clear_session_data(request, SessionManager.profile_session)
         elif data == SessionManager.Deck:
+            SessionManager.clear_session_data(request, SessionManager.avatar_session)
             SessionManager.clear_session_data(request, SessionManager.card_session)
+            SessionManager.clear_session_data(request, SessionManager.commander_session)
+            SessionManager.clear_session_data(request, SessionManager.deck_image_session)
             SessionManager.clear_session_data(request, SessionManager.profile_session)
-        else:
+        elif data == SessionManager.DeckImage:
+            SessionManager.clear_session_data(request, SessionManager.avatar_session)
             SessionManager.clear_session_data(request, SessionManager.card_session)
+            SessionManager.clear_session_data(request, SessionManager.commander_session)
             SessionManager.clear_session_data(request, SessionManager.deck_session)
+            SessionManager.clear_session_data(request, SessionManager.profile_session)
+        elif data == SessionManager.Profile:
+            SessionManager.clear_session_data(request, SessionManager.avatar_session)
+            SessionManager.clear_session_data(request, SessionManager.card_session)
+            SessionManager.clear_session_data(request, SessionManager.commander_session)
+            SessionManager.clear_session_data(request, SessionManager.deck_session)
+            SessionManager.clear_session_data(request, SessionManager.deck_image_session)
+        else:
+            SessionManager.clear_session_data(request, SessionManager.avatar_session)
+            SessionManager.clear_session_data(request, SessionManager.card_session)
+            SessionManager.clear_session_data(request, SessionManager.commander_session)
+            SessionManager.clear_session_data(request, SessionManager.deck_session)
+            SessionManager.clear_session_data(request, SessionManager.deck_image_session)
             SessionManager.clear_session_data(request, SessionManager.profile_session)
 
 

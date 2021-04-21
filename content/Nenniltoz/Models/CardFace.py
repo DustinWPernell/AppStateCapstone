@@ -69,7 +69,10 @@ class CardFaceManager(models.Manager):
         return self.run_query(filter)
 
     def card_face_avatar_filter(self, term):
-        filter = Q(name__icontains=term)
+        filter = Q(name__icontains=term)& (
+                Q(type_line__icontains="creature") |
+                Q(type_line__icontains="planeswalker")
+        )
 
         return self.run_query(filter)
 

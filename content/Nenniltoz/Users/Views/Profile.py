@@ -6,8 +6,9 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.views import View
 
 from Models.CardFace import CardFace
@@ -266,16 +267,30 @@ class NenniUserProfile(View):
 
 class AvatarPicker(View):
     user = User
+    term = 'avatar_search_term'
+    cards = 'avatar_card_list'
+    clear = 'avatar_clear_search'
 
     def post(self, request):
-        if 'clearSearch' in request.POST:
-            request.session['avatar_search_term'] = ''
-            request.session['avatar_card_list'] = CardFace.objects.card_face_avatar_filter('')
-            request.session['avatar_clear_search'] = False
+        user_id = request.GET.get('user_id', -1)
+
+        if self.clear in request.POST:
+            request.session[self.term] = ""
+            request.session[self.cards] = CardFace.objects.card_face_avatar_filter('')
+            request.session[self.clear] = False
+        if self.term in request.POST:
+            avatar_search_term = request.session[self.term] = request.POST.get(self.term)
+            request.session[self.cards] = CardFace.objects.card_face_avatar_filter(avatar_search_term)
+            request.session[self.clear] = True
         else:
-            search_term = request.session['avatar_search_term'] = request.POST.get('avatarSearchTerm')
-            request.session['avatar_card_list'] = CardFace.objects.card_face_avatar_filter(search_term)
-            request.session['avatar_clear_search'] = True
+            user_selected_avatar = request.POST.get('user_selected_avatar')
+            user_prof = UserProfile.get_profile_by_user(user_id)
+            user_prof.avatar_img = user_selected_avatar
+            user_prof.save()
+
+            return HttpResponseRedirect(reverse('user_profile') + '?user_id=' + str(user_id))
+
+        return HttpResponseRedirect(reverse('select_avatar') + '?user_id=' + str(user_id))
 
     @login_required
     def get(self, request):
@@ -287,21 +302,23 @@ class AvatarPicker(View):
 
         :todo: None
         """
-        search_term = 'Search'
-        try:
-            avatar_search_term = request.session['avatar_search_term']
-            card_list = request.session['avatar_card_list']
-            avatar_clear_search = request.session['avatar_clear_search']
-        except KeyError:
-            avatar_search_term = request.session['avatar_search_term'] = ''
-            card_list = request.session['avatar_card_list'] = CardFace.objects.card_face_avatar_filter('')
-            avatar_clear_search = request.session['avatar_clear_search'] = False
+        SessionManager.clear_other_session_data(request, SessionManager.avatar_session)
+        user_id = request.GET.get('user_id', -1)
 
-        card_list_split = list(card_list.split("},"))
-        if card_list_split[0] == '':
-            card_list_split = []
+        try:
+            avatar_search_term = request.session[self.term]
+            avatar_card_list = request.session[self.cards]
+            avatar_clear_search = request.session[self.clear]
+        except KeyError:
+            avatar_search_term = request.session[self.term] = ""
+            avatar_card_list = request.session[self.cards] = CardFace.objects.card_face_avatar_filter('')
+            avatar_clear_search = request.session[self.clear] = False
+
+        avatar_card_list_split = list(avatar_card_list.split("},"))
+        if avatar_card_list_split[0] == '':
+            avatar_card_list_split = []
         page = request.GET.get('page', 1)
-        paginator = Paginator(card_list_split, 50)
+        paginator = Paginator(avatar_card_list_split, 50)
         try:
             cards = paginator.page(page)
         except PageNotAnInteger:
@@ -312,37 +329,5 @@ class AvatarPicker(View):
         font_family = UserProfile.get_font(request.user)
         should_translate = UserProfile.get_translate(request.user)
         context = {'font_family': font_family, 'should_translate': should_translate, 'pages': cards,
-                   'avatar_search_term': avatar_search_term, 'avatar_clear_search': avatar_clear_search}
+                   str(self.term): avatar_search_term, str(self.clear): avatar_clear_search, 'user_id': user_id}
         return render(request, 'Users/Profile/select_avatar.html', context)
-
-
-class SaveAvatar(View):
-    user = User
-    @login_required
-    def post(self, request):
-        """Saves new avatar to user
-
-        Sets new avatar image to selected URL returned by POST.
-
-        @param request:
-
-        :todo: None
-        """
-
-        avatar = request.POST['newAvatar']
-        user_obj = User.objects.get(id=request.user.id)
-
-        custom_user_profile = NenniUserProfile.objects.get(user=user_obj)
-
-        try:
-            os.remove(custom_user_profile.avatar_file.name)
-        except OSError as e:
-            print("Error: %s : %s" % (custom_user_profile.avatar_file, e.strerror))
-
-        custom_user_profile.avatar_img = avatar
-        custom_user_profile.avatar_file = None
-        custom_user_profile.save()
-
-
-
-        return redirect('user_profile?user_id=' + str(request.user.id))
