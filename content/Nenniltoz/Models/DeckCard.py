@@ -22,15 +22,12 @@ class DeckCardManager(models.Manager):
             commander=commander
         )
 
-    def deck_card_update_create(self, deck_id, card_oracle, quantity, side, commander):
-        try:
-            return self.filter(deck=deck_id, card_oracle=card_oracle).update(
-                quantity=quantity,
-                sideboard=side,
-                commander=commander
-            )
-        except ObjectDoesNotExist:
-            return self.deck_card_create(deck_id, card_oracle, quantity, side, commander)
+    def deck_card_update(self, deck_id, card_oracle, quantity, side, commander):
+        return self.filter(deck=deck_id, card_oracle=card_oracle).update(
+            quantity=quantity,
+            sideboard=side,
+            commander=commander
+        )
 
     def run_query(self, filter):
         return self.build_json(self.select_related().filter(

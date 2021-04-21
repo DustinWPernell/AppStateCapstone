@@ -331,7 +331,7 @@ class Commander_Picker(View):
         else:
             user_selected_commander = request.POST.get('user_selected_commander')
 
-            DeckCard.objects.deck_card_update_create(deck_id, user_selected_commander, 1, False, True)
+            DeckCard.objects.deck_card_create(deck_id, user_selected_commander, 1, False, True)
 
             return HttpResponseRedirect(reverse('modify_deck') + '?deck_id=' + str(deck_id))
 
