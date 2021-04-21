@@ -14,7 +14,8 @@ def convert_to_json(data):
     if isinstance(data, dict):
         return data
     else:
-        return json.loads(data)
+        data = json.loads(data)
+        return data
 
 
 @register.filter
