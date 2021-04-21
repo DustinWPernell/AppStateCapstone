@@ -4,7 +4,7 @@ from functools import reduce
 from django.db import models
 from django.db.models import Q
 
-from Collection.models import QuickResult
+from Collection.models import QuickResult, CardIDList
 from Models.CardLegality import CardLegality
 
 
@@ -51,7 +51,7 @@ class CardFaceManager(models.Manager):
         return CardFace.objects.filter(Q(legal__card_obj__card_id=card_id)).order_by('name')
 
     def card_face_commander_filter(self, term):
-        filter = (
+        filter = ( Q(legal__card_obj__card_id__in=CardIDList.objects.values("card_id").all()) &
                     (
                             Q(legal__commander='legalTableField') |
                             Q(legal__brawl='legalTableField') |

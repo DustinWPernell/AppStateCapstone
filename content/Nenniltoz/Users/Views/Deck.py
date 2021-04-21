@@ -325,14 +325,14 @@ class Commander_Picker(View):
     def post(self, request):
         deck_id = request.GET.get('deck_id', -1)
 
-        if self.clear in request.POST:
-            request.session[self.term] = ""
-            request.session[self.cards] = CardFace.objects.card_face_commander_filter("")
-            request.session[self.clear] = False
-        if self.term in request.POST:
-            user_search_commander_term = request.session[self.term] =request.POST.get(self.term)
-            request.session[self.cards] = CardFace.objects.card_face_commander_filter(user_search_commander_term)
-            request.session[self.clear] = True
+        if str(self.clear) in request.POST:
+            request.session[str(self.term)] = ""
+            request.session[str(self.cards)] = CardFace.objects.card_face_commander_filter("")
+            request.session[str(self.clear)] = False
+        elif str(self.term) in request.POST:
+            user_search_commander_term = request.session[self.term] =request.POST.get(str(self.term))
+            request.session[str(self.cards)] = CardFace.objects.card_face_commander_filter(user_search_commander_term)
+            request.session[str(self.clear)] = True
         else:
             user_selected_commander = request.POST.get('user_selected_commander')
 
@@ -357,13 +357,13 @@ class Commander_Picker(View):
         deck_id = request.GET.get('deck_id', -1)
 
         try:
-            user_search_commander_term = request.session[self.term]
-            commander_list = request.session[self.cards]
-            clear_commander = request.session[self.clear]
+            user_search_commander_term = request.session[str(self.term)]
+            commander_list = request.session[str(self.cards)]
+            clear_commander = request.session[str(self.clear)]
         except KeyError:
-            user_search_commander_term = request.session[self.term] = ""
-            commander_list = request.session[self.cards] = CardFace.objects.card_face_commander_filter("")
-            clear_commander = request.session[self.clear] = False
+            user_search_commander_term = request.session[str(self.term)] = ""
+            commander_list = request.session[str(self.cards)] = CardFace.objects.card_face_commander_filter("")
+            clear_commander = request.session[str(self.clear)] = False
 
         commander_list_split = list(commander_list.split("},"))
         if commander_list_split[0] == '':
