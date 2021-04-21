@@ -9,16 +9,16 @@
 
 {% block content %}
 <div class="cardFilter">
-    <form action="select_avatar" method="post">
+    <form action="select_avatar?user_id={{ user_id }}" method="post">
         {% csrf_token %}
-        {% if clearSearch %}
-        <input name="avatarSearchTerm" type="text" value="{{ SearchTerm }}">
+        {% if avatar_clear_search %}
+        <input name="avatar_search_term" type="text" value="{{ avatar_search_term }}">
         {% else %}
-        <input name="avatarSearchTerm" placeholder="Search" type="text">
+        <input name="avatar_search_term" placeholder="Search" type="text">
         {% endif %}
         <input type="submit" onclick="show_page_load();" value="Search">
-        {% if clearSearch %}
-        <input name="clearSearch" type="submit" onclick="show_page_load();" value="Clear Search">
+        {% if avatar_clear_search %}
+        <input name="avatar_clear_search" type="submit" onclick="show_page_load();" value="Clear Search">
         {% endif %}
     </form>
 </div>
@@ -27,13 +27,13 @@
 <div class="avatarGrid" id="avatarGrid">
     {% for card_obj in pages %}
     <div>
-        <form action="save_avatar?user_id={{ user_id }}" method="POST">
+        <form action="select_avatar?user_id={{ user_id }}" method="POST">
             {% csrf_token %}
             {% with card_obj|convert_to_json as card_json %}
             <input name="user_selected_avatar" type="hidden" value="{{ card_json.avatar_img }}">
-            <button class="avatarBtn clickable" onclick="return confirm('Select avatar: {{ card_json.name }}?');"
+            <button class="avatarBtn clickable" onclick="return confirm('Select avatar: {{ card_json.card_name }}?');"
                     type="submit">
-                <img alt="{{ card_json.name }}" class="avatarImg" src="{{ card_json.avatar_img }}">
+                <img alt="{{ card_json.card_name }}" class="avatarImg" src="{{ card_json.avatar_img }}">
                 <span class="cardObjText {{ should_translate }}">
                     {{ card_json.name }}
                 </span>

@@ -274,14 +274,14 @@ class AvatarPicker(View):
     def post(self, request):
         user_id = request.GET.get('user_id', -1)
 
-        if self.clear in request.POST:
-            request.session[self.term] = ""
-            request.session[self.cards] = CardFace.objects.card_face_avatar_filter('')
-            request.session[self.clear] = False
-        if self.term in request.POST:
-            avatar_search_term = request.session[self.term] = request.POST.get(self.term)
-            request.session[self.cards] = CardFace.objects.card_face_avatar_filter(avatar_search_term)
-            request.session[self.clear] = True
+        if str(self.clear) in request.POST:
+            request.session[str(self.term)] = ""
+            request.session[str(self.cards)] = CardFace.objects.card_face_avatar_filter('')
+            request.session[str(self.clear)] = False
+        if str(self.term) in request.POST:
+            avatar_search_term = request.session[str(self.term)] = request.POST.get(str(self.term))
+            request.session[str(self.cards)] = CardFace.objects.card_face_avatar_filter(avatar_search_term)
+            request.session[str(self.clear)] = True
         else:
             user_selected_avatar = request.POST.get('user_selected_avatar')
             user_prof = UserProfile.get_profile_by_user(user_id)
@@ -302,17 +302,17 @@ class AvatarPicker(View):
 
         :todo: None
         """
-        SessionManager.clear_other_session_data(request, SessionManager.avatar_session)
+        SessionManager.clear_other_session_data(request, SessionManager.Avatar)
         user_id = request.GET.get('user_id', -1)
 
         try:
-            avatar_search_term = request.session[self.term]
-            avatar_card_list = request.session[self.cards]
-            avatar_clear_search = request.session[self.clear]
+            avatar_search_term = request.session[str(self.term)]
+            avatar_card_list = request.session[str(self.cards)]
+            avatar_clear_search = request.session[str(self.clear)]
         except KeyError:
-            avatar_search_term = request.session[self.term] = ""
-            avatar_card_list = request.session[self.cards] = CardFace.objects.card_face_avatar_filter('')
-            avatar_clear_search = request.session[self.clear] = False
+            avatar_search_term = request.session[str(self.term)] = ""
+            avatar_card_list = request.session[str(self.cards)] = CardFace.objects.card_face_avatar_filter('')
+            avatar_clear_search = request.session[str(self.clear)] = False
 
         avatar_card_list_split = list(avatar_card_list.split("},"))
         if avatar_card_list_split[0] == '':
