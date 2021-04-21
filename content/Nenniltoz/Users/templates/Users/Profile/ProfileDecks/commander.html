@@ -10,6 +10,7 @@
         {% if commander_len > 0 %}
         {% for commander_obj in commander %}
         {% with commander_obj|convert_to_json as commander_json %}
+        <!-- commander object is passed in as a json formatted string, then convert to json changes it to a json object. -->
         <img alt="{{ commander_json.name }}" class="CommanderImg"
              src="{{ commander_json.image_url }}">
         {% endwith %}

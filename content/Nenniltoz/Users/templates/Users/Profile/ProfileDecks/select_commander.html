@@ -11,13 +11,14 @@
     <form action="select_commander?deck_id={{ deck_id }}" method="post">
         {% csrf_token %}
         {% if user_clear_commander_search %}
-        <input name="user_search_commander_term" type="text" value="{{ user_search_commander_term }}">
+        <!-- If the user can clear the search, show search term in search box. Otherwise, show placeholder. -->
+            <input name="user_search_commander_term" type="text" value="{{ user_search_commander_term }}">
         {% else %}
-        <input name="user_search_commander_term" placeholder="Search" type="text">
+            <input name="user_search_commander_term" placeholder="Search" type="text">
         {% endif %}
         <input type="submit" onclick="show_page_load();" value="Search">
         {% if user_clear_commander_search %}
-        <input name="user_clear_commander_search" type="submit" onclick="show_page_load();" value="Clear Search">
+            <input name="user_clear_commander_search" type="submit" onclick="show_page_load();" value="Clear Search">
         {% endif %}
     </form>
 </div>
@@ -29,6 +30,7 @@
         <form action="select_commander?deck_id={{ deck_id }}" method="POST">
             {% csrf_token %}
             {% with card_obj|convert_to_json as card_json %}
+            <!-- Hidden pulls the oracle_id of the commander, alt shows alternate text in case the image doesnt load. Is also used for screen readers. -->
             <input type="hidden" name="user_selected_commander" value="{{ card_json.oracle_id }}">
             <button class="commanderBtn clickable" onclick="return confirm('Select Commander: {{ card_json.card_name }}?');"
                     type="submit">
