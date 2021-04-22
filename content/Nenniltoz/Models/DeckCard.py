@@ -66,11 +66,11 @@ class DeckCard(models.Model):
 
         return '{' \
                '"deck_id": "' + str(self.deck) + \
-               '", "card_oracle": "' + str(self.card_oracle) + \
+               '", "oracle_id": "' + str(self.card_oracle) + \
                '", "quantity": "' + str(self.quantity) + \
                '", "sideboard": "' + str(self.sideboard) + \
                '", "commander": "' + str(self.commander) + \
-               '", "name": "' + str(card.name) + \
-               '", "image_url": "' + str(card.image_url) + \
+               '", "card_name": "' + str(card.name) + \
+               '", "card_image": "' + str(card.image_url) + \
                '", "color_id": "' + str(card.color_id) + \
                '"}'

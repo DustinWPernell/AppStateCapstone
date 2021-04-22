@@ -300,10 +300,18 @@ class Manage_Deck(View):
         deck_type_split = list(deck_types.split("},"))
 
         deck_commander = DeckCard.objects.deck_card_by_deck_side(deck_id, False, True)
+        deck_cards = DeckCard.objects.deck_card_by_deck_side(deck_id, False, False)
+        side_cards = DeckCard.objects.deck_card_by_deck_side(deck_id, True, False)
 
         commanders = list(deck_commander.split("},"))
         if commanders[0] == '':
             commanders = []
+        deck_cards_list = list(deck_cards.split("},"))
+        if deck_cards_list[0] == '':
+            deck_cards_list = []
+        side_cards_list = list(side_cards.split("},"))
+        if side_cards_list[0] == '':
+            side_cards_list = []
 
         font_family = UserProfile.get_font(request.user)
         should_translate = UserProfile.get_translate(request.user)
@@ -311,7 +319,8 @@ class Manage_Deck(View):
             'font_family': font_family, 'should_translate': should_translate,
             'deck_obj': deck_obj, 'deck_types': deck_type_split, 'deck_id': deck_id,
             'is_private': deck_private, 'deck_type_obj': deck_type_obj,
-            'commander': commanders, 'commander_len': len(deck_commander)
+            'commander': commanders, 'commander_len': len(deck_commander),
+            'deck_cards': deck_cards_list, 'side_cards': side_cards_list
         }
         return render(request, 'Users/Profile/ProfileDecks/modify_deck.html', context)
 
