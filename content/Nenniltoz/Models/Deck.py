@@ -85,6 +85,22 @@ class DeckManager(models.Manager):
             ).deck_type.id
         )
 
+    def get_card_list(self, deck_id, side):
+        list_field = "card_list"
+        if side:
+            list_field = "side_list"
+        return self.values(list_field).get(deck_id=deck_id)
+
+    def set_card_list(self, deck_id, side, newVal):
+        if side:
+            self.get(deck_id=deck_id).update(
+                side_list=newVal
+            )
+        else:
+            self.get(deck_id=deck_id).update(
+                card_list=newVal
+            )
+
     def deck_create(self, deck_name_field, deck_type_field, deck_privacy_field, deck_description_field,
                     color_id, creator, username):
         return self.create(
@@ -142,14 +158,8 @@ class Deck(models.Model):
     image_url = models.CharField(max_length=200, default="static/img/generic_box.png")
     description = models.CharField(max_length=1000)
     deck_type = models.ForeignKey(DeckType, related_name='type_deck', on_delete=models.CASCADE)
-    commander_oracle = models.CharField(max_length=200)
-    commander_id = models.CharField(max_length=200)
-    commander_name = models.CharField(max_length=200)
-    commander_file = models.CharField(max_length=200)
-    commander_id.null = True
-    commander_name.null = True
-    commander_file.null = True
-    commander_oracle.null = True
+    card_list = models.CharField(max_length=2000)
+    side_list = models.CharField(max_length=1000)
 
     objects = DeckManager()
 

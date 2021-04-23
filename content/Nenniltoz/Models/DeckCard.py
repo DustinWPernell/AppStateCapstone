@@ -11,6 +11,12 @@ class DeckCardManager(models.Manager):
         filter = Q(deck=deck_id) & Q(sideboard=side) & Q(commander=commander)
         return self.run_query(filter)
 
+    def deck_card_oracles(self, deck_id, side, commander):
+        filter = Q(deck=deck_id) & Q(sideboard=side) & Q(commander=commander)
+        self.select_related().values("oracle_id").filter(
+            filter
+        )
+
     def deck_card_by_deck(self, deck_id):
         filter = Q(deck=deck_id)
         return self.run_query(filter)

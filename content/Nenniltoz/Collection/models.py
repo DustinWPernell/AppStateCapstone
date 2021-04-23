@@ -84,6 +84,10 @@ class CardIDList(models.Model):
         return CardIDList.objects.all().order_by('card_name')
 
     @staticmethod
+    def get_card_by_name(name):
+        return CardIDList.objects.get(card_name=name)
+
+    @staticmethod
     def get_card_face():
         card_id_list_full = CardIDList.get_cards()
         full_card_list_all = []
