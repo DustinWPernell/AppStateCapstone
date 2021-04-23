@@ -11,23 +11,8 @@
     <!-- Include takes the html in the file and pastes it into the file.  -->
     {% include "./Deck/deck_info.html" %}
     {% include "./Deck/commander.html" %}
-    <div style="grid-column: 1 / span 2;">
-        <hr>
-    </div>
-    {% include "./Deck/cards.html" %}
-    <div class ="deck_manage">
-         <button type="submit">
-             <a class="clickable" onclick="show_page_load();"
-                href="/modify_deck?deck_id={{ deck_id }}">
-                 {% if edit %}
-                    Modify Deck
-                 {% else %}
-                    Copy Deck
-                 {% endif %}
-             </a>
-         </button>
-    </div>
 </div>
+{% include "./Deck/cards.html" %}
 {% endblock %}
 
 {% block custom_scripts %}

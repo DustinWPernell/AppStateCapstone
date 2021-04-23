@@ -145,6 +145,11 @@
     text-align: center;
 }
 
+.edit_cards_button{
+    margin: auto auto 20px auto;;
+    text-align: center;
+}
+
 .deck_cards_inner{
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));

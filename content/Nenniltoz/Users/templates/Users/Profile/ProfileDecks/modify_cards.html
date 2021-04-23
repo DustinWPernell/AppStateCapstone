@@ -18,6 +18,14 @@
                 {% endwith %}
             {% endfor %}
             </div>
+            <div class="edit_cards_button">
+            <button type="submit">
+                <a class="clickable" onclick="show_page_load();"
+                   href="modify_cards?deck_id={{ deck_id }}&side=False">
+                    Edit Cards
+                </a>
+            </button>
+            </div>
         </div>
         <div class="side_cards">
             <h3>Side Board</h3>
@@ -34,6 +42,14 @@
                     </div>
                 {% endwith %}
             {% endfor %}
+            </div>
+            <div class="edit_cards_button">
+            <button type="submit">
+                <a class="clickable" onclick="show_page_load();"
+                   href="modify_cards?deck_id={{ deck_id }}&side=True">
+                    Edit Sideboard
+                </a>
+            </button>
             </div>
         </div>
     </div>

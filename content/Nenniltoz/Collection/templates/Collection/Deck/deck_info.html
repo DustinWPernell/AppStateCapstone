@@ -43,4 +43,17 @@
         <!-- This checks DeckCards in models and pulls the description for the deck -->
         {{ deck.description|remove_bracket|check_safe }}
     </div>
+
+    <div class ="deck_manage">
+         <button type="submit">
+             <a class="clickable" onclick="show_page_load();"
+                href="/modify_deck?deck_id={{ deck_id }}">
+                 {% if edit %}
+                    Modify Deck
+                 {% else %}
+                    Copy Deck
+                 {% endif %}
+             </a>
+         </button>
+    </div>
 </div>

@@ -1,0 +1,32 @@
+<!-- Extends uses base_generic.html as a base, then loads the blocks within the specific html. -->
+{% extends "base_generic.html" %}
+{% load static %}
+{% block css %}
+<!-- The block CSS places internal html into corresponding location in base generic (which is the base html page) -->
+<link href="{% static 'css\profile_decks.css' %}" rel="stylesheet" type="text/css">
+{% endblock %}
+
+
+{% block content %}
+    <h3>Edit {{ title }} cards</h3>
+    <div class="edit_card_format">
+        <p>
+            <strong>List Format: </strong><br>
+            Place each card on a separate line. Give the quantity of the card you wish to add, then the name.
+            <i>For example:<br>
+                1 Ironscale Hydra
+                3 Snapping Sailback
+            </i>
+        </p>
+    </div>
+<form action="modify_cards?deck_id={{ deck_id }}&side={{ side }}" method="post">
+    {% csrf_token %}
+    <textarea class="edit_card_list" name="edit_card_list" placeholder="Add your cards here">{{ card_list }}</textarea>
+    <button class="clickable {{font_family }}" name="save_button" type="submit">Save Deck</button>
+    <button class="clickable {{font_family }}" name="reset_button" type="submit">Reset Changes</button>
+</form>
+{% endblock %}
+
+{% block custom_scripts %}
+<!-- <script src="{% static 'js\deck.js' %}"></script> -->
+{% endblock %}
