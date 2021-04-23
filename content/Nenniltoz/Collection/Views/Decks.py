@@ -164,12 +164,22 @@ class Deck_Display(View):
             side_cards = DeckCard.objects.deck_card_by_deck_side(deck_id, True, False)
             commander_cards = DeckCard.objects.deck_card_by_deck_side(deck_id, False, True)
 
+            commanders = list(commander_cards.split("},"))
+            if commanders[0] == '':
+                commanders = []
+            deck_cards_list = list(deck_cards.split("},"))
+            if deck_cards_list[0] == '':
+                deck_cards_list = []
+            side_cards_list = list(side_cards.split("},"))
+            if side_cards_list[0] == '':
+                side_cards_list = []
+
             font_family = UserProfile.get_font(request.user)
             should_translate = UserProfile.get_translate(request.user)
             context = {'font_family': font_family, 'should_translate': should_translate,
                        'auth': request.user.is_authenticated, 'user_id': request.user.id,
-                       'deck': deck, 'deck_cards': deck_cards, 'side_cards': side_cards,
-                       'commander': commander_cards, 'deck_id':deck_id,
+                       'deck': deck, 'deck_cards': deck_cards_list, 'side_cards': side_cards_list,
+                       'commander': commanders, 'deck_id':deck_id,
                        'edit': request.user.username == deck.deck_user,}
             return render(request, 'Collection/deck_display.html', context)
 
