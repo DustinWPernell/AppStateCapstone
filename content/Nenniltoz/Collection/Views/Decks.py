@@ -179,7 +179,7 @@ class Deck_Display(View):
             context = {'font_family': font_family, 'should_translate': should_translate,
                        'auth': request.user.is_authenticated, 'user_id': request.user.id,
                        'deck': deck, 'deck_cards': deck_cards_list, 'side_cards': side_cards_list,
-                       'commander': commanders, 'deck_id':deck_id,
+                       'commander': commanders, 'deck_id':deck_id, 'commander_len': len(commanders),
                        'edit': request.user.username == deck.deck_user,}
             return render(request, 'Collection/deck_display.html', context)
 
