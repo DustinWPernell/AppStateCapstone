@@ -256,10 +256,9 @@ class QuickResult(models.Model):
 
     @staticmethod
     def run_keyword(card_manager, keyword):
-        card_ids = CardIDList.get_cards()
         filtered_card_list = card_manager.select_related().filter(
-                Q(legal__card_obj__card_id__in=card_ids) &
-                Q(card_search__icontains=keyword)
+            Q(legal__card_obj__card_id__in=CardIDList.objects.values("card_id").all()) &
+            Q(card_search__icontains=keyword)
             ).order_by('name')
 
         card_json_list = ""
@@ -297,11 +296,9 @@ class QuickResult(models.Model):
 
     @staticmethod
     def run_color(card_manager, color, color_term):
-        card_ids = CardIDList.get_cards()
-
         filtered_card_list = card_manager.select_related().filter(
-                Q(legal__card_obj__card_id__in=card_ids) &
-                reduce(
+            Q(legal__card_obj__card_id__in=CardIDList.objects.values("card_id").all()) &
+            reduce(
                     operator.or_, (
                         Q(mana_cost__icontains=item) for item in color
                     )

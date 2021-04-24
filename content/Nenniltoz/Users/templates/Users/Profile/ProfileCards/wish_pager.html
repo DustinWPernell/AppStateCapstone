@@ -1,28 +1,28 @@
-{% if cardWishPager.has_other_pages %}
+{% if wish_list.has_other_pages %}
 <div class="pagination">
-    {% if cardWishPager.has_previous %}
+    {% if wish_list.has_previous %}
     <span class="pages"><a class="pageLinks" onclick="show_page_load();"
-                           href="?deckPage={{ deckPage }}&cardPage={{ cardPage }}&cardWishPage=1">&#60;&#60;</a></span>
+                           href="?user_id={{user_id}}&deckPage={{ deckPage }}&cardPage={{ cardPage }}&cardWishPage=1">&#60;&#60;</a></span>
     <span class="pages"><a class="pageLinks" onclick="show_page_load();"
-                           href="?deckPage={{ deckPage }}&cardPage={{ cardPage }}&cardWishPage={{ cardWishPager.previous_page_number }}">&#60;</a></span>
+                           href="?user_id={{user_id}}&deckPage={{ deckPage }}&cardPage={{ cardPage }}&cardWishPage={{ wish_list.previous_page_number }}">&#60;</a></span>
     {% else %}
     <span class="disabled pages"><span>&#60;&#60;</span></span>
     {% endif %}
-    {% for i in cardWishPager.paginator.page_range %}
-    {% if i >= cardWishPager.number|add:-3 and i <= cardWishPager.number|add:3 %}
-    {% if cardWishPager.number == i %}
+    {% for i in wish_list.paginator.page_range %}
+    {% if i >= wish_list.number|add:-3 and i <= wish_list.number|add:3 %}
+    {% if wish_list.number == i %}
     <span class="pages"><span class="active">{{ i }}</span></span>
     {% else %}
     <span class="pages"><a class="pageLinks" onclick="show_page_load();"
-                           href="?deckPage={{ deckPage }}&cardPage={{ cardPage }}&cardWishPage={{ i }}">{{ i }}</a></span>
+                           href="?user_id={{user_id}}&deckPage={{ deckPage }}&cardPage={{ cardPage }}&cardWishPage={{ i }}">{{ i }}</a></span>
     {% endif %}
     {% endif %}
     {% endfor %}
-    {% if cardWishPager.has_next %}
+    {% if wish_list.has_next %}
     <span class="pages"><a class="pageLinks" onclick="show_page_load();"
-                           href="?deckPage={{ deckPage }}&cardPage={{ cardPage }}&cardWishPage={{ cardWishPager.next_page_number }}">&#62;</a></span>
+                           href="?user_id={{user_id}}&deckPage={{ deckPage }}&cardPage={{ cardPage }}&cardWishPage={{ wish_list.next_page_number }}">&#62;</a></span>
     <span class="pages"><a class="pageLinks" onclick="show_page_load();"
-                           href="?deckPage={{ deckPage }}&cardPage={{ cardPage  }}&cardWishPage={{ cardWishPager.paginator.num_pages }}">&#62;&#62;</a></span>
+                           href="?user_id={{user_id}}&deckPage={{ deckPage }}&cardPage={{ cardPage  }}&cardWishPage={{ wish_list.paginator.num_pages }}">&#62;&#62;</a></span>
     {% else %}
     <span class="disabled pages"><span>&#62;&#62;</span></span>
     {% endif %}

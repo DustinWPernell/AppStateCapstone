@@ -3,7 +3,7 @@
 <h2>Decks</h2>
 {% if deckShow %}
     <div class="deckFilter">
-        <form action="user_profile" method="post">
+        <form action="user_profile?user_id={{user_id}}&deck_id=&deckPage={{deckPage}}&cardPage={{ cardPage }}&cardWishPage={{ cardWishPage }}" method="post">
             {% csrf_token %}
             {% if clear_deck_search %}
             <input class="{{ font_family }}" name="user_search_deck_term" type="text" value="{{ user_search_deck_term }}">
@@ -28,32 +28,30 @@
             <div class="profile_table_head"></div>
         </div>
         {% for deck_obj in deck_list %}
-            {% if deck_obj is not '' %}
-                {% with deck_obj|convert_to_json as deck_json %}
-                <div class="innerDeckTable">
-                    <div class="profile_table {{ should_translate }}">
-                        {{ deck_json.deck_name|safe }}
-                    </div>
-                    <div class="profile_table">
-                        {{ deck_json.created_by }}
-                    </div>
-                    <div class="profile_table">
-                        {{ deck_json.deck_user }}
-                    </div>
-                    <div class="profile_table">
-                        {{ deck_json.color_id|replaceMana|safe }}
-                    </div>
-                    <div class="profile_table">
-                        {{ deck_json.description|remove_bracket|check_safe }}
-                    </div>
-                    <div class="profile_table">
-                        <a class="deckDirection" onclick="show_page_load();" href="/Collection/deck/{{ deck_json.deck_id }}">
-                            <img alt="{{ deck_json.deck_name|safe }}" class="smallDeckImg" src="../../../{{ deck_json.image_url }}">
-                        </a>
-                    </div>
+            {% with deck_obj|convert_to_json as deck_json %}
+            <div class="innerDeckTable">
+                <div class="profile_table {{ should_translate }}">
+                    {{ deck_json.deck_name|safe }}
                 </div>
-                {% endwith %}
-            {% endif %}
+                <div class="profile_table">
+                    {{ deck_json.created_by }}
+                </div>
+                <div class="profile_table">
+                    {{ deck_json.deck_user }}
+                </div>
+                <div class="profile_table">
+                    {{ deck_json.color_id|replaceMana|safe }}
+                </div>
+                <div class="profile_table">
+                    {{ deck_json.description|remove_bracket|check_safe }}
+                </div>
+                <div class="profile_table">
+                    <a class="deckDirection" onclick="show_page_load();" href="/Collection/deck/{{ deck_json.deck_id }}">
+                        <img alt="{{ deck_json.deck_name|safe }}" class="smallDeckImg" src="../../../{{ deck_json.image_url }}">
+                    </a>
+                </div>
+            </div>
+            {% endwith %}
         {% endfor %}
     </div>
     {% include "./deck_pager.html" %}

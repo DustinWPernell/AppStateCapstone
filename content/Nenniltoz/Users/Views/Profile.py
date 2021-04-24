@@ -116,7 +116,7 @@ class NenniUserProfile(View):
             request.session['user_search_wish_cards'] = UserCards.get_user_card_term(user_id, search_term, True)
             request.session['user_clear_wish_search'] = True
 
-        return redirect('../' + str(user_id) + '?deck_page=' + str(deck_page) + '&card_page=' +
+        return redirect('/user_profile?user_id=' + str(user_id) + '&deck_page=' + str(deck_page) + '&card_page=' +
                         str(card_page) + '&wish_page=' + str(wish_page))
 
     @login_required

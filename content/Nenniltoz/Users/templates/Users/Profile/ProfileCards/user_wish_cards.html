@@ -2,7 +2,7 @@
 <h2>Card Wish List</h2>
 {% if wishShow %}
 <div class="cardFilter">
-    <form action="user_profile" method="post">
+    <form action="user_profile?user_id={{user_id}}&deck_id=&deckPage={{deckPage}}&cardPage={{ cardPage }}&cardWishPage={{ cardWishPage }}" method="post">
         {% csrf_token %}
         {% if clear_wish_search %}
         <input class="{{ font_family }}" name="user_search_wish_term" type="text" value="{{ user_search_wish_term }}">
@@ -26,29 +26,27 @@
         <div class="profile_table_head"></div>
     </div>
     {% for card_obj in wish_list %}
-        {% if card_obj is not '' %}
-            {% with card_obj|convert_to_json as card_json %}
-            <div class="innerCardTable">
-                <div class="profile_table {{ should_translate }}">
-                    {{ card_json.name|safe }}
-                </div>
-                <div class="profile_table">
-                    {{ card_json.quantity }}
-                </div>
-                <div class="profile_table">
-                    {{ card_json.mana|replaceMana|safe }}
-                </div>
-                <div class="profile_table">
-                    {{ card_json.notes|remove_bracket|check_safe }}
-                </div>
-                <div class="profile_table">
-                    <a class="cardDirection" onclick="show_page_load();" href="/Collection/card/{{ card_json.oracle_id }}">
-                        <img alt="{{ card_json.name|safe }}" class="smallCardImg" src="{{ card_json.image_url }}">
-                    </a>
-                </div>
+        {% with card_obj|convert_to_json as card_json %}
+        <div class="innerCardTable">
+            <div class="profile_table {{ should_translate }}">
+                {{ card_json.name|safe }}
             </div>
-            {% endwith %}
-        {% endif %}
+            <div class="profile_table">
+                {{ card_json.quantity }}
+            </div>
+            <div class="profile_table">
+                {{ card_json.mana|replaceMana|safe }}
+            </div>
+            <div class="profile_table">
+                {{ card_json.notes|remove_bracket|check_safe }}
+            </div>
+            <div class="profile_table">
+                <a class="cardDirection" onclick="show_page_load();" href="/Collection/card/{{ card_json.oracle_id }}">
+                    <img alt="{{ card_json.name|safe }}" class="smallCardImg" src="{{ card_json.image_url }}">
+                </a>
+            </div>
+        </div>
+        {% endwith %}
     {% endfor %}
 </div>
 {% include "./wish_pager.html" %}

@@ -43,7 +43,7 @@ class CardFaceManager(models.Manager):
             else:
                 mana_filter = Q(id__gt=-1)
 
-            filter = mana_filter & Q(card_search__icontains=term)
+            filter = Q(legal__card_obj__card_id__in=CardIDList.objects.values("card_id").all()) & mana_filter & Q(card_search__icontains=term)
 
             return self.run_query(filter)
 
