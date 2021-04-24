@@ -101,6 +101,11 @@ class DeckManager(models.Manager):
                 card_list=newVal
             )
 
+    def set_color_list(self, deck_id, color):
+        self.filter(id=deck_id).update(
+            color_id=color
+        )
+
     def deck_create(self, deck_name_field, deck_type_field, deck_privacy_field, deck_description_field,
                     color_id, creator, username):
         return self.create(

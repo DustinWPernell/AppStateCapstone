@@ -13,7 +13,7 @@ from django.urls import reverse
 from django.views import View
 
 from Collection.models import CardIDList
-from Models import DeckType, DeckCard, CardFace, Deck
+from Models import DeckType, DeckCard, CardFace, Deck, Card
 from Users.models import UserProfile, UserCards
 from static.python.session_manager import SessionManager
 
@@ -28,7 +28,7 @@ class Manage_Cards(View):
 
     def add_to_deck(self, request, deck_id, card_list, side):
         formatted_list = ''
-
+        color_list = []
         DeckCard.objects.empty_deck(deck_id, side, False)
 
         card_list = list(card_list.split("\n"))
@@ -49,10 +49,20 @@ class Manage_Cards(View):
                         False
                     )
                     formatted_list = formatted_list + str(card_quantity) + " " + str(card_name) + '\n'
+
+                    card_color = (Card.objects.get_card(card_info.card_id)).color.split(',')
+                    for color in card_color:
+                        if color != '':
+                            color_tag = '{'+color.strip()+'}'
+                            if color_tag not in color_list:
+                                color_list.append(color_tag)
             except:
                 messages.error(request, "List in incorrect format. " + card_values[1] + " not added to deck.")
 
+        color_list = str(color_list).replace(',','').replace(' ', '').replace('[','').replace(']','').replace('\'','')
+
         Deck.objects.set_card_list(deck_id, side, formatted_list)
+        Deck.objects.set_color_list(deck_id, color_list)
         return formatted_list
 
     def post(self, request):
@@ -61,11 +71,9 @@ class Manage_Cards(View):
         if request.GET.get('side', 'False') == 'True':
             side = True
 
-        if str(self.reset_card) in request.POST:
-            request.session[str(self.list)] = Deck.objects.get_card_list(deck_id, side)
-        elif str(self.card) in request.POST:
+        if str(self.card) in request.POST:
             card_list = request.POST[str(self.list)]
-            request.session[str(self.list)] = self.add_to_deck(request, deck_id, card_list, side)
+            self.add_to_deck(request, deck_id, card_list, side)
         elif 'return' in request.POST:
             return HttpResponseRedirect(reverse('modify_deck') + '?user_id='+str(request.user.id)+'&deck_id=' + str(deck_id) + '&side=' + str(side))
 
@@ -90,10 +98,7 @@ class Manage_Cards(View):
             side = True
             title = " sideboard "
 
-        try:
-            modify_deck_list_cards = request.session[str(self.list)]
-        except KeyError:
-            modify_deck_list_cards = request.session[str(self.list)] = Deck.objects.get_card_list(deck_id, side)
+        modify_deck_list_cards = Deck.objects.get_card_list(deck_id, side)
 
         font_family = UserProfile.get_font(request.user)
         should_translate = UserProfile.get_translate(request.user)
