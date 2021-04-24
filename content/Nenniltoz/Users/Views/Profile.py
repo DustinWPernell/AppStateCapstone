@@ -131,6 +131,8 @@ class NenniUserProfile(View):
         :todo: None
         """
         logger.info("Run: user_profile; Params: " + json.dumps(request.GET.dict()))
+        SessionManager.clear_other_session_data(request, SessionManager.Profile)
+
         user_id = request.GET.get('user_id', -1)
 
         user_profile_obj = UserProfile.get_profile_by_user(user_id)

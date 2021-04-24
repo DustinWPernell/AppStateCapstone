@@ -81,7 +81,7 @@ class Manage_Cards(View):
 
         :todo: None
         """
-        SessionManager.clear_other_session_data(request, SessionManager.Commander)
+        SessionManager.clear_other_session_data(request, SessionManager.EditCard)
 
         deck_id = request.GET.get('deck_id', -1)
         side = False
@@ -167,6 +167,8 @@ class Manage_Deck(View):
 
         :todo: Finish new deck page
         """
+        SessionManager.clear_other_session_data(request, SessionManager.Profile)
+
         user_id = int(request.GET.get('user_id', request.user.id))
         deck_id = int(request.GET.get('deck_id', -1))
 
@@ -316,6 +318,7 @@ class Image_Picker(View):
 
         :todo: None
         """
+        SessionManager.clear_other_session_data(request, SessionManager.DeckImage)
         deck_id = request.GET.get('deck_id', -1)
 
         try:
