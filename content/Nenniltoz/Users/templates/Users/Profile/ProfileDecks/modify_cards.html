@@ -5,11 +5,11 @@
         <div class="deck_cards">
             <h3>Cards</h3>
             <div class="edit_cards_button">
-                <form action="modify_cards?deck_id={{ deck_id }}&side=False" method="post">
+                <form action="/modify_deck?deck_id={{ deck_id }}&side=False" method="post">
                     {% csrf_token %}
                     <button class="clickable {{font_family }}"
                             onclick="show_page_load();"
-                            name="modify_deck_reset_cards"
+                            name="modify_cards"
                             type="submit">
                         Edit Cards
                     </button>
@@ -30,11 +30,11 @@
             {% endfor %}
             </div>
             <div class="edit_cards_button">
-                <form action="modify_cards?deck_id={{ deck_id }}&side=False" method="post">
+                <form action="modify_deck?deck_id={{ deck_id }}&side=False" method="post">
                     {% csrf_token %}
                     <button class="clickable {{font_family }}"
                             onclick="show_page_load();"
-                            name="modify_deck_reset_cards"
+                            name="modify_cards"
                             type="submit">
                         Edit Cards
                     </button>
@@ -44,11 +44,11 @@
         <div class="side_cards">
             <h3>Side Board</h3>
             <div class="edit_cards_button">
-                <form action="modify_cards?deck_id={{ deck_id }}&side=True" method="post">
+                <form action="/modify_deck?deck_id={{ deck_id }}&side=True" method="post">
                     {% csrf_token %}
                     <button class="clickable {{font_family }}"
                             onclick="show_page_load();"
-                            name="modify_deck_reset_cards"
+                            name="modify_cards"
                             type="submit">
                         Edit Sideboard
                     </button>
@@ -69,11 +69,11 @@
             {% endfor %}
             </div>
             <div class="edit_cards_button">
-                <form action="modify_cards?deck_id={{ deck_id }}&side=True" method="post">
+                <form action="modify_deck?deck_id={{ deck_id }}&side=True" method="post">
                     {% csrf_token %}
                     <button class="clickable {{font_family }}"
                             onclick="show_page_load();"
-                            name="modify_deck_reset_cards"
+                            name="modify_cards"
                             type="submit">
                         Edit Sideboard
                     </button>

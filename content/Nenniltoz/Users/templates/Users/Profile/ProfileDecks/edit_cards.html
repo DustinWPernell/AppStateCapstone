@@ -19,7 +19,7 @@
             </i>
         </p>
     </div>
-    <form action="modify_cards?deck_id={{ deck_id }}&side={{ side }}" method="post">
+    <form action="/modify_cards?deck_id={{ deck_id }}&side={{ side }}" method="post">
         {% csrf_token %}
         <textarea class="edit_card_list" name="modify_deck_list_cards" placeholder="Add your cards here">{{ modify_deck_list_cards }}</textarea>
         <br>
@@ -38,7 +38,7 @@
             Reset Changes
         </button>
     </form>
-    <form action="modify_deck?user_id={{ user_id }}&deck_id={{ deck_id }}" method="get">
+    <form action="/modify_cards?user_id={{ user_id }}&deck_id={{ deck_id }}&side={{ side }}" method="post">
         {% csrf_token %}
         <button class="clickable {{ font_family }}"
                 onclick="show_page_load();"

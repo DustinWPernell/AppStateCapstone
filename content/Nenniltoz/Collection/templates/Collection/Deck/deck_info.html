@@ -45,11 +45,11 @@
     </div>
 
     <div class ="deck_manage">
-        <form action="/modify_deck?user_id={{ user_id }}&deck_id={{ deck_id }}" method="get">
+        <form action="deck?user_id={{ user_id }}&deck_id={{ deck_id }}" method="post">
             {% csrf_token %}
             <button class="clickable {{font_family }}"
                     onclick="show_page_load();"
-                    name="modify_deck_reset_cards"
+                    name="modify"
                     type="submit">
                 {% if edit %}
                     Modify Deck

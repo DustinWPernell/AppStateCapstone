@@ -5,7 +5,9 @@ from json import JSONDecodeError
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.views import View
 
 from Collection.models import Symbol
@@ -139,7 +141,7 @@ class Deck_Database(View):
             should_translate = UserProfile.get_translate(request.user)
             context = {'font_family': font_family, 'should_translate': should_translate, 'pages': decks,
                        'collection_deck_search_Term': search_term, 'mana_list': mana_list, 'clearSearch': clear_search,
-                       'full_list': full_list}
+                       'full_list': full_list, 'user_id':request.user.id}
             return render(request, 'Collection/deck_list.html', context)
         except JSONDecodeError:
             request.session['collection_deck_search_Term'] = ""
@@ -154,9 +156,17 @@ class Deck_Database(View):
             return render(request, 'Collection/deck_list.html', context)
 
 class Deck_Display(View):
-    def get(self, request, deck_id):
+    def post(self, request):
+        user_id = int(request.GET.get('user_id', request.user.id))
+        deck_id = int(request.GET.get('deck_id', -1))
+        return HttpResponseRedirect(reverse('modify_deck') + '?user_id=' + str(user_id) + '&deck_id=' + str(deck_id))
+
+    def get(self, request):
         logger.info("Run: deck_display; Params: " + json.dumps(request.GET.dict()))
         SessionManager.clear_other_session_data(request, SessionManager.Deck)
+
+        user_id = request.GET.get('user_id', request.user.id)
+        deck_id = request.GET.get('deck_id', -1)
 
         try:
             deck = Deck.objects.get_deck(request.user.username, deck_id)
@@ -179,7 +189,7 @@ class Deck_Display(View):
             context = {'font_family': font_family, 'should_translate': should_translate,
                        'auth': request.user.is_authenticated, 'user_id': request.user.id,
                        'deck': deck, 'deck_cards': deck_cards_list, 'side_cards': side_cards_list,
-                       'commander': commanders, 'deck_id':deck_id, 'commander_len': len(commanders),
+                       'commander': commanders, 'deck_id': deck_id, 'commander_len': len(commanders),
                        'edit': request.user.username == deck.deck_user,}
             return render(request, 'Collection/deck_display.html', context)
 

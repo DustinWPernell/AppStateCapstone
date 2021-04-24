@@ -48,7 +48,7 @@
             {% with deck_obj|convert_to_json as deck_json %}
             <div class="deckObj">
                 <!-- deckDirection makes the deck object clickable -->
-                <a class="deckDirection" onclick="show_page_load();" href="/Collection/deck/{{ deck_json.deck_id }}/">
+                <a class="deckDirection" onclick="show_page_load();" href="/Collection/deck?user_id={{ user_id }}&deck_id={{ deck_json.deck_id }}">
                     <!-- This is the display for a deck. It will show the name, colors associated, game type, and name of the creator of the deck.
                      If the deck is PreCon-->
                     <div>{{ deck_json.deck_name|check_safe }}</div>

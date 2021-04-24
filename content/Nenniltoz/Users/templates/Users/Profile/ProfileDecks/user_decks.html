@@ -46,7 +46,7 @@
                     {{ deck_json.description|remove_bracket|check_safe }}
                 </div>
                 <div class="profile_table">
-                    <a class="deckDirection" onclick="show_page_load();" href="/Collection/deck/{{ deck_json.deck_id }}">
+                    <a class="deckDirection" onclick="show_page_load();" href="/Collection/deck?deck_id={{ deck_json.deck_id }}">
                         <img alt="{{ deck_json.deck_name|safe }}" class="smallDeckImg" src="../../../{{ deck_json.image_url }}">
                     </a>
                 </div>

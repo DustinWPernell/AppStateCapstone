@@ -66,6 +66,8 @@ class Manage_Cards(View):
         elif str(self.card) in request.POST:
             card_list = request.POST[str(self.list)]
             request.session[str(self.list)] = self.add_to_deck(request, deck_id, card_list, side)
+        elif 'return' in request.POST:
+            return HttpResponseRedirect(reverse('modify_deck') + '?user_id='+str(request.user.id)+'&deck_id=' + str(deck_id) + '&side=' + str(side))
 
         return HttpResponseRedirect(reverse('modify_cards') + '?deck_id=' + str(deck_id) + '&side=' + str(side))
 
@@ -101,8 +103,6 @@ class Manage_Cards(View):
         return render(request, 'Users/Profile/ProfileDecks/edit_cards.html', context)
 
 
-
-
 class Manage_Deck(View):
     user = User
     name = 'deck_name_field'
@@ -111,8 +111,9 @@ class Manage_Deck(View):
     type = 'deck_type_field'
 
     def post(self, request):
-        user_id = request.GET.get('user_id', request.user.id)
-        deck_id = request.GET.get('deck_id', -1)
+        user_id = int(request.GET.get('user_id', request.user.id))
+        deck_id = int(request.GET.get('deck_id', -1))
+        side = request.GET.get('side', 'False')
 
         if 'submitDeck' in request.POST:
             deck_name_field = html.escape(request.POST.get(self.name))
@@ -150,7 +151,9 @@ class Manage_Deck(View):
                     )
                 except ObjectDoesNotExist :
                     messages.error(request, "Object does not exist. Deck not modified.")
-            return HttpResponseRedirect(reverse('modify_deck')+'?deck_id='+str(deck_id))
+            return HttpResponseRedirect(reverse('modify_deck')+'?user_id='+str(user_id)+'deck_id='+str(deck_id))
+        elif 'modify_cards' in request.POST:
+            return HttpResponseRedirect(reverse('modify_cards')+'?user_id='+str(user_id)+'&deck_id='+str(deck_id)+'&side='+str(side))
         return HttpResponseRedirect(reverse('user_profile')+'?user_id='+str(user_id))
 
 
@@ -164,8 +167,8 @@ class Manage_Deck(View):
 
         :todo: Finish new deck page
         """
-        user_id = request.GET.get('user_id', request.user.id)
-        deck_id = request.GET.get('deck_id', -1)
+        user_id = int(request.GET.get('user_id', request.user.id))
+        deck_id = int(request.GET.get('deck_id', -1))
 
         try:
             deck_obj = Deck.objects.get_deck(request.user.username, deck_id)

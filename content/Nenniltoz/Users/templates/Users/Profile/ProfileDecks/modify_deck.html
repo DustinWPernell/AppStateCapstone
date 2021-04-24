@@ -24,15 +24,19 @@
 <div class="DeckBody" id="deck">
     <!-- Include takes the html in the file and pastes it into the file.  -->
     {% include "./deck_info.html" %}
-    {% with deck_type_obj|convert_to_json as deck_type_json %}
-    {% if deck_type_json.has_commander %}
-        {% include "./modify_commander.html" %}
-    {% else %}
-        {% include "./image_deck.html" %}
+    {% if deck_id > -1 %}
+        {% with deck_type_obj|convert_to_json as deck_type_json %}
+        {% if deck_type_json.has_commander %}
+            {% include "./modify_commander.html" %}
+        {% else %}
+            {% include "./image_deck.html" %}
+        {% endif %}
+        {% endwith %}
     {% endif %}
-    {% endwith %}
 </div>
-{% include "./modify_cards.html" %}
+{% if deck_id > -1 %}
+    {% include "./modify_cards.html" %}
+{% endif %}
 {% endblock %}
 
 

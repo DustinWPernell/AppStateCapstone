@@ -10,5 +10,5 @@ urlpatterns = [
     path('card/<oracle_id>/', Card_Display.as_view(), name='card'),
     path('card/<oracle_id>/card', Card_Display.as_view(), name='card'),
     path('deck_database', Deck_Database.as_view(), name='deck_database'),
-    path('deck/<deck_id>/', Deck_Display.as_view(), name='deck'),
+    path('deck', Deck_Display.as_view(), name='deck'),
 ]
