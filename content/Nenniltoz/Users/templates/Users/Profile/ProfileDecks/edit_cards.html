@@ -12,19 +12,41 @@
     <div class="edit_card_format">
         <p>
             <strong>List Format: </strong><br>
-            Place each card on a separate line. Give the quantity of the card you wish to add, then the name.
+            Place each card on a separate line. Give the quantity of the card you wish to add, then the name.<br>
             <i>For example:<br>
-                1 Ironscale Hydra
+                1 Ironscale Hydra<br>
                 3 Snapping Sailback
             </i>
         </p>
     </div>
-<form action="modify_cards?deck_id={{ deck_id }}&side={{ side }}" method="post">
-    {% csrf_token %}
-    <textarea class="edit_card_list" name="edit_card_list" placeholder="Add your cards here">{{ card_list }}</textarea>
-    <button class="clickable {{font_family }}" name="save_button" type="submit">Save Deck</button>
-    <button class="clickable {{font_family }}" name="reset_button" type="submit">Reset Changes</button>
-</form>
+    <form action="modify_cards?deck_id={{ deck_id }}&side={{ side }}" method="post">
+        {% csrf_token %}
+        <textarea class="edit_card_list" name="modify_deck_list_cards" placeholder="Add your cards here">{{ modify_deck_list_cards }}</textarea>
+        <br>
+        <button
+                class="clickable {{ font_family }}"
+                onclick="show_page_load();"
+                name="modify_deck_save_cards"
+                type="submit">
+            Save Deck
+        </button>
+        <button
+                class="clickable {{ font_family }}"
+                onclick="show_page_load();"
+                name="modify_deck_reset_cards"
+                type="submit">
+            Reset Changes
+        </button>
+    </form>
+    <form action="modify_deck?user_id={{ user_id }}&deck_id={{ deck_id }}" method="get">
+        {% csrf_token %}
+        <button class="clickable {{ font_family }}"
+                onclick="show_page_load();"
+                name="return"
+                type="submit">
+            Return to deck
+        </button>
+    </form>
 {% endblock %}
 
 {% block custom_scripts %}

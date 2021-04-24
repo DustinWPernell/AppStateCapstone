@@ -1,6 +1,6 @@
 {% load cardLayout %}
 {% load replaceValues %}
-<form method="post">
+<form action="modify_deck?user_id={{ user_id }}&deck_id={{ deck_id }}" method="post">
     {% csrf_token %}
     <div class="deckHead">
         <label for="deck_name_field">Name:</label>
@@ -43,12 +43,21 @@
                   name="deck_description_field" placeholder="Description of the Deck"
                   rows="1">{% if deck_obj != "new" or has_desc %}{{ deck_obj.description|check_safe }}{% endif %}</textarea>
         <div></div><div class="default_font">* Use { } for searchable notes. <br>Example: {Aggro}</div>
-        <button class="clickable {{ font_family }}" name="submitDeck" type="submit">
+        <button
+                class="clickable {{ font_family }}"
+                onclick="show_page_load();"
+                name="submitDeck"
+                type="submit">
             {% if deck_obj == "new" %}
                 Create Deck
             {% else %}
                 Save Deck
             {% endif %}
+        </button>
+        <button class="clickable {{font_family }}"
+                onclick="show_page_load();"
+                type="submit">
+            Return to Profile
         </button>
     </div>
 </form>

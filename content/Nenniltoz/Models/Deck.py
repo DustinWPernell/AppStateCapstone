@@ -86,18 +86,18 @@ class DeckManager(models.Manager):
         )
 
     def get_card_list(self, deck_id, side):
-        list_field = "card_list"
         if side:
-            list_field = "side_list"
-        return self.values(list_field).get(deck_id=deck_id)
+            return self.get(id=deck_id).side_list
+        else:
+            return self.get(id=deck_id).card_list
 
     def set_card_list(self, deck_id, side, newVal):
         if side:
-            self.get(deck_id=deck_id).update(
+            self.filter(id=deck_id).update(
                 side_list=newVal
             )
         else:
-            self.get(deck_id=deck_id).update(
+            self.filter(id=deck_id).update(
                 card_list=newVal
             )
 

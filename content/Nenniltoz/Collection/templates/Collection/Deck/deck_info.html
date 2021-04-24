@@ -45,15 +45,18 @@
     </div>
 
     <div class ="deck_manage">
-         <button type="submit">
-             <a class="clickable" onclick="show_page_load();"
-                href="/modify_deck?deck_id={{ deck_id }}">
-                 {% if edit %}
+        <form action="/modify_deck?user_id={{ user_id }}&deck_id={{ deck_id }}" method="get">
+            {% csrf_token %}
+            <button class="clickable {{font_family }}"
+                    onclick="show_page_load();"
+                    name="modify_deck_reset_cards"
+                    type="submit">
+                {% if edit %}
                     Modify Deck
                  {% else %}
                     Copy Deck
                  {% endif %}
-             </a>
-         </button>
+            </button>
+        </form>
     </div>
 </div>

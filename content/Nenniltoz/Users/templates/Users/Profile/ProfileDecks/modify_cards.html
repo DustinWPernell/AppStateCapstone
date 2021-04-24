@@ -4,6 +4,17 @@
     <div class="card_display">
         <div class="deck_cards">
             <h3>Cards</h3>
+            <div class="edit_cards_button">
+                <form action="modify_cards?deck_id={{ deck_id }}&side=False" method="post">
+                    {% csrf_token %}
+                    <button class="clickable {{font_family }}"
+                            onclick="show_page_load();"
+                            name="modify_deck_reset_cards"
+                            type="submit">
+                        Edit Cards
+                    </button>
+                </form>
+            </div>
             <div class="deck_cards_inner">
             {% for card_obj in deck_cards %}
                 {% with card_obj|convert_to_json as card_json %}
@@ -19,16 +30,30 @@
             {% endfor %}
             </div>
             <div class="edit_cards_button">
-            <button type="submit">
-                <a class="clickable" onclick="show_page_load();"
-                   href="modify_cards?deck_id={{ deck_id }}&side=False">
-                    Edit Cards
-                </a>
-            </button>
+                <form action="modify_cards?deck_id={{ deck_id }}&side=False" method="post">
+                    {% csrf_token %}
+                    <button class="clickable {{font_family }}"
+                            onclick="show_page_load();"
+                            name="modify_deck_reset_cards"
+                            type="submit">
+                        Edit Cards
+                    </button>
+                </form>
             </div>
         </div>
         <div class="side_cards">
             <h3>Side Board</h3>
+            <div class="edit_cards_button">
+                <form action="modify_cards?deck_id={{ deck_id }}&side=True" method="post">
+                    {% csrf_token %}
+                    <button class="clickable {{font_family }}"
+                            onclick="show_page_load();"
+                            name="modify_deck_reset_cards"
+                            type="submit">
+                        Edit Sideboard
+                    </button>
+                </form>
+            </div>
             <div class="deck_cards_inner">
             {% for card_obj in side_cards %}
                 {% with card_obj|convert_to_json as card_json %}
@@ -44,12 +69,15 @@
             {% endfor %}
             </div>
             <div class="edit_cards_button">
-            <button type="submit">
-                <a class="clickable" onclick="show_page_load();"
-                   href="modify_cards?deck_id={{ deck_id }}&side=True">
-                    Edit Sideboard
-                </a>
-            </button>
+                <form action="modify_cards?deck_id={{ deck_id }}&side=True" method="post">
+                    {% csrf_token %}
+                    <button class="clickable {{font_family }}"
+                            onclick="show_page_load();"
+                            name="modify_deck_reset_cards"
+                            type="submit">
+                        Edit Sideboard
+                    </button>
+                </form>
             </div>
         </div>
     </div>

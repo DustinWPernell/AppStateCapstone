@@ -11,11 +11,11 @@ class DeckCardManager(models.Manager):
         filter = Q(deck=deck_id) & Q(sideboard=side) & Q(commander=commander)
         return self.run_query(filter)
 
-    def deck_card_oracles(self, deck_id, side, commander):
+    def empty_deck(self, deck_id, side, commander):
         filter = Q(deck=deck_id) & Q(sideboard=side) & Q(commander=commander)
-        self.select_related().values("oracle_id").filter(
+        return self.select_related().filter(
             filter
-        )
+        ).delete()
 
     def deck_card_by_deck(self, deck_id):
         filter = Q(deck=deck_id)
@@ -36,6 +36,13 @@ class DeckCardManager(models.Manager):
             sideboard=side,
             commander=commander
         )
+
+    def deck_card_delete(self, deck_id, card_oracle, side, commander):
+        self.filter(deck=deck_id,
+                    card_oracle=card_oracle,
+                    sideboard=side,
+                    commander=commander
+                    ).delete()
 
     def run_query(self, filter):
         return self.build_json(self.select_related().filter(

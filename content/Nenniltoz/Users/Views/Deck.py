@@ -23,14 +23,13 @@ logger = logging.getLogger(__name__)
 class Manage_Cards(View):
     user = User
     card = 'modify_deck_save_cards'
-    side = 'modify_deck_save_side'
+    list = 'modify_deck_list_cards'
     reset_card = 'modify_deck_reset_cards'
-    reset_side = 'modify_deck_reset_side'
 
     def add_to_deck(self, request, deck_id, card_list, side):
         formatted_list = ''
 
-        current_list = DeckCard.objects.deck_card_oracles(deck_id, side, False)
+        DeckCard.objects.empty_deck(deck_id, side, False)
 
         card_list = list(card_list.split("\n"))
         if card_list[0] == '':
@@ -38,45 +37,37 @@ class Manage_Cards(View):
         for card_item in card_list:
             card_values = card_item.split(" ", 1)
             try:
-                card_info = CardIDList.objects.get_card_by_name(card_values[1])
-                if card_info.oracle_id in current_list:
-                    DeckCard.objects.deck_card_update(
-                        deck_id,
-                        card_info.oracle_id,
-                        int(card_values[0]),
-                        side,
-                        False
-                    )
-                else:
+                if card_values[0] != '':
+                    card_quantity = int(card_values[0])
+                    card_name = card_values[1].replace('\r', '')
+                    card_info = CardIDList.get_card_by_name(card_name)
                     DeckCard.objects.deck_card_create(
                         deck_id,
                         card_info.oracle_id,
-                        int(card_values[0]),
+                        card_quantity,
                         side,
                         False
                     )
-                formatted_list = formatted_list + str(card_values[0]) + " " + str(card_values[1])
+                    formatted_list = formatted_list + str(card_quantity) + " " + str(card_name) + '\n'
             except:
                 messages.error(request, "List in incorrect format. " + card_values[1] + " not added to deck.")
 
-        Deck.objects.set_card_list(deck_id, side, card_list)
+        Deck.objects.set_card_list(deck_id, side, formatted_list)
         return formatted_list
 
     def post(self, request):
         deck_id = request.GET.get('deck_id', -1)
+        side = False
+        if request.GET.get('side', 'False') == 'True':
+            side = True
 
         if str(self.reset_card) in request.POST:
-            request.session[str(self.card)] = Deck.objects.get_card_list(deck_id, False)
-        elif str(self.reset_side) in request.POST:
-            request.session[str(self.side)] = Deck.objects.get_card_list(deck_id, True)
+            request.session[str(self.list)] = Deck.objects.get_card_list(deck_id, side)
         elif str(self.card) in request.POST:
-            card_list = request.POST[str(self.card)]
-            request.session[str(self.card)] = self.add_to_deck(request, deck_id, card_list, False)
-        elif str(self.side) in request.POST:
-            card_list = request.POST[str(self.side)]
-            request.session[str(self.card)] = self.add_to_deck(request, deck_id, card_list, True)
+            card_list = request.POST[str(self.list)]
+            request.session[str(self.list)] = self.add_to_deck(request, deck_id, card_list, side)
 
-        return HttpResponseRedirect(reverse('select_commander') + '?deck_id=' + str(deck_id))
+        return HttpResponseRedirect(reverse('modify_cards') + '?deck_id=' + str(deck_id) + '&side=' + str(side))
 
     @login_required
     def get(self, request):
@@ -91,33 +82,23 @@ class Manage_Cards(View):
         SessionManager.clear_other_session_data(request, SessionManager.Commander)
 
         deck_id = request.GET.get('deck_id', -1)
+        side = False
+        title = " deck "
+        if request.GET.get('side', 'False') == 'True':
+            side = True
+            title = " sideboard "
 
         try:
-            user_search_commander_term = request.session[str(self.term)]
-            commander_list = request.session[str(self.cards)]
-            clear_commander = request.session[str(self.clear)]
+            modify_deck_list_cards = request.session[str(self.list)]
         except KeyError:
-            user_search_commander_term = request.session[str(self.term)] = ""
-            commander_list = request.session[str(self.cards)] = CardFace.objects.card_face_commander_filter("")
-            clear_commander = request.session[str(self.clear)] = False
-
-        commander_list_split = list(commander_list.split("},"))
-        if commander_list_split[0] == '':
-            commander_list_split = []
-        page = request.GET.get('page', 1)
-        paginator = Paginator(commander_list_split, 20)
-        try:
-            cards = paginator.page(page)
-        except PageNotAnInteger:
-            cards = paginator.page(1)
-        except EmptyPage:
-            cards = paginator.page(paginator.num_pages)
+            modify_deck_list_cards = request.session[str(self.list)] = Deck.objects.get_card_list(deck_id, side)
 
         font_family = UserProfile.get_font(request.user)
         should_translate = UserProfile.get_translate(request.user)
-        context = {'font_family': font_family, 'should_translate': should_translate, 'pages': cards, 'deck_id': deck_id,
-                   str(self.term): user_search_commander_term, str(self.clear): clear_commander}
-        return render(request, 'Users/Profile/ProfileDecks/select_commander.html', context)
+        context = {'font_family': font_family, 'should_translate': should_translate,
+                   str(self.list): modify_deck_list_cards,
+                   'deck_id': deck_id, 'side': side, 'title': title}
+        return render(request, 'Users/Profile/ProfileDecks/edit_cards.html', context)
 
 
 
@@ -130,7 +111,7 @@ class Manage_Deck(View):
     type = 'deck_type_field'
 
     def post(self, request):
-        user_id = request.GET.get('user_id', -1)
+        user_id = request.GET.get('user_id', request.user.id)
         deck_id = request.GET.get('deck_id', -1)
 
         if 'submitDeck' in request.POST:
@@ -156,7 +137,6 @@ class Manage_Deck(View):
                     messages.error(request, "Object does not exist. Deck not created.")
                 except ValueError:
                     messages.error(request, "Value Error. Deck not created.")
-
             else:
                 try:
                     deck_type_obj = DeckType.objects.get(id=int(deck_type_field))
@@ -170,8 +150,9 @@ class Manage_Deck(View):
                     )
                 except ObjectDoesNotExist :
                     messages.error(request, "Object does not exist. Deck not modified.")
+            return HttpResponseRedirect(reverse('modify_deck')+'?deck_id='+str(deck_id))
+        return HttpResponseRedirect(reverse('user_profile')+'?user_id='+str(user_id))
 
-        return HttpResponseRedirect(reverse('modify_deck')+'?deck_id='+str(deck_id))
 
     @login_required
     def get(self, request):
@@ -183,7 +164,7 @@ class Manage_Deck(View):
 
         :todo: Finish new deck page
         """
-        user_id = request.GET.get('user_id', -1)
+        user_id = request.GET.get('user_id', request.user.id)
         deck_id = request.GET.get('deck_id', -1)
 
         try:
@@ -224,7 +205,8 @@ class Manage_Deck(View):
             'deck_obj': deck_obj, 'deck_types': deck_type_split, 'deck_id': deck_id,
             'is_private': deck_private, 'deck_type_obj': deck_type_obj,
             'commander': commanders, 'commander_len': len(deck_commander),
-            'deck_cards': deck_cards_list, 'side_cards': side_cards_list
+            'deck_cards': deck_cards_list, 'side_cards': side_cards_list,
+            'user_id': user_id
         }
         return render(request, 'Users/Profile/ProfileDecks/modify_deck.html', context)
 
