@@ -13,8 +13,14 @@
     {% if card_list.number == i %}
     <span class="pages"><span class="active">{{ i }}</span></span>
     {% else %}
-    <span class="pages"><a class="pageLinks" onclick="show_page_load();"
-                           href="?user_id={{user_id}}&deckPage={{ deckPage }}&cardPage={{ i }}&cardWishPage={{ cardWishPage }}">{{ i }}</a></span>
+    <span class="pages">
+        <a
+                class="pageLinks"
+                onclick="show_page_load();"
+                href="?user_id={{user_id}}&deckPage={{ deckPage }}&cardPage={{ i }}&cardWishPage={{ cardWishPage }}">
+            {{ i }}
+        </a>
+    </span>
     {% endif %}
     {% endif %}
     {% endfor %}

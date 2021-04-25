@@ -293,7 +293,7 @@ def card_import_job(param):
                     flavor_text = get_from_json('flavor_text', obj)
                     color_id = build_comma_list('color_identity', obj)
 
-                    card_search = key_words + ' // ' + set_name + ' // ' + name + ' // ' + oracle_text + ' // ' + type_line + ' // ' + flavor_text
+                    card_search = key_words + ' // ' + set_name + ' // ' + name + ' // ' + oracle_text + ' // ' + type_line
 
                     CardFace.objects.card_face_update(
                         card_id=card_id,

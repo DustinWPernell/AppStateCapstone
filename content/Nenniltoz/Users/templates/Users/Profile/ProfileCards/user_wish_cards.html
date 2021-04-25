@@ -1,5 +1,22 @@
 {% load replaceValues %}
 <h2>Card Wish List</h2>
+<form action="user_profile?user_id={{ user_id }}&deck_id=&deckPage={{ deckPage }}&cardPage={{ cardPage }}&cardWishPage={{ cardWishPage }}" method="post">
+    {% csrf_token %}
+    <button class="clickable {{ font_family }}"
+                    onclick="show_page_load();"
+                    name="view_all_wish"
+                    type="submit">
+                View All
+    </button>
+    {% if not o_player %}
+        <button class="clickable {{ font_family }}"
+                onclick="show_page_load();"
+                name="bulk_add_wish"
+                type="submit">
+            Add Bulk
+        </button>
+    {% endif %}
+</form>
 {% if wishShow %}
 <div class="cardFilter">
     <form action="user_profile?user_id={{user_id}}&deck_id=&deckPage={{deckPage}}&cardPage={{ cardPage }}&cardWishPage={{ cardWishPage }}" method="post">
@@ -29,20 +46,20 @@
         {% with card_obj|convert_to_json as card_json %}
         <div class="innerCardTable">
             <div class="profile_table {{ should_translate }}">
-                {{ card_json.name|safe }}
+                {{ card_json.card_name|safe }}
             </div>
             <div class="profile_table">
                 {{ card_json.quantity }}
             </div>
             <div class="profile_table">
-                {{ card_json.mana|replaceMana|safe }}
+                {{ card_json.color_id|replaceMana|safe }}
             </div>
             <div class="profile_table">
                 {{ card_json.notes|remove_bracket|check_safe }}
             </div>
             <div class="profile_table">
                 <a class="cardDirection" onclick="show_page_load();" href="/Collection/card/{{ card_json.oracle_id }}">
-                    <img alt="{{ card_json.name|safe }}" class="smallCardImg" src="{{ card_json.image_url }}">
+                    <img alt="{{ card_json.card_name|safe }}" class="smallCardImg" src="{{ card_json.avatar_img }}">
                 </a>
             </div>
         </div>

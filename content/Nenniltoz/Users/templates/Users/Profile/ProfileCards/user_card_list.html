@@ -1,0 +1,71 @@
+{% extends "base_generic.html" %}
+{% load replaceValues %}
+{% load static %}
+{% block css %}
+<link href="{% static 'css\cards.css' %}" rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% block content %}
+<div class="cardFilter">
+    <form action="user_card_list?user_id={{ user_id }}&wish={{ wish }}" method="post">
+        {% csrf_token %}
+        {% if user_card_list_clear is "" %}
+        <input class="{{ font_family }}" name="user_card_list_search_Term" placeholder="Search">
+        {% else %}
+        <input class="{{ font_family }}" name="user_card_list_search_Term" placeholder="Search" value="{{ search_Term }}">
+        {% endif %}
+        <input class="{{ font_family }}" type="submit" onclick="show_page_load();" name='user_card_list_search' value="Search">
+        {% if user_card_list_clear %}
+        <input class="{{ font_family }}" name="user_card_list_clear" type="submit"
+               onclick="show_page_load();" value="Clear Search">
+        {% endif %}
+        <button class="clickable {{font_family }}"
+                onclick="show_page_load();"
+                name="return"
+                type="submit">
+            Return to Profile
+        </button>
+        <a class="advFilterA clickable colorText" onclick="advFilterFunc();">Advanced Search</a>
+        <div class="cardAdvFilter" id="adv_mana_filter">
+            {% for mana in mana_list %}
+            <span class='manaSearchObj'>
+          {% if mana.checked %}
+            <input checked="checked" name="mana-{{ mana.id }}" type="checkbox" value="{{ mama.id }}">
+          {% else %}
+            <input name="mana-{{ mana.id }}" type="checkbox" value="{{ mama.id }}">
+          {% endif %}
+          <img class='manaSearchSymbols' src='{{ mana.image_url }}'/>
+        </span>
+            {% endfor %}
+        </div>
+        {% if not full_list %}
+        <div class="cardAdvFilter" id="adv_full_filter">
+            <input class="{{ font_family }}" name="collection_card_full_list" type="submit"
+                   onclick="show_page_load();" value="Full List">
+        </div>
+        {% endif %}
+    </form>
+</div>
+
+{% include "./pager.html" %}
+<div class="cardGrid" id="cardGrid">
+    {% for card_obj in pages %}
+        {% with card_obj|convert_to_json as card_json %}
+        <div class="cardObj">
+            <a class="cardDirection" onclick="show_page_load();" href='/Collection/card/{{ card_json.oracle_id }}/'>
+                <img alt="Avatar" class="cardImg" src='{{ card_json.card_image }}'>
+                <div class="cardObjText {{ should_translate }}">
+                    {{ card_json.quantity }} X <br>{{ card_json.card_name|check_safe }}
+                </div>
+            </a>
+        </div>
+        {% endwith %}
+    {% endfor %}
+</div>
+{% include "./pager.html" %}
+
+{% endblock %}
+
+{% block custom_scripts %}
+<script src="{% static 'js\card.js' %}"></script>
+{% endblock %}

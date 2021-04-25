@@ -1,11 +1,10 @@
-import operator
-from functools import reduce
 
 from django.db import models
 from django.db.models import Q
 
 from Collection.models import QuickResult, CardIDList
 from Models.CardLegality import CardLegality
+from static.python.data_helpers import data_helpers
 
 
 class CardFaceManager(models.Manager):
@@ -16,32 +15,7 @@ class CardFaceManager(models.Manager):
         elif has_color and term == "":
             return QuickResult.get_color(self, mana)
         else:
-            if is_colorless:
-                list_of_colors = ['{W}', '{W/U}', '{W/B}', '{R/W}', '{G/W}', '{2/W}', '{W/P}', '{HW}',
-                                  '{U}', '{U/B}', '{U/R}', '{G/U}', '{2/U}', '{U/P}', '{HU}',
-                                  '{B}', '{B/R}', '{B/G}', '{2/B}', '{B/P}', '{HB}',
-                                  '{R}', '{R/G}', '{2/R}', '{R/P}', '{HR}',
-                                  '{G}', '{2/G}', '{G/P}', '{HG}']
-                mana_filter = (
-                        reduce(
-                            operator.or_, (
-                                Q(color_id__contains=item) for item in mana
-                            )
-                        ) &
-                        reduce(
-                            operator.and_, (
-                                ~Q(color_id__contains=item) for item in list_of_colors
-                            )
-                        )
-                )
-            elif has_color :
-                mana_filter = reduce(
-                    operator.or_, (
-                        Q(color_id__contains=item) for item in mana
-                    )
-                )
-            else:
-                mana_filter = Q(id__gt=-1)
+            mana_filter = data_helpers.mana_filter(is_colorless, has_color, mana)
 
             filter = Q(legal__card_obj__card_id__in=CardIDList.objects.values("card_id").all()) & mana_filter & Q(card_search__icontains=term)
 

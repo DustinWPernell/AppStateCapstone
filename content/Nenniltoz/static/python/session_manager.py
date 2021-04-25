@@ -6,6 +6,7 @@ logger = logging.getLogger(__name__)
 class SessionManager:
     All = "all"
     Avatar = "avatar"
+    BulkCard = "bulk_card"
     Card = "card"
     Commander = "commander"
     Deck = "deck"
@@ -13,6 +14,7 @@ class SessionManager:
     EditCard = 'edit_card'
     Profile = "profile"
     Search = "search"
+    UserCard = "user_card"
 
     edit_card_session = ['modify_deck_save_cards']
 
@@ -28,58 +30,77 @@ class SessionManager:
 
     deck_image_session = ['user_search_deck_image_term', 'user_search_deck_image_cards' 'user_clear_deck_image_search']
 
+    user_card_session = ['user_card_list_search_Term', 'user_card_list_selected_mana', 'user_card_list_card_list', 'user_card_list_clear']
+
+    bulk_card_session = ['user_card_list']
+
     @staticmethod
     def clear_other_session_data(request, data):
         if data == SessionManager.Avatar:
+            SessionManager.clear_session_data(request, SessionManager.bulk_card_session)
             SessionManager.clear_session_data(request, SessionManager.card_session)
             SessionManager.clear_session_data(request, SessionManager.commander_session)
             SessionManager.clear_session_data(request, SessionManager.deck_session)
             SessionManager.clear_session_data(request, SessionManager.deck_image_session)
             SessionManager.clear_session_data(request, SessionManager.edit_card_session)
             SessionManager.clear_session_data(request, SessionManager.profile_session)
+            SessionManager.clear_session_data(request, SessionManager.user_card_session)
         elif data == SessionManager.Card:
+            SessionManager.clear_session_data(request, SessionManager.bulk_card_session)
             SessionManager.clear_session_data(request, SessionManager.avatar_session)
             SessionManager.clear_session_data(request, SessionManager.commander_session)
             SessionManager.clear_session_data(request, SessionManager.deck_session)
             SessionManager.clear_session_data(request, SessionManager.deck_image_session)
             SessionManager.clear_session_data(request, SessionManager.edit_card_session)
             SessionManager.clear_session_data(request, SessionManager.profile_session)
+            SessionManager.clear_session_data(request, SessionManager.user_card_session)
         elif data == SessionManager.Commander:
+            SessionManager.clear_session_data(request, SessionManager.bulk_card_session)
             SessionManager.clear_session_data(request, SessionManager.avatar_session)
             SessionManager.clear_session_data(request, SessionManager.card_session)
             SessionManager.clear_session_data(request, SessionManager.deck_session)
             SessionManager.clear_session_data(request, SessionManager.deck_image_session)
             SessionManager.clear_session_data(request, SessionManager.edit_card_session)
             SessionManager.clear_session_data(request, SessionManager.profile_session)
+            SessionManager.clear_session_data(request, SessionManager.user_card_session)
         elif data == SessionManager.Deck:
+            SessionManager.clear_session_data(request, SessionManager.bulk_card_session)
             SessionManager.clear_session_data(request, SessionManager.avatar_session)
             SessionManager.clear_session_data(request, SessionManager.card_session)
             SessionManager.clear_session_data(request, SessionManager.commander_session)
             SessionManager.clear_session_data(request, SessionManager.deck_image_session)
             SessionManager.clear_session_data(request, SessionManager.edit_card_session)
             SessionManager.clear_session_data(request, SessionManager.profile_session)
+            SessionManager.clear_session_data(request, SessionManager.user_card_session)
         elif data == SessionManager.DeckImage:
+            SessionManager.clear_session_data(request, SessionManager.bulk_card_session)
             SessionManager.clear_session_data(request, SessionManager.avatar_session)
             SessionManager.clear_session_data(request, SessionManager.card_session)
             SessionManager.clear_session_data(request, SessionManager.commander_session)
             SessionManager.clear_session_data(request, SessionManager.deck_session)
             SessionManager.clear_session_data(request, SessionManager.edit_card_session)
             SessionManager.clear_session_data(request, SessionManager.profile_session)
+            SessionManager.clear_session_data(request, SessionManager.user_card_session)
         elif data == SessionManager.EditCard:
+            SessionManager.clear_session_data(request, SessionManager.bulk_card_session)
             SessionManager.clear_session_data(request, SessionManager.avatar_session)
             SessionManager.clear_session_data(request, SessionManager.card_session)
             SessionManager.clear_session_data(request, SessionManager.commander_session)
             SessionManager.clear_session_data(request, SessionManager.deck_session)
             SessionManager.clear_session_data(request, SessionManager.deck_image_session)
             SessionManager.clear_session_data(request, SessionManager.profile_session)
+            SessionManager.clear_session_data(request, SessionManager.user_card_session)
         elif data == SessionManager.Profile:
+            SessionManager.clear_session_data(request, SessionManager.bulk_card_session)
             SessionManager.clear_session_data(request, SessionManager.avatar_session)
             SessionManager.clear_session_data(request, SessionManager.card_session)
             SessionManager.clear_session_data(request, SessionManager.commander_session)
             SessionManager.clear_session_data(request, SessionManager.deck_session)
             SessionManager.clear_session_data(request, SessionManager.edit_card_session)
             SessionManager.clear_session_data(request, SessionManager.deck_image_session)
-        else:
+            SessionManager.clear_session_data(request, SessionManager.user_card_session)
+        elif data == SessionManager.UserCard:
+            SessionManager.clear_session_data(request, SessionManager.bulk_card_session)
             SessionManager.clear_session_data(request, SessionManager.avatar_session)
             SessionManager.clear_session_data(request, SessionManager.card_session)
             SessionManager.clear_session_data(request, SessionManager.commander_session)
@@ -87,6 +108,25 @@ class SessionManager:
             SessionManager.clear_session_data(request, SessionManager.deck_image_session)
             SessionManager.clear_session_data(request, SessionManager.edit_card_session)
             SessionManager.clear_session_data(request, SessionManager.profile_session)
+        elif data == SessionManager.BulkCard:
+            SessionManager.clear_session_data(request, SessionManager.avatar_session)
+            SessionManager.clear_session_data(request, SessionManager.card_session)
+            SessionManager.clear_session_data(request, SessionManager.commander_session)
+            SessionManager.clear_session_data(request, SessionManager.deck_session)
+            SessionManager.clear_session_data(request, SessionManager.deck_image_session)
+            SessionManager.clear_session_data(request, SessionManager.edit_card_session)
+            SessionManager.clear_session_data(request, SessionManager.profile_session)
+            SessionManager.clear_session_data(request, SessionManager.user_card_session)
+        else:
+            SessionManager.clear_session_data(request, SessionManager.bulk_card_session)
+            SessionManager.clear_session_data(request, SessionManager.avatar_session)
+            SessionManager.clear_session_data(request, SessionManager.card_session)
+            SessionManager.clear_session_data(request, SessionManager.commander_session)
+            SessionManager.clear_session_data(request, SessionManager.deck_session)
+            SessionManager.clear_session_data(request, SessionManager.deck_image_session)
+            SessionManager.clear_session_data(request, SessionManager.edit_card_session)
+            SessionManager.clear_session_data(request, SessionManager.profile_session)
+            SessionManager.clear_session_data(request, SessionManager.user_card_session)
 
 
 

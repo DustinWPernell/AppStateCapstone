@@ -1,0 +1,52 @@
+<!-- Extends uses base_generic.html as a base, then loads the blocks within the specific html. -->
+{% extends "base_generic.html" %}
+{% load static %}
+{% block css %}
+<!-- The block CSS places internal html into corresponding location in base generic (which is the base html page) -->
+<link href="{% static 'css\profile_decks.css' %}" rel="stylesheet" type="text/css">
+{% endblock %}
+{% block content %}
+    <h3>Add to {{ title }}</h3>
+    <div class="edit_card_format">
+        <p>
+            <strong>List Format: </strong><br>
+            Place each card on a separate line. Give the quantity of the card you wish to add, then the name.<br>
+            <i>For example:<br>
+                1 Ironscale Hydra<br>
+                3 Snapping Sailback
+            </i>
+        </p>
+    </div>
+    <form action="/user_card_bulk?user_id={{ user_id }}&wish={{ wish }}" method="post">
+        {% csrf_token %}
+        <textarea class="edit_card_list" name="user_card_list" placeholder="Add your cards here">{{ user_card_list }}</textarea>
+        <br>
+        <button
+                class="clickable {{ font_family }}"
+                onclick="show_page_load();"
+                name="user_card_save_list"
+                type="submit">
+            Add cards
+        </button>
+        <button
+                class="clickable {{ font_family }}"
+                onclick="show_page_load();"
+                name="user_card_clear"
+                type="submit">
+            Clear box
+        </button>
+    </form>
+    <form action="/user_profile?user_id={{ user_id }}" method="post">
+        {% csrf_token %}
+        <button class="clickable {{ font_family }}"
+                onclick="show_page_load();"
+                name="return"
+                type="submit">
+            Return to profile
+        </button>
+    </form>
+{% endblock %}
+
+{% block custom_scripts %}
+<!-- <script src="{% static 'js\deck.js' %}"></script> -->
+{% endblock %}

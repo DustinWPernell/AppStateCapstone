@@ -4,13 +4,14 @@
     {% csrf_token %}
     <h3>User Card Data</h3>
     <div class="cardQuantity">
+        {% with user_card|convert_to_json as user_card_json %}
         <div class="quantity_top">
             <input name="oracle_id" type="hidden" value="{{ faces.0.legal.card_obj.oracle_id }}">
-            <input name="user_card_id" type="hidden" value="{{ user_card.id }}">
+            <input name="user_card_id" type="hidden" value="{{ user_card_json.id }}">
             {% if has_card %}
             <label for="quantity">Number of cards:</label>
             <input class="quantityText {{ font_family }}" id="quantity" name="quantity"
-                   onkeypress='numValidate(event)' type="text" value="{{ user_card.quantity }}">
+                   onkeypress='numValidate(event)' type="text" value="{{ user_card_json.quantity }}">
             {% else %}
             <label for="quantity2">Number of cards:</label>
             <input class="quantityText {{ font_family }}" id="quantity2" name="quantity"
@@ -18,10 +19,10 @@
             {% endif %}
         </div>
         <div class="notes_text">
-            {% if has_notes %}
+            {% if user_card_json.notes != '' %}
             <textarea class="notes_area" cols="40"
                       name="notes" placeholder="Notes"
-                      rows="1">{{ user_card.notes|check_safe }}</textarea>
+                      rows="1">{{ user_card_json.notes|check_safe }}</textarea>
             {% else %}
             <textarea class="notes_area" cols="40"
                       name="notes" placeholder="Notes"
@@ -30,10 +31,10 @@
             <div class="default_font">* Use { } for searchable notes. Example: {Foil}</div>
         </div>
         <div class="quantity_bottom">
-            {% if user_card.wish %}
+            {% if user_card_json.wish == 'True' %}
             <button class="clickable {{ font_family }}" name="remove" type="submit">Remove wish list</button>
             <button class="clickable {{ font_family }}" name="notes_button" type="submit">Update Notes</button>
-            {% elif user_card.quantity > 0 %}
+            {% elif has_card %}
             <button class="clickable {{ font_family }}" name="update" type="submit">Update quantity</button>
             <button class="clickable {{ font_family }}" name="remove" type="submit">Remove card(s)</button>
             <button class="clickable {{ font_family }}" name="notes_button" type="submit">Update Notes</button>
@@ -42,5 +43,6 @@
             <button class="clickable {{ font_family }}" name="wishCards" type="submit">Add to wish list</button>
             {% endif %}
         </div>
+        {% endwith %}
     </div>
 </form>

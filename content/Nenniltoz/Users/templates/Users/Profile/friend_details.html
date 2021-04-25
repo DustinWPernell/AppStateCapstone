@@ -3,9 +3,16 @@
 <div class="friendGrid">
     {% for friend in friend_obj %}
     <div>
-        <a class="friendLinkA clickable colorText {{ font_family }}" onclick="show_page_load();" href="/Users/user_profile/{{ friend.id }}/">&emsp;
-            {{ friend.username }}
-        </a>
+        <form action="remove_friend?user_id={{ user_id }}" method="post">
+            {% csrf_token %}
+            <button class="friendLinkBtn clickable colorText {{ font_family }} {{ should_translate }}"
+                    name="userRedirect" onclick="show_page_load();" type="submit">&emsp;
+                {{ friend.username }}
+            </button>
+            <input name="curUser" type="hidden" value="{{ user_profile_obj.user.username }}">
+            <input name="newFriend" type="hidden" value="{{ friend.username }}">
+            <input name="newFriendID" type="hidden" value="{{ friend.id }}">
+        </form>
     </div>
     {% endfor %}
 </div>

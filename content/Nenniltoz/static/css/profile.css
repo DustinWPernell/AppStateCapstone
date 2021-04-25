@@ -37,6 +37,11 @@
     row-gap: 10px;
 }
 
+.followerGrid{
+    display: grid;
+    row-gap: 10px;
+}
+
 .pendUserLbl{
     font-size: 20px;
 }

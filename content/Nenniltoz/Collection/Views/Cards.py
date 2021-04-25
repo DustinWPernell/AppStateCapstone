@@ -10,6 +10,7 @@ from django.views import View
 
 from Collection.models import Symbol, CardIDList, Rule
 from Models import Card, CardFace
+from Models.UserCard import UserCard
 from Users.models import UserCards, UserProfile
 from static.python.session_manager import SessionManager
 
@@ -178,12 +179,10 @@ class Card_Display(View):
             should_translate = UserProfile.get_translate(request.user)
             if request.user.is_authenticated:
                 try:
-                    user_card = UserCards.get_user_card_by_oracle(oracle_id, request.user)
-                    notes = user_card.notes
-                    has_notes = notes != ""
+                    user_card = UserCard.objects.get_user_card_oracle(request.user.id, oracle_id, False, False)
                     context = {'font_family': font_family, 'should_translate': should_translate, 'card': card,
                                'faces': card_faces, 'set_info': card_set_list,
-                               'has_card': True, 'user_card': user_card, 'has_notes': has_notes,
+                               'has_card': True, 'user_card': user_card,
                                'rulings': rulings_list, 'has_rules': len(rulings_list) > 0,
                                'tcg_pricing': tcg_pricing,
                                'auth': request.user.is_authenticated}
