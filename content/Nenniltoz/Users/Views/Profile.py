@@ -77,7 +77,6 @@ class UserBulkAdd(View):
                         card_quantity = int(card_values[0])
                         card_name = card_values[1]
                         card_id_info = CardIDList.get_card_by_name(card_name)
-                        card_info = CardFace.objects.get_face_by_card(card_id_info.card_id)[0]
                         user_card = UserCard.objects.get_user_card_oracle(user_id, card_id_info.oracle_id, True, wish)
                         if len(user_card) > 0:
                             user_json = json.loads(user_card)
@@ -93,7 +92,7 @@ class UserBulkAdd(View):
                                 user_id,
                                 card_id_info.oracle_id,
                                 card_id_info.card_name,
-                                card_info.mana_cost,
+                                card_id_info.color_id,
                                 card_quantity,
                                 wish,
                                 ''

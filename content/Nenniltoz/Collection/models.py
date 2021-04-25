@@ -38,6 +38,7 @@ class CardIDList(models.Model):
     card_name.null = True
     card_url = models.CharField(max_length=200)
     card_url.null = True
+    color_id = models.CharField(max_length=50)
     tcg_price = models.CharField(max_length=1000)
     tcg_set = models.BooleanField(default=False)
     tcg_price_date = models.DateField(default=datetime.datetime.now())

@@ -2,47 +2,56 @@
 
 <form action="card" method="post">
     {% csrf_token %}
-    <h3>User Card Data</h3>
+    <h2>User Collection Information</h2>
     <div class="cardQuantity">
-        {% with user_card|convert_to_json as user_card_json %}
-        <div class="quantity_top">
-            <input name="oracle_id" type="hidden" value="{{ faces.0.legal.card_obj.oracle_id }}">
-            <input name="user_card_id" type="hidden" value="{{ user_card_json.id }}">
-            {% if has_card %}
-            <label for="quantity">Number of cards:</label>
-            <input class="quantityText {{ font_family }}" id="quantity" name="quantity"
-                   onkeypress='numValidate(event)' type="text" value="{{ user_card_json.quantity }}">
-            {% else %}
-            <label for="quantity2">Number of cards:</label>
-            <input class="quantityText {{ font_family }}" id="quantity2" name="quantity"
-                   onkeypress='numValidate(event)' type="text" value="0">
-            {% endif %}
-        </div>
-        <div class="notes_text">
+        <div class="card_info">
+            <h3>Collection Information</h3>
+            {% with user_card|convert_to_json as user_card_json %}
+            <div class="quantity_top">
+                <input name="oracle_id" type="hidden" value="{{ faces.0.legal.card_obj.oracle_id }}">
+                <label for="quantity">Number of cards:</label>
+                <input class="quantityText {{ font_family }}" name="card_quantity"
+                       onkeypress='numValidate(event)' type="text" value="{{ user_card_json.quantity }}">
+            </div>
+            <div class="notes_text">
             {% if user_card_json.notes != '' %}
             <textarea class="notes_area" cols="40"
-                      name="notes" placeholder="Notes"
+                      name="card_notes" placeholder="Notes"
                       rows="1">{{ user_card_json.notes|check_safe }}</textarea>
             {% else %}
             <textarea class="notes_area" cols="40"
-                      name="notes" placeholder="Notes"
+                      name="card_notes" placeholder="Notes"
                       rows="1"></textarea>
             {% endif %}
             <div class="default_font">* Use { } for searchable notes. Example: {Foil}</div>
         </div>
-        <div class="quantity_bottom">
-            {% if user_card_json.wish == 'True' %}
-            <button class="clickable {{ font_family }}" name="remove" type="submit">Remove wish list</button>
-            <button class="clickable {{ font_family }}" name="notes_button" type="submit">Update Notes</button>
-            {% elif has_card %}
-            <button class="clickable {{ font_family }}" name="update" type="submit">Update quantity</button>
-            <button class="clickable {{ font_family }}" name="remove" type="submit">Remove card(s)</button>
-            <button class="clickable {{ font_family }}" name="notes_button" type="submit">Update Notes</button>
-            {% else %}
-            <button class="clickable {{ font_family }}" name="addCards" type="submit">Add card(s)</button>
-            <button class="clickable {{ font_family }}" name="wishCards" type="submit">Add to wish list</button>
-            {% endif %}
+            {% endwith %}
         </div>
-        {% endwith %}
+        <div class="wish_info">
+            <h3>Wish Information</h3>
+            {% with user_wish|convert_to_json as user_wish_json %}
+            <div class="quantity_top">
+                <input name="oracle_id" type="hidden" value="{{ faces.0.legal.card_obj.oracle_id }}">
+                <label for="quantity">Number of cards:</label>
+                <input class="quantityText {{ font_family }}" name="wish_quantity"
+                       onkeypress='numValidate(event)' type="text" value="{{ user_wish_json.quantity }}">
+            </div>
+            <div class="notes_text">
+            {% if user_wish_json.notes != '' %}
+            <textarea class="notes_area" cols="40"
+                      name="wish_notes" placeholder="Notes"
+                      rows="1">{{ user_wish_json.notes|check_safe }}</textarea>
+            {% else %}
+            <textarea class="notes_area" cols="40"
+                      name="wish_notes" placeholder="Notes"
+                      rows="1"></textarea>
+            {% endif %}
+            <div class="default_font">* Use { } for searchable notes. Example: {Foil}</div>
+        </div>
+            {% endwith %}
+        </div>
+        <div class="quantity_bottom">
+            <button class="clickable {{ font_family }}" name="collection" type="submit">Update Collection</button>
+        </div>
     </div>
 </form>

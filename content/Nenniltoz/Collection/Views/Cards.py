@@ -4,6 +4,7 @@ import logging
 from json import JSONDecodeError
 
 from django.contrib import messages
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import render, redirect
 from django.views import View
@@ -28,126 +29,58 @@ class Card_Display(View):
 
         :todo: None
         """
-        if 'addCards' in request.POST:
-            card_quantity = int(request.POST['quantity'])
-            user_card_id = request.POST['user_card_id']
-            card_notes = html.escape(request.POST['notes'])
-            if card_quantity <= 0:
-                card_quantity = 1
-            if user_card_id == '':
-                card_faces = CardFace.objects.get_face_by_card(CardIDList.get_card_by_oracle(oracle_id).card_id)
-                card_search = card_faces[0].legal.card_obj.keywords + ' // '+ card_faces[0].legal.card_obj.set_name
-                card_name = card_all_mana = card_mana = ''
-                for face in card_faces:
-                    card_search = card_search + ' // ' + \
-                                  face.name + ' // ' + \
-                                  face.text + ' // ' + \
-                                  face.type_line + ' // ' + \
-                                  face.flavor_text
-                    card_name = card_name + face.name + ' // '
-                    card_all_mana = card_all_mana + face.mana_cost
+        if 'collection' in request.POST:
+            oracle_id = request.POST['oracle_id']
+            user_id = request.user.id
 
-                card_name = card_name.strip(" // ")
+            card_quantity = int(request.POST['card_quantity'])
+            card_notes = html.escape(request.POST['card_notes'])
+            wish_quantity = int(request.POST['wish_quantity'])
+            wish_notes = html.escape(request.POST['wish_notes'])
 
-                symbols = Symbol.objects.all()
-                for sym in symbols:
-                    if sym.symbol in card_all_mana:
-                        card_mana = card_mana + sym.symbol
-
-
-                UserCards.objects.create(
-                    id=str(request.user.id) + ':' + str(oracle_id),
-                    card_oracle=oracle_id,
-                    card_name=card_name,
-                    card_mana=card_mana,
-                    card_file=card_faces[0].avatar_img,
-                    card_search=card_search,
-                    user=request.user,
-                    wish=False,
-                    quantity=card_quantity,
-                    notes=card_notes
-                )
-            else:
-                user_card = UserCards.objects.get(id=str(user_card_id))
-                user_card.wish = False
-                user_card.quantity = card_quantity
-                user_card.notes = card_notes
-                user_card.save()
-
-            messages.success(request, 'Added ' + str(card_quantity) + ' card(s) to your collection.')
-        elif 'wishCards' in request.POST:
-            card_quantity = int(request.POST['quantity'])
-            user_card_id = request.POST['user_card_id']
-            card_notes = html.escape(request.POST['notes'])
-            if card_quantity <= 0:
-                card_quantity = 1
-            if user_card_id == '':
-                card_faces = CardFace.objects.get_face_by_card(CardIDList.get_card_by_oracle(oracle_id).card_id)
-                card_search = card_faces[0].legal.card_obj.keywords + ' // '+ card_faces[0].legal.card_obj.set_name
-                card_name = card_all_mana = card_mana = ''
-                for face in card_faces:
-                    card_search = card_search + ' // ' + \
-                                  face.name + ' // ' + \
-                                  face.text + ' // ' + \
-                                  face.type_line + ' // ' + \
-                                  face.flavor_text
-                    card_name = card_name + face.name + ' // '
-                    card_all_mana = card_all_mana + face.mana_cost
-
-                card_name = card_name.strip(" // ")
-
-                symbols = Symbol.objects.all()
-                for sym in symbols:
-                    if sym.symbol in card_all_mana:
-                        card_mana = card_mana + sym.symbol
-
-
-                UserCards.objects.create(
-                    id=str(request.user.id) + ':' + str(oracle_id),
-                    card_oracle=oracle_id,
-                    card_name=card_name,
-                    card_mana=card_mana,
-                    card_file=card_faces[0].avatar_img,
-                    card_search=card_search,
-                    user=request.user,
-                    wish=True,
-                    quantity=card_quantity,
-                    notes=card_notes
-                )
-            else:
-                user_card = UserCards.objects.get(id=str(user_card_id))
-                user_card.wish = True
-                user_card.quantity = card_quantity
-                user_card.notes = card_notes
-                user_card.save()
-
-            messages.success(request, 'Added card to wish list.')
-        elif 'remove' in request.POST:
-            user_card_id = request.POST['user_card_id']
-            user_card = UserCards.objects.get(id=str(user_card_id))
-            user_card.quantity = 0
-            user_card.wish = False
-            user_card.save()
-
-            messages.error(request, 'Removed card(s) from collection.')
-        elif 'update' in request.POST:
-            user_card_id = request.POST['user_card_id']
-            card_notes = html.escape(request.POST['notes'])
-            card_quantity = request.POST['quantity']
-            user_card = UserCards.objects.get(id=str(user_card_id))
-            user_card.quantity = card_quantity
-            user_card.notes = card_notes
-            user_card.save()
-
-            messages.success(request, 'Updated quantity of cards.')
-        elif 'notes_button' in request.POST:
-            user_card_id = request.POST['user_card_id']
-            card_notes = html.escape(request.POST['notes'])
-            user_card = UserCards.objects.get(id=str(user_card_id))
-            user_card.notes = card_notes
-            user_card.save()
-
-            messages.success(request, 'Updated notes for cards.')
+            if card_quantity != 0:
+                card_id_info = CardIDList.get_card_by_oracle(oracle_id)
+                user_card = UserCard.objects.get_user_card_oracle(user_id, card_id_info.oracle_id, True, False)
+                if len(user_card) > 0:
+                    UserCard.objects.user_card_update(
+                        user_id,
+                        card_id_info.oracle_id,
+                        card_quantity,
+                        False,
+                        card_notes
+                    )
+                else:
+                    UserCard.objects.user_card_create(
+                        user_id,
+                        card_id_info.oracle_id,
+                        card_id_info.card_name,
+                        card_id_info.color_id,
+                        card_quantity,
+                        False,
+                        card_notes
+                    )
+            if wish_quantity != 0:
+                card_id_info = CardIDList.get_card_by_oracle(oracle_id)
+                card_info = CardFace.objects.get_face_by_card(card_id_info.card_id)[0]
+                user_card = UserCard.objects.get_user_card_oracle(user_id, card_id_info.oracle_id, True, True)
+                if len(user_card) > 0:
+                    UserCard.objects.user_card_update(
+                        user_id,
+                        card_id_info.oracle_id,
+                        wish_quantity,
+                        True,
+                        wish_notes
+                    )
+                else:
+                    UserCard.objects.user_card_create(
+                        user_id,
+                        card_id_info.oracle_id,
+                        card_id_info.card_name,
+                        card_info.mana_cost,
+                        wish_quantity,
+                        True,
+                        wish_notes
+                    )
         return redirect('../' + oracle_id)
 
     def get(self, request, oracle_id):
@@ -179,26 +112,31 @@ class Card_Display(View):
             should_translate = UserProfile.get_translate(request.user)
             if request.user.is_authenticated:
                 try:
-                    user_card = UserCard.objects.get_user_card_oracle(request.user.id, oracle_id, False, False)
-                    context = {'font_family': font_family, 'should_translate': should_translate, 'card': card,
-                               'faces': card_faces, 'set_info': card_set_list,
-                               'has_card': True, 'user_card': user_card,
-                               'rulings': rulings_list, 'has_rules': len(rulings_list) > 0,
-                               'tcg_pricing': tcg_pricing,
-                               'auth': request.user.is_authenticated}
-                except UserCards.DoesNotExist:
-                    context = {'font_family': font_family, 'should_translate': should_translate, 'card': card,
-                               'faces': card_faces, 'set_info': card_set_list,
-                               'has_card': False, 'tcg_pricing': tcg_pricing,
-                               'rulings': rulings_list, 'has_rules': len(rulings_list) > 0,
-                               'auth': request.user.is_authenticated}
+                    has_card = True
+                    user_card = UserCard.objects.get_user_card_oracle(request.user.id, oracle_id, True, False)
+                except ObjectDoesNotExist:
+                    has_card = False
+                    user_card = ''
 
+                try:
+                    has_wish = True
+                    user_wish = UserCard.objects.get_user_card_oracle(request.user.id, oracle_id, True, True)
+                except ObjectDoesNotExist:
+                    has_wish = False
+                    user_wish = ''
             else:
-                context = {'font_family': font_family, 'should_translate': should_translate, 'card': card,
-                           'faces': card_faces, 'set_info': card_set_list,
-                           'rulings': rulings_list, 'has_rules': len(rulings_list) > 0,
-                           'tcg_pricing': tcg_pricing,
-                           'auth': request.user.is_authenticated}
+                has_card = False
+                user_card = ''
+                has_wish = False
+                user_wish = ''
+
+            context = {'font_family': font_family, 'should_translate': should_translate, 'card': card,
+                       'faces': card_faces, 'set_info': card_set_list,
+                       'rulings': rulings_list, 'has_rules': len(rulings_list) > 0,
+                       'has_card': has_card, 'user_card': user_card,
+                       'has_wish': has_wish, 'user_wish': user_wish,
+                       'tcg_pricing': tcg_pricing,
+                       'auth': request.user.is_authenticated}
 
             return render(request, 'Collection/card_display.html', context)
 

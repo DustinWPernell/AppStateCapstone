@@ -196,8 +196,12 @@
     margin-top: 20px;
 }
 
-cardQuantity{
+.cardQuantity{
     margin-bottom: 20px;
+}
+
+.card_info .wish_info{
+
 }
 
 .quantity_top{
@@ -234,8 +238,9 @@ cardQuantity{
         margin-bottom:20px;
         display: grid;
         grid-template-rows: auto auto;
-        grid-template-columns: minmax(auto, 500px) auto;
+        grid-template-columns: 49% 49%;
         row-gap: 10px;
+        column-gap: 2%;
     }
 
     .singCardImagesMulti div {

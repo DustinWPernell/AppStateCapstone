@@ -188,6 +188,12 @@ def rule_import_job(param):
     #    )
     return HttpResponse("Finished")
 
+def build_color_list(list):
+    color_list = ''
+    for color in list:
+        color = color.replace("\"", "")
+        color_list = color_list + "{" + color + "}"
+    return color_list
 
 def oracle_import_job(param):
     logger.info("Param: " + param)
@@ -204,6 +210,7 @@ def oracle_import_job(param):
                      oracle_id='%s' % i['oracle_id'],
                      card_name='%s' % i['name'],
                      card_file='%s' % i['image_uris']['png'],
+                     color_id='%s' % build_color_list(i['color_id'])
                      ) for i in objects)
     while True:
         batch = list(islice(rule_obj, batch_size))
