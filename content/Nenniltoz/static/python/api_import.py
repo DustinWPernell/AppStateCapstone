@@ -191,13 +191,11 @@ def rule_import_job(param):
 def build_color_list(list):
     color_list = ''
     for color in list:
-        color = color.replace("\"", "")
+        color = color.replace("\"", "").replace("\'", "")
         color_list = color_list + "{" + color + "}"
     return color_list
 
 def oracle_import_job(param):
-    logger.info("Param: " + param)
-
     api_sing_card = Settings.get_api_sing_card()
 
     CardIDList.objects.all().delete()
@@ -205,26 +203,18 @@ def oracle_import_job(param):
     f = urlopen(api_sing_card)
     objects = list(ijson.items(f, 'item'))
 
-    batch_size = 100
-    rule_obj = (Rule(card_id='%s' % i['id'],
-                     oracle_id='%s' % i['oracle_id'],
-                     card_name='%s' % i['name'],
-                     card_file='%s' % i['image_uris']['png'],
-                     color_id='%s' % build_color_list(i['color_id'])
-                     ) for i in objects)
-    while True:
-        batch = list(islice(rule_obj, batch_size))
-        if not batch:
-            break
-        Rule.objects.bulk_create(batch, batch_size)
-
-    # for obj in objects:
-    #    if check_card_obj(obj):
-    #        CardIDList.objects.create(
-    #            card_id=obj['id'],
-    #            oracle_id=obj['oracle_id'],
-    #            card_name=obj['name']
-    #        )
+    for card in objects:
+        try:
+            if check_card_obj(card):
+                CardIDList.objects.create(
+                    card_id=card['id'],
+                    oracle_id=card['oracle_id'],
+                    card_name=card['name'],
+                    card_url=card['image_uris']['png'],
+                    color_id=build_color_list(card['color_identity'])
+                )
+        except:
+            test = ""
     return HttpResponse("Finished")
 
 

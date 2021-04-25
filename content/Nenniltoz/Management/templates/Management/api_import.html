@@ -6,6 +6,10 @@
 
 {% block content %}
 <div class="APIButtons show" id="APIButtons">
+    <form action="APIimport" method="post">
+        {% csrf_token %}
+        <button type="submit">Test button</button>
+    </form>
     <div>
         <button class="APIBtn" onclick="runImport('card',this);">
             Update Cards

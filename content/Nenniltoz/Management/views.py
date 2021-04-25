@@ -68,6 +68,9 @@ def api_import(request):
     logger.info("Params: " + json.dumps(request.GET.dict()))
     settings_list = Settings.objects.all()
 
+    if request.POST:
+        oracle_import_job(request)
+
     font_family = UserProfile.get_font(request.user)
     context = {'font_family': font_family, 'settings_list': settings_list, }
     return render(request, 'Management/api_import.html', context)
