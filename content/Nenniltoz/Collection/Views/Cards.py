@@ -114,6 +114,8 @@ class Card_Display(View):
                 try:
                     has_card = True
                     user_card = UserCard.objects.get_user_card_oracle(request.user.id, oracle_id, True, False)
+                    if user_card == '':
+                        has_card = False
                 except ObjectDoesNotExist:
                     has_card = False
                     user_card = ''
@@ -121,6 +123,8 @@ class Card_Display(View):
                 try:
                     has_wish = True
                     user_wish = UserCard.objects.get_user_card_oracle(request.user.id, oracle_id, True, True)
+                    if user_wish == '':
+                        has_wish = False
                 except ObjectDoesNotExist:
                     has_wish = False
                     user_wish = ''
