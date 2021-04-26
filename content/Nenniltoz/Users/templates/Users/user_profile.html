@@ -59,4 +59,13 @@
 {% block custom_scripts %}
 <script src="{% static 'js\profile.js' %}"></script>
 <script>document.getElementById("defaultOpen").click();</script>
+<script>
+    $(document).keypress(
+        function(event){
+            if (event.which == '13') {
+                event.preventDefault();
+            }
+        }
+    );
+</script>
 {% endblock %}

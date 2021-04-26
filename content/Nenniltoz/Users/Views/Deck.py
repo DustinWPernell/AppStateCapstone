@@ -185,6 +185,8 @@ class Manage_Deck(View):
             if deck_obj.deck_user != request.user.username:
                 deck_obj = deck_obj.create_copy(request.user)
                 messages.success(request, "Deck copied to your profile.")
+                return HttpResponseRedirect(reverse('modify_deck') + '?user_id=' + str(user_id) + '&deck_id=' + str(deck_obj.id))
+
 
         except ObjectDoesNotExist :
             deck_obj = "new"

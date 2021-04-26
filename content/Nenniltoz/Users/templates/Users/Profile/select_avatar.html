@@ -46,3 +46,15 @@
 
 {% include "./pager.html" %}
 {% endblock %}
+
+{% block custom_script %}
+<script>
+    $(document).keypress(
+        function(event){
+            if (event.which == '13') {
+                event.preventDefault();
+            }
+        }
+    );
+</script>
+{% endblock %}

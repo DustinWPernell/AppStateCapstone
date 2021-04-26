@@ -22,7 +22,7 @@
                         <a class="cardDirection" onclick="show_page_load();" href='/Collection/card/{{ card_json.oracle_id }}/'>
                             <img alt="{{ card_json.card_name|check_safe }}" class="cardImg" src='{{ card_json.card_image }}'>
                             <div class="cardObjText {{ should_translate }}">
-                                {{ card_json.card_name|check_safe }}
+                                {{ card_json.quantity }} X<br>{{ card_json.card_name|check_safe }}
                             </div>
                         </a>
                     </div>
@@ -61,7 +61,7 @@
                         <a class="cardDirection" onclick="show_page_load();" href='/Collection/card/{{ card_json.oracle_id }}/'>
                             <img alt="{{ card_json.card_name|check_safe }}" class="cardImg" src='{{ card_json.card_image }}'>
                             <div class="cardObjText {{ should_translate }}">
-                                {{ card_json.card_name|check_safe }}
+                                {{ card_json.quantity }} X<br>{{ card_json.card_name|check_safe }}
                             </div>
                         </a>
                     </div>

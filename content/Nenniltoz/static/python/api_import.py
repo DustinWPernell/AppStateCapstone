@@ -206,11 +206,15 @@ def oracle_import_job(param):
     for card in objects:
         try:
             if check_card_obj(card):
+                if 'image_uris' not in card:
+                    image = card['card_faces'][0]['image_uris']['png']
+                else:
+                    image = card['image_uris']['png']
                 CardIDList.objects.create(
                     card_id=card['id'],
                     oracle_id=card['oracle_id'],
                     card_name=card['name'],
-                    card_url=card['image_uris']['png'],
+                    card_url=image,
                     color_id=build_color_list(card['color_identity'])
                 )
         except:

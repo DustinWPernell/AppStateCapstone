@@ -1,3 +1,4 @@
+import json
 import operator
 from functools import reduce
 from random import randint
@@ -195,23 +196,26 @@ class Deck(models.Model):
             color_id=self.color_id,
             created_by=self.created_by,
             deck_user=user.username,
-            is_pre_con=False
+            is_pre_con=False,
+            card_list=self.card_list,
+            side_list=self.side_list
         )
         # endregion
 
         # region Copy Cards
         deck_cards = DeckCard.objects.deck_card_by_deck(self.id)
+        deck_cards_list = list(deck_cards.split("},"))
+        if deck_cards_list[0] == '':
+            deck_cards_list = []
 
-        for card in deck_cards:
+        for card in deck_cards_list:
+            card_json = json.loads(card)
             DeckCard.objects.create(
-                deck=new_deck,
-                card_oracle=card.card_oracle,
-                card_name=card.card_name,
-                card_file=card.card_file,
-                card_search=card.card_search,
-                quantity=card.quantity,
-                sideboard=card.sideboard,
-                commander=card.commander,
+                deck=new_deck.id,
+                card_oracle=card_json['oracle_id'],
+                quantity=card_json['quantity'],
+                sideboard=card_json['sideboard'],
+                commander=card_json['commander'],
             )
         # endregion
         return new_deck
