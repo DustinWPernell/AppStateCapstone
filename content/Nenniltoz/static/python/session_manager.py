@@ -36,7 +36,6 @@ class SessionManager:
 
     @staticmethod
     def clear_other_session_data(request, data):
-        return
         if data == SessionManager.Avatar:
             SessionManager.clear_session_data(request, SessionManager.bulk_card_session)
             SessionManager.clear_session_data(request, SessionManager.card_session)
