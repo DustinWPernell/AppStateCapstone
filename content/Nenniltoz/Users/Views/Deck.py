@@ -156,7 +156,7 @@ class Manage_Deck(View):
                     )
                 except ObjectDoesNotExist :
                     messages.error(request, "Object does not exist. Deck not modified.")
-            return HttpResponseRedirect(reverse('modify_deck')+'?user_id='+str(user_id)+'deck_id='+str(deck_id))
+            return HttpResponseRedirect(reverse('modify_deck')+'?user_id='+str(user_id)+'&deck_id='+str(deck_id))
         elif 'modify_cards' in request.POST:
             return HttpResponseRedirect(reverse('modify_cards')+'?user_id='+str(user_id)+'&deck_id='+str(deck_id)+'&side='+str(side))
         return HttpResponseRedirect(reverse('user_profile')+'?user_id='+str(user_id))
