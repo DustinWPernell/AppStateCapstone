@@ -385,27 +385,27 @@ class NenniUserProfile(View):
 
         # region Page numbers
         try:
-            deck_page = request.GET.get('deck_page', -1)
+            deck_page = request.GET.get('deckPage', -1)
             if deck_page == -1:
                 deck_page = request.session['deck_page']
         except KeyError:
-            deck_page = request.GET.get('deck_page', 1)
+            deck_page = request.GET.get('deckPage', 1)
             request.session['deck_page'] = deck_page
 
         try:
-            card_page = request.GET.get('card_page', -1)
+            card_page = request.GET.get('cardPage', -1)
             if card_page == -1:
                 card_page = request.session['card_page']
         except KeyError:
-            card_page = request.GET.get('card_page', 1)
+            card_page = request.GET.get('cardPage', 1)
             request.session['card_page'] = card_page
 
         try:
-            wish_page = request.GET.get('wish_page', -1)
+            wish_page = request.GET.get('wishPage', -1)
             if wish_page == -1:
                 wish_page = request.session['wish_page']
         except KeyError:
-            wish_page = request.GET.get('wish_page', 1)
+            wish_page = request.GET.get('wishPage', 1)
             request.session['wish_page'] = wish_page
         # endregion
 
