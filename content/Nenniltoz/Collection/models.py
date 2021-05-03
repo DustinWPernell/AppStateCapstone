@@ -135,6 +135,7 @@ class Rule(models.Model):
     def __str__(self):
         return self.oracle_id
 
+
 class Symbol(models.Model):
     """
         Stores symbols
@@ -191,6 +192,7 @@ class Symbol(models.Model):
     def get_white():
         return Symbol.objects.filter(
             symbol__in=['{W/U}', '{W/B}', '{R/W}', '{G/W}', '{2/W}', '{W/P}', '{HW}'])
+
 
 class QuickResult(models.Model):
     search = models.CharField(max_length=500)

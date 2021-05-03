@@ -65,3 +65,7 @@ function googleTranslateElementInit() {
 function show_page_load(){
     document.getElementById("page_loading").classList.toggle("show");
 }
+
+function hide_page_load(){
+    document.getElementById("page_loading").classList.remove('show');
+}

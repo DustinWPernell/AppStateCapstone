@@ -90,7 +90,6 @@ def password_reset_request(request):
     return render(request=request, template_name="main/password/password_reset.html", context={"password_reset_form":password_reset_form})
 
 
-
 def register(request):
     """Registration Page.
 

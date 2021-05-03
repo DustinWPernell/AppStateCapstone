@@ -17,7 +17,7 @@ class CardFaceManager(models.Manager):
         else:
             mana_filter = data_helpers.mana_filter(is_colorless, has_color, mana)
 
-            filter = Q(legal__card_obj__card_id__in=CardIDList.objects.values("card_id").all()) & mana_filter & Q(card_search__icontains=term)
+            filter = Q(legal__card_obj__card_id__in=CardIDList.objects.values_list("card_id").all()) & mana_filter & Q(card_search__icontains=term)
 
             return self.run_query(filter)
 
@@ -25,7 +25,7 @@ class CardFaceManager(models.Manager):
         return CardFace.objects.filter(Q(legal__card_obj__card_id=card_id)).order_by('name')
 
     def card_face_commander_filter(self, term):
-        filter = ( Q(legal__card_obj__card_id__in=CardIDList.objects.values("card_id").all()) &
+        filter = ( Q(legal__card_obj__card_id__in=CardIDList.objects.values_list("card_id").all()) &
                     (
                             Q(legal__commander='legalTableField') |
                             Q(legal__brawl='legalTableField') |

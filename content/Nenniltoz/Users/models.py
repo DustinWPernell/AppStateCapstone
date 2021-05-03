@@ -249,4 +249,4 @@ class News(models.Model):
 
     @staticmethod
     def get_next_5():
-        return News.objects.order_by('-headline')[:5]
+        return News.objects.order_by('eventDate')[:5]

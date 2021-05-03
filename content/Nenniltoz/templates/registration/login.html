@@ -29,11 +29,11 @@
         <div class="login_label">{{ field.label_tag }}</div>
         <div class="login_field">{{ field }}</div>
         {% if field.help_text %}
-        <p class="login_help">{{ field.help_text|check_safe }}</p>
+        <p class="login_help">{{ field.help_text }}</p>
         {% endif %}
     {% endfor %}
     </div>
-    <input class="login_button" type="submit" onclick="show_page_load();" value="login"/>
+    <input class="login_button" type="submit" value="login"/>
     <input name="next" type="hidden" value="{{ next }}"/>
 </form>
 
